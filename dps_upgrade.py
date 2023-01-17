@@ -136,8 +136,8 @@ class Unit:
     def __init__(self, user_spec, level, one, two, three, dps=0, exp=0):
 
         self.level = level  # 유닛 레벨
-        self.dps = int(dps * user.return_damage_up_rate())  # 조정된 dps
-        self.exp = exp * user.return_exp_up_rate()  # 조정된 exp
+        self.dps = int(dps * user_spec.return_damage_up_rate())  # 조정된 dps
+        self.exp = exp * user_spec.return_exp_up_rate()  # 조정된 exp
         self.next_dps_rate = 0  # 강화했을 때 예상되는 dps 비율
         self.next_exp_rate = 0  # 강화했을 때 예상되는 exp 비율
         self.one = one  # +1 강화 확률
@@ -646,72 +646,182 @@ class PlayerLevelCalculator:
         print()
 
 
+class Game:
+    """
+    게임 클래스\n
+    모든 클래스를 사용하여 모든 동작을 구현
+    """
+
+    def __init__(self):
+        # self.player_level = 1
+        # self.first = 0.0
+        # self.second = 0.0
+        # self.third = 0.0
+        # self.user_damage = 0.0
+        # self.private_boss = 0
+        # self.party_boss = 0
+        # self.multi_player = False
+        self.unit_dict = {}
+        self.user = None
+        self.unit_calc = None
+        self.player_calc = None
+
+    def set_value(self, player_level, first, second, third, user_damage,
+                  private_boss, party_boss, multi_player):
+        """
+        값을 받고 user, unit_dict, unit_calc 를 구성\n
+        next dps, exp rate 갱신
+        """
+        # self.player_level = player_level
+        # self.first = first
+        # self.second = second
+        # self.third = third
+        # self.user_damage = user_damage
+        # self.private_boss = private_boss
+        # self.party_boss = party_boss
+        # self.multi_player = multi_player
+
+        # 유저 스펙을 보스와 멀티 플레이 환경에 맞게 저장
+        self.user = UserSpec(player_level, first, second, third, user_damage,
+                             private_boss, party_boss, multi_player)
+
+        # key 를 level, value 를 Unit 으로 초기화
+        # Unit class 는 각 level 의 dps, exp, +1, +2, +3 강화 확률 가짐
+        # 유닛 강화 변화 수치를 user 에서 받음
+        # 35, 36 이상 level : 예외 조건에 따라 +2, +3 강화 확률 수치가 +1 에 적용됨
+        for j in range(len(unit_information)):
+            current_level = j + 1
+            self.unit_dict[current_level] = Unit(self.user, current_level, unit_information[current_level][0],
+                                                 unit_information[current_level][1],
+                                                 unit_information[current_level][2],
+                                                 unit_information[current_level][3],
+                                                 unit_information[current_level][4])
+
+        self.unit_calc = UnitCalculator(self.user, self.unit_dict)
+
+        self.unit_calc.set_next_dps_expected_rate()
+        self.unit_calc.set_next_exp_expected_rate()
+
+    def return_user_spec(self):
+        return self.user.__str__()
+
+    def return_unit_info(self):
+        """유닛 강화 정보 반환"""
+        print('-----game return_unit_info()-----')
+
+        temp_str = ""
+        for level, value in self.unit_dict.items():
+            temp_str += value.__str__()
+            temp_str += "\n"
+
+        return temp_str
+
+    def return_unit_dps_info(self):
+        """유닛 dps 정보 반환"""
+        print('-----game return_unit_dps_info()-----')
+
+        temp_str = ""
+        for level, value in self.unit_dict.items():
+            temp_str += value.print_unit_dps()
+            temp_str += "\n"
+
+        return temp_str
+
+    def return_unit_exp_info(self):
+        """유닛 exp 정보 반환"""
+        print('-----game return_unit_exp_info()-----')
+
+        temp_str = ""
+        for level, value in self.unit_dict.items():
+            temp_str += value.print_unit_exp()
+            temp_str += "\n"
+
+        return temp_str
+
+
 if __name__ == '__main__':
 
-    # 유저 스펙 입력
-    input_player_level = 4444  # 0 ~ 10,000
-    input_first = 0.1  # 0.0 ~ 0.1
-    input_second = 0.05  # 0.0 ~ 0.05
-    input_third = 0.01  # 0.0 ~ 0.03
-    input_user_damage_up_rate = 5.0  # 0.0 ~ 5.0
-    input_private_boss_clear_number = 5  # 0 ~ 5
-    input_party_boss_clear_number = 5  # 0 ~ 5
-    input_MULTI_PLAYER = True  # True/False
+    game = Game()
 
-    # 유저 스펙을 보스와 멀티 플레이 환경에 맞게 저장
-    user = UserSpec(input_player_level, input_first, input_second, input_third, input_user_damage_up_rate,
-                    input_private_boss_clear_number, input_party_boss_clear_number, input_MULTI_PLAYER)
+    game.set_value(1000, 0.1, 0.05, 0.01, 5.0, 5, 5, True)
+    print(game.return_unit_info())
+    print(game.return_unit_dps_info())
+    print(game.return_unit_exp_info())
 
-    # 유저 스펙 출력
-    print(user)
 
-    # key 를 level, value 를 Unit 으로 초기화
-    # Unit class 는 각 level 의 dps, exp, +1, +2, +3 강화 확률 가짐
-    # 유닛 강화 변화 수치를 user 에서 받음
-    # 35, 36 이상 level : 예외 조건에 따라 +2, +3 강화 확률 수치가 +1 에 적용됨
-    unit_dict = {}
-    for j in range(len(unit_information)):
-        current_level = j + 1
-        unit_dict[current_level] = Unit(user, current_level, unit_information[current_level][0],
-                                        unit_information[current_level][1],
-                                        unit_information[current_level][2],
-                                        unit_information[current_level][3],
-                                        unit_information[current_level][4])
 
-    # 유저 정보와 유닛 정보를 받아 다양하게 활용하는 Calculator 클래스 사용
-    calc = UnitCalculator(user, input_unit_dict=unit_dict)
 
-    # 모든 유닛의 +1, +2, +3 강화 확률 출력
-    calc.print_all_units()
 
-    # next dps exp expected rate 계산
-    calc.set_next_dps_expected_rate()
-    calc.set_next_exp_expected_rate()
 
-    # next dps exp expected rate 를 계산 후 유닛의 dps, exp 출력
-    calc.print_unit_dps_information()
-    calc.print_unit_exp_information()
 
-    calc.find_best_exp_increase_and_print(first_input_index=15, last_input_index=25)
 
-    # 끝 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수
-    # second : 0.046 / 28 -> 38 1시간 테스트 결과 / 계산 : 257, 실 : 221 개 생산 / 최대 프레임을 못 찍어서 부족한 것으로 추측
-    # third : 0.001 / 29 -> 40 6시간 30분 테스트 결과 / 계산 : 260, 실 : 285 개 생산
-    calc.print_level_to_level(first_input_index=29, last_input_index=39, sell_number=950)
 
-    calc.print_sell_number_level_to_level(first_input_index=29, last_input_index=40,
-                                          input_hours=8, input_minutes=30, input_seconds=0)
 
-    # 플레이어 레벨 경험치 관련 계산 클래스
-    player_level_calc = PlayerLevelCalculator(unit_dict)
 
-    # # 레벨 업에 필요한 경험치 출력
-    # print_exp_to_level_up(1)
-    player_level_calc.print_exp_to_level_up(3947)
-
-    # # 시작 -> 마지막 레벨까지 필요한 경험치 출력
-    # # 이에 필요한 레벨 37, 38, 39, 40 유닛 갯수 출력
-    player_level_calc.print_need_number_of_unit_to_level_up(start_level=input_player_level, end_level=5000)
-
-    # 특정 유닛을 특정 갯수만큼 팔았을 때 플레이어 레벨을 계산 후 출력
-    player_level_calc.print_final_level_with_units(player_level=input_player_level, unit_level=39, unit_number=1500)
+    # # 유저 스펙 입력
+    # input_player_level = 4444  # 0 ~ 10,000
+    # input_first = 0.1  # 0.0 ~ 0.1
+    # input_second = 0.05  # 0.0 ~ 0.05
+    # input_third = 0.01  # 0.0 ~ 0.03
+    # input_user_damage_up_rate = 5.0  # 0.0 ~ 5.0
+    # input_private_boss_clear_number = 5  # 0 ~ 5
+    # input_party_boss_clear_number = 5  # 0 ~ 5
+    # input_MULTI_PLAYER = True  # True/False
+    #
+    # # 유저 스펙을 보스와 멀티 플레이 환경에 맞게 저장
+    # user = UserSpec(input_player_level, input_first, input_second, input_third, input_user_damage_up_rate,
+    #                 input_private_boss_clear_number, input_party_boss_clear_number, input_MULTI_PLAYER)
+    #
+    # # 유저 스펙 출력
+    # print(user)
+    #
+    # # key 를 level, value 를 Unit 으로 초기화
+    # # Unit class 는 각 level 의 dps, exp, +1, +2, +3 강화 확률 가짐
+    # # 유닛 강화 변화 수치를 user 에서 받음
+    # # 35, 36 이상 level : 예외 조건에 따라 +2, +3 강화 확률 수치가 +1 에 적용됨
+    # unit_dict = {}
+    # for j in range(len(unit_information)):
+    #     current_level = j + 1
+    #     unit_dict[current_level] = Unit(user, current_level, unit_information[current_level][0],
+    #                                     unit_information[current_level][1],
+    #                                     unit_information[current_level][2],
+    #                                     unit_information[current_level][3],
+    #                                     unit_information[current_level][4])
+    #
+    # # 유저 정보와 유닛 정보를 받아 다양하게 활용하는 Calculator 클래스 사용
+    # calc = UnitCalculator(user, input_unit_dict=unit_dict)
+    #
+    # # 모든 유닛의 +1, +2, +3 강화 확률 출력
+    # calc.print_all_units()
+    #
+    # # next dps exp expected rate 계산
+    # calc.set_next_dps_expected_rate()
+    # calc.set_next_exp_expected_rate()
+    #
+    # # next dps exp expected rate 를 계산 후 유닛의 dps, exp 출력
+    # calc.print_unit_dps_information()
+    # calc.print_unit_exp_information()
+    #
+    # calc.find_best_exp_increase_and_print(first_input_index=15, last_input_index=25)
+    #
+    # # 끝 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수
+    # # second : 0.046 / 28 -> 38 1시간 테스트 결과 / 계산 : 257, 실 : 221 개 생산 / 최대 프레임을 못 찍어서 부족한 것으로 추측
+    # # third : 0.001 / 29 -> 40 6시간 30분 테스트 결과 / 계산 : 260, 실 : 285 개 생산
+    # calc.print_level_to_level(first_input_index=29, last_input_index=39, sell_number=950)
+    #
+    # calc.print_sell_number_level_to_level(first_input_index=29, last_input_index=40,
+    #                                       input_hours=8, input_minutes=30, input_seconds=0)
+    #
+    # # 플레이어 레벨 경험치 관련 계산 클래스
+    # player_level_calc = PlayerLevelCalculator(unit_dict)
+    #
+    # # # 레벨 업에 필요한 경험치 출력
+    # # print_exp_to_level_up(1)
+    # player_level_calc.print_exp_to_level_up(3947)
+    #
+    # # # 시작 -> 마지막 레벨까지 필요한 경험치 출력
+    # # # 이에 필요한 레벨 37, 38, 39, 40 유닛 갯수 출력
+    # player_level_calc.print_need_number_of_unit_to_level_up(start_level=input_player_level, end_level=5000)
+    #
+    # # 특정 유닛을 특정 갯수만큼 팔았을 때 플레이어 레벨을 계산 후 출력
+    # player_level_calc.print_final_level_with_units(player_level=input_player_level, unit_level=39, unit_number=1500)

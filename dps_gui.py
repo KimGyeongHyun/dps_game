@@ -1,4 +1,5 @@
 import tkinter
+import dps_upgrade
 
 if __name__ == '__main__':
     # 가장 상위 레벨의 윈도우 창 생성
@@ -13,9 +14,34 @@ if __name__ == '__main__':
 
     ###########################
     # 여기에 위젯 추가
+    game = dps_upgrade.Game()
+
+    # 유저 스펙, 보스, 파티 플레이 여부 상태가 바뀌었을 때 실행
+    # 처음 실행할 때도 실행
+    # 모든 출력을 다시 갱신하여 출력
+    def get_value_calculate_print_all():
+        try:
+            user_level = float(user_level_entry.get())
+            first = float(first_upgrade_entry.get())/100
+            second = float(second_upgrade_entry.get())/100
+            third = float(third_upgrade_entry.get())/100
+            user_damage = float(user_damage_upgrade_entry.get())/100
+            private_boss = int(private_boss_count.get())
+            party_boss = int(party_boss_count.get())
+            multy_player = bool(party_check.get())
+        except ValueError:
+            return
+
+        game.set_value(user_level, first, second, third, user_damage,
+                       private_boss, party_boss, multy_player)
+        print(game.return_user_spec())
+        print(game.return_unit_info())
+
+    def get_entry_value_calculate_print_all(event):
+        get_value_calculate_print_all()
 
     # 처음 안내문
-    first_information_label = tkinter.Label(window, text="유저 정보를 입력하시기 바랍니다.",
+    first_information_label = tkinter.Label(window, text="유저 정보를 입력하고 엔터를 눌러주세요.",
                                             anchor='w')
     first_information_label.pack(side="top", fill="x")
 
@@ -35,10 +61,11 @@ if __name__ == '__main__':
     user_level_label.grid(row=0, column=0)
 
     # 유저 레벨 엔트리
-    first_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
-    first_upgrade_entry.insert(2, '1000')
-    upgrade_rate_panedwindow.add(first_upgrade_entry)
-    first_upgrade_entry.grid(row=0, column=1)
+    user_level_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
+    user_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    user_level_entry.insert(2, '1000')
+    upgrade_rate_panedwindow.add(user_level_entry)
+    user_level_entry.grid(row=0, column=1)
 
     # +1 강화확률 라벨
     first_upgrade_label = tkinter.Label(upgrade_rate_panedwindow,
@@ -49,10 +76,10 @@ if __name__ == '__main__':
     
     # +1 강화확률 엔트리
     first_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
+    first_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
     first_upgrade_entry.insert(2, '0.0')
     upgrade_rate_panedwindow.add(first_upgrade_entry)
     first_upgrade_entry.grid(row=1, column=1)
-
 
     # +2 강화확률 라벨
     second_upgrade_label = tkinter.Label(upgrade_rate_panedwindow,
@@ -63,6 +90,7 @@ if __name__ == '__main__':
 
     # +2 강화확률 엔트리
     second_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
+    second_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
     second_upgrade_entry.insert(2, '0.0')
     upgrade_rate_panedwindow.add(second_upgrade_entry)
     second_upgrade_entry.grid(row=2, column=1)
@@ -76,22 +104,40 @@ if __name__ == '__main__':
 
     # +3 강화확률 엔트리
     third_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
+    third_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
     third_upgrade_entry.insert(2, '0.0')
     upgrade_rate_panedwindow.add(third_upgrade_entry)
     third_upgrade_entry.grid(row=3, column=1)
+
+    # 유저 공격력 업그레이드 라벨
+    user_damage_upgrade_label = tkinter.Label(upgrade_rate_panedwindow,
+                                              text="유저 공업 : ",
+                                              anchor='w')
+    upgrade_rate_panedwindow.add(user_damage_upgrade_label)
+    user_damage_upgrade_label.grid(row=4, column=0)
+
+    # 유저 공격력 업그레이드 엔트리
+    user_damage_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
+    user_damage_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    user_damage_upgrade_entry.insert(2, '0.0')
+    upgrade_rate_panedwindow.add(user_damage_upgrade_entry)
+    user_damage_upgrade_entry.grid(row=4, column=1)
 
     # % 라벨
     percent1 = tkinter.Label(upgrade_rate_panedwindow, text='%')
     percent2 = tkinter.Label(upgrade_rate_panedwindow, text='%')
     percent3 = tkinter.Label(upgrade_rate_panedwindow, text='%')
+    percent4 = tkinter.Label(upgrade_rate_panedwindow, text='%')
 
     upgrade_rate_panedwindow.add(percent1)
     upgrade_rate_panedwindow.add(percent2)
     upgrade_rate_panedwindow.add(percent3)
+    upgrade_rate_panedwindow.add(percent4)
 
     percent1.grid(row=1, column=2)
     percent2.grid(row=2, column=2)
     percent3.grid(row=3, column=2)
+    percent4.grid(row=4, column=2)
 
     # 유저 스펙 중 보스 라운드와 파티플레이 여부를 체크할 paned window 를 유저 스펙 paned window 에 배치
     boss_and_multy = tkinter.PanedWindow(relief="solid", bd=1)
@@ -102,24 +148,20 @@ if __name__ == '__main__':
     boss_and_multy.add(private_boss_label)
     private_boss_label.grid(row=0, column=0)
 
-    # 개인 보스 라디오 버튼을 눌렀을 때 발동되는 함수
-    def check():
-        pass
-    
     # 개인 보스 처치 최대 레벨
     private_boss_count = tkinter.IntVar()
     private_0_ratio = tkinter.Radiobutton(boss_and_multy, text='0', value=0, 
-                                          variable=private_boss_count, command=check)
+                                          variable=private_boss_count, command=get_value_calculate_print_all)
     private_1_ratio = tkinter.Radiobutton(boss_and_multy, text='1', value=1, 
-                                          variable=private_boss_count, command=check)
+                                          variable=private_boss_count, command=get_value_calculate_print_all)
     private_2_ratio = tkinter.Radiobutton(boss_and_multy, text='2', value=2, 
-                                          variable=private_boss_count, command=check)
+                                          variable=private_boss_count, command=get_value_calculate_print_all)
     private_3_ratio = tkinter.Radiobutton(boss_and_multy, text='3', value=3, 
-                                          variable=private_boss_count, command=check)
+                                          variable=private_boss_count, command=get_value_calculate_print_all)
     private_4_ratio = tkinter.Radiobutton(boss_and_multy, text='4', value=4, 
-                                          variable=private_boss_count, command=check)
+                                          variable=private_boss_count, command=get_value_calculate_print_all)
     private_5_ratio = tkinter.Radiobutton(boss_and_multy, text='5', value=5, 
-                                          variable=private_boss_count, command=check)
+                                          variable=private_boss_count, command=get_value_calculate_print_all)
 
     boss_and_multy.add(private_0_ratio)
     boss_and_multy.add(private_1_ratio)
@@ -143,17 +185,17 @@ if __name__ == '__main__':
     # 파티 보스 처치 최대 레벨
     party_boss_count = tkinter.IntVar()
     party_0_ratio = tkinter.Radiobutton(boss_and_multy, text='0', value=0,
-                                        variable=party_boss_count, command=check)
+                                        variable=party_boss_count, command=get_value_calculate_print_all)
     party_1_ratio = tkinter.Radiobutton(boss_and_multy, text='1', value=1,
-                                        variable=party_boss_count, command=check)
+                                        variable=party_boss_count, command=get_value_calculate_print_all)
     party_2_ratio = tkinter.Radiobutton(boss_and_multy, text='2', value=2,
-                                        variable=party_boss_count, command=check)
+                                        variable=party_boss_count, command=get_value_calculate_print_all)
     party_3_ratio = tkinter.Radiobutton(boss_and_multy, text='3', value=3,
-                                        variable=party_boss_count, command=check)
+                                        variable=party_boss_count, command=get_value_calculate_print_all)
     party_4_ratio = tkinter.Radiobutton(boss_and_multy, text='4', value=4,
-                                        variable=party_boss_count, command=check)
+                                        variable=party_boss_count, command=get_value_calculate_print_all)
     party_5_ratio = tkinter.Radiobutton(boss_and_multy, text='5', value=5,
-                                        variable=party_boss_count, command=check)
+                                        variable=party_boss_count, command=get_value_calculate_print_all)
 
     boss_and_multy.add(party_0_ratio)
     boss_and_multy.add(party_1_ratio)
@@ -177,7 +219,7 @@ if __name__ == '__main__':
     # 파티 플레이 여부 체크 박스
     party_check = tkinter.BooleanVar()
     party_check_button = tkinter.Checkbutton(boss_and_multy, text='', onvalue=True, offvalue=False,
-                                             variable=party_check)
+                                             variable=party_check, command=get_value_calculate_print_all)
     boss_and_multy.add(party_check_button)
     party_check_button.grid(row=2, column=1)
 

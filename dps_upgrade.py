@@ -118,7 +118,7 @@ class UserSpec:
 
     def __str__(self):
         """유저 스펙을 반환"""
-        return '+1 강화확률 : %.1f%% , +2 강화확률 : %.1f%% , +3 강화확률 : %.1f%%\n' % \
+        return '+1 강화확률 : %.1f%% , +2 강화확률 : %.1f%% , +3 강화확률 : %.1f%%, ' % \
                (self.first * 100, self.second * 100, self.third * 100) + \
                '데미지 조정 비율 : {}% , '.format(int(self.damage_up_rate * 100)) + \
                '경험치 조정 비율 : {}%\n'.format(int(self.exp_up_rate * 100))

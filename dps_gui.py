@@ -1,5 +1,8 @@
 import tkinter
+import tkinter.messagebox
 import dps_upgrade
+
+END = 40
 
 if __name__ == '__main__':
     # 가장 상위 레벨의 윈도우 창 생성
@@ -20,32 +23,71 @@ if __name__ == '__main__':
     # 처음 실행할 때도 실행
     # 모든 출력을 다시 갱신하여 출력
     def get_value_calculate_print_all():
+
+        # 타입 유효성 검사
         try:
             user_level = float(user_level_entry.get())
             first = float(first_upgrade_entry.get())/100
             second = float(second_upgrade_entry.get())/100
             third = float(third_upgrade_entry.get())/100
-            user_damage = float(user_damage_upgrade_entry.get())/100
+            user_damage = int(user_damage_upgrade_entry.get())
             private_boss = int(private_boss_count.get())
             party_boss = int(party_boss_count.get())
             multy_player = bool(party_check.get())
         except ValueError:
+            print('ValueError in user spec input parameter')
             return
+
+        # 숫자 범위 유효성 검사
+        if user_level < 1 or user_level > 10000:
+            tkinter.messagebox.showinfo("유저 레벨 오류",
+                                        "유저 레벨은 1 ~ 10000 사이의 정수 값을 입력해야 합니다.")
+            return
+
+        if first < 0 or first > 0.1:
+            tkinter.messagebox.showinfo("+1 강화 확률 오류",
+                                        "+1 강화 확률은 0.0 % ~ 10.0 % 사이의 값을 입력해야 합니다.")
+            return
+        
+        if second < 0 or second > 0.05:
+            tkinter.messagebox.showinfo("+2 강화 확률 오류",
+                                        "+2 강화 확률은 0.0 % ~ 5.0 % 사이의 값을 입력해야 합니다.")
+            return
+        
+        if third < 0 or third > 0.03:
+            tkinter.messagebox.showinfo("+3 강화 확률 오류",
+                                        "+3 강화 확률은 0.0 % ~ 3.0 % 사이의 값을 입력해야 합니다.")
+            return
+
+        if user_damage < 0 or user_damage > 50:
+            tkinter.messagebox.showinfo("유저 공업 오류",
+                                        "유저 공업은 0 ~ 50 사이의 정수 값을 입력해야 합니다.")
+            return
+
+        user_damage = user_damage * 0.1
 
         game.set_value(user_level, first, second, third, user_damage,
                        private_boss, party_boss, multy_player)
-        print(game.return_user_spec())
-        print(game.return_unit_info())
 
-        unit_upgrade_rate_listbox.delete(0, 40)
-        unit_dps_listbox.delete(0, 40)
-        unit_exp_listbox.delete(0, 40)
+        # print(game.return_user_spec())
+        # print(game.return_unit_info())
+        # print(game.return_unit_dps_info())
+        # print(game.return_unit_exp_info())
+
+        unit_upgrade_rate_listbox.delete(0, END)
+        unit_dps_listbox.delete(0, END)
+        unit_exp_listbox.delete(0, END)
+
+        user_spec_label.config(text=game.return_user_spec())
 
         for i in range(len(game.unit_dict)):
             unit_level = i + 1
             unit_upgrade_rate_listbox.insert(unit_level, game.unit_dict[unit_level].__str__())
+            unit_upgrade_rate_listbox.see(END)
             unit_dps_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_dps())
+            unit_dps_listbox.see(END)
             unit_exp_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_exp())
+            unit_exp_listbox.see(END)
 
     def get_entry_value_calculate_print_all(event):
         get_value_calculate_print_all()
@@ -129,7 +171,7 @@ if __name__ == '__main__':
     # 유저 공격력 업그레이드 엔트리
     user_damage_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
     user_damage_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    user_damage_upgrade_entry.insert(2, '500')
+    user_damage_upgrade_entry.insert(2, '50')
     upgrade_rate_panedwindow.add(user_damage_upgrade_entry)
     user_damage_upgrade_entry.grid(row=4, column=1)
 
@@ -137,7 +179,7 @@ if __name__ == '__main__':
     percent1 = tkinter.Label(upgrade_rate_panedwindow, text='%')
     percent2 = tkinter.Label(upgrade_rate_panedwindow, text='%')
     percent3 = tkinter.Label(upgrade_rate_panedwindow, text='%')
-    percent4 = tkinter.Label(upgrade_rate_panedwindow, text='%')
+    percent4 = tkinter.Label(upgrade_rate_panedwindow, text='강')
 
     upgrade_rate_panedwindow.add(percent1)
     upgrade_rate_panedwindow.add(percent2)
@@ -235,6 +277,10 @@ if __name__ == '__main__':
     boss_and_multy.add(party_check_button)
     party_check_button.select()
     party_check_button.grid(row=2, column=1)
+
+    # 유저 스펙 레이블
+    user_spec_label = tkinter.Label(window)
+    user_spec_label.pack(side="top", pady=10)
 
     # 유닛 시작 레벨, 마지막 레벨, 판매권 수, 리얼 타임 진행 시간
     # 정보를 가지는 paned window 를 유저 스펙 paned window 에 배치

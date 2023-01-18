@@ -460,10 +460,6 @@ if __name__ == '__main__':
     sell_unit_number_entry.bind("<Return>", get_entry_value_calculate_print_all)
     sell_unit_number_entry.grid(row=3, column=1)
 
-
-
-
-
     # 유닛 정보를 담을 paned window 생성
     unit_information_panedwindow = tkinter.PanedWindow()
     unit_information_panedwindow.pack(side="top", pady=30)

@@ -355,6 +355,7 @@ class UnitCalculator:
 
         print()
 
+    # 제거 유무 확인
     def find_best_exp_increase_and_print(self, first_input_index=15, last_input_index=40):
         """
             first_input_index 으로 들어오는 레벨 기준으로 last_input_index 레벨까지 비교해서
@@ -458,7 +459,6 @@ class UnitCalculator:
         numbers_of_unit = self.return_number_level_to_level(first_input_index, last_input_index)
 
         # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
-        print('-----the number of units to create last unit-----')
         return '{}강 하나를 만들기 위해선 {}강이 평균 {}마리가 필요합니다'.format(last_input_index, first_input_index,
                                                             numbers_of_unit)
 
@@ -472,7 +472,6 @@ class UnitCalculator:
 
         acc_time = BEST_FRAME_RATE / FRAME_RATE  # 게임 최대 가속
 
-        print('-----the time of units to create last unit-----')
         temp_string = ""
 
         # 마지막 레벨 하나를 만들기 위해 필요한 시간 출력
@@ -500,7 +499,6 @@ class UnitCalculator:
         hours, minutes, seconds = self.div_time(seconds)
 
         # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
-        print('-----total selling time-----')
 
         temp_string = ""
 
@@ -546,7 +544,6 @@ class UnitCalculator:
 
         seconds = 3600 * input_hours + 60 * input_minutes + input_seconds
         ticket_number = self.return_sell_number_level_to_level(first_input_index, last_input_index, seconds)
-        print('-----selling ticket number-----')
 
         temp_string = ""
 
@@ -632,8 +629,6 @@ class PlayerLevelCalculator:
 
         temp_string = ""
 
-        print('-----level to level exp-----')
-
         temp_string += '플레이어 레벨 {} -> {} 에 필요한 경험치 : {:,}\n'.format(start_level, end_level, sum_exp)
         temp_string += '25강 갯수 : {:,}\n'.format(level_25)
         temp_string += '26강 갯수 : {:,}\n'.format(level_26)
@@ -656,7 +651,6 @@ class PlayerLevelCalculator:
 
         level -= 1
 
-        print('-----calculate final level-----')
         return '{}강 유닛 {}마리 판매 : 플레이어 레벨 {} -> {}'.format(unit_level, unit_number, player_level, level)
 
 
@@ -722,7 +716,6 @@ class Game:
 
     def return_unit_info(self):
         """유닛 강화 정보 반환"""
-        print('-----game return_unit_info()-----')
 
         temp_str = ""
         for level, value in self.unit_dict.items():
@@ -733,7 +726,6 @@ class Game:
 
     def return_unit_dps_info(self):
         """유닛 dps 정보 반환"""
-        print('-----game return_unit_dps_info()-----')
 
         temp_str = ""
         for level, value in self.unit_dict.items():
@@ -744,7 +736,6 @@ class Game:
 
     def return_unit_exp_info(self):
         """유닛 exp 정보 반환"""
-        print('-----game return_unit_exp_info()-----')
 
         temp_str = ""
         for level, value in self.unit_dict.items():

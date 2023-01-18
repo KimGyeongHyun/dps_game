@@ -8,7 +8,7 @@ if __name__ == '__main__':
     # 윈도우 창의 제목
     window.title("DPS 강화하기 유즈맵 계산기")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
-    window.geometry('1000x400+100+100')
+    window.geometry('1200x400+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
     window.resizable(True, True)
 
@@ -37,6 +37,16 @@ if __name__ == '__main__':
         print(game.return_user_spec())
         print(game.return_unit_info())
 
+        unit_upgrade_rate_listbox.delete(0, 40)
+        unit_dps_listbox.delete(0, 40)
+        unit_exp_listbox.delete(0, 40)
+
+        for i in range(len(game.unit_dict)):
+            unit_level = i + 1
+            unit_upgrade_rate_listbox.insert(unit_level, game.unit_dict[unit_level].__str__())
+            unit_dps_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_dps())
+            unit_exp_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_exp())
+
     def get_entry_value_calculate_print_all(event):
         get_value_calculate_print_all()
 
@@ -46,7 +56,7 @@ if __name__ == '__main__':
     first_information_label.pack(side="top", fill="x")
 
     # 유저 스펙을 기입할 paned window 를 상단에 배치
-    user_spec_panedwindow = tkinter.PanedWindow(relief="solid", bd=2)
+    user_spec_panedwindow = tkinter.PanedWindow()
     user_spec_panedwindow.pack(side="top")
 
     # 유저 스펙 중 강화확률 을 기입할 paned window 를 유저 스펙 paned window 에 배치
@@ -63,7 +73,7 @@ if __name__ == '__main__':
     # 유저 레벨 엔트리
     user_level_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
     user_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    user_level_entry.insert(2, '1000')
+    user_level_entry.insert(2, '5000')
     upgrade_rate_panedwindow.add(user_level_entry)
     user_level_entry.grid(row=0, column=1)
 
@@ -77,7 +87,7 @@ if __name__ == '__main__':
     # +1 강화확률 엔트리
     first_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
     first_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    first_upgrade_entry.insert(2, '0.0')
+    first_upgrade_entry.insert(2, '10.0')
     upgrade_rate_panedwindow.add(first_upgrade_entry)
     first_upgrade_entry.grid(row=1, column=1)
 
@@ -91,7 +101,7 @@ if __name__ == '__main__':
     # +2 강화확률 엔트리
     second_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
     second_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    second_upgrade_entry.insert(2, '0.0')
+    second_upgrade_entry.insert(2, '5.0')
     upgrade_rate_panedwindow.add(second_upgrade_entry)
     second_upgrade_entry.grid(row=2, column=1)
 
@@ -105,7 +115,7 @@ if __name__ == '__main__':
     # +3 강화확률 엔트리
     third_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
     third_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    third_upgrade_entry.insert(2, '0.0')
+    third_upgrade_entry.insert(2, '3.0')
     upgrade_rate_panedwindow.add(third_upgrade_entry)
     third_upgrade_entry.grid(row=3, column=1)
 
@@ -119,7 +129,7 @@ if __name__ == '__main__':
     # 유저 공격력 업그레이드 엔트리
     user_damage_upgrade_entry = tkinter.Entry(upgrade_rate_panedwindow, width=7, justify='center')
     user_damage_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    user_damage_upgrade_entry.insert(2, '0.0')
+    user_damage_upgrade_entry.insert(2, '500')
     upgrade_rate_panedwindow.add(user_damage_upgrade_entry)
     user_damage_upgrade_entry.grid(row=4, column=1)
 
@@ -162,6 +172,7 @@ if __name__ == '__main__':
                                           variable=private_boss_count, command=get_value_calculate_print_all)
     private_5_ratio = tkinter.Radiobutton(boss_and_multy, text='5', value=5, 
                                           variable=private_boss_count, command=get_value_calculate_print_all)
+    private_5_ratio.select()
 
     boss_and_multy.add(private_0_ratio)
     boss_and_multy.add(private_1_ratio)
@@ -196,6 +207,7 @@ if __name__ == '__main__':
                                         variable=party_boss_count, command=get_value_calculate_print_all)
     party_5_ratio = tkinter.Radiobutton(boss_and_multy, text='5', value=5,
                                         variable=party_boss_count, command=get_value_calculate_print_all)
+    party_5_ratio.select()
 
     boss_and_multy.add(party_0_ratio)
     boss_and_multy.add(party_1_ratio)
@@ -221,6 +233,7 @@ if __name__ == '__main__':
     party_check_button = tkinter.Checkbutton(boss_and_multy, text='', onvalue=True, offvalue=False,
                                              variable=party_check, command=get_value_calculate_print_all)
     boss_and_multy.add(party_check_button)
+    party_check_button.select()
     party_check_button.grid(row=2, column=1)
 
     # 유닛 시작 레벨, 마지막 레벨, 판매권 수, 리얼 타임 진행 시간
@@ -340,7 +353,59 @@ if __name__ == '__main__':
     sell_unit_number_entry.insert(2, '500')
     player_level_panedwindow.add(sell_unit_number_entry)
     sell_unit_number_entry.grid(row=3, column=1)
-    
+
+    # 유닛 정보를 담을 paned window 생성
+    unit_information_panedwindow = tkinter.PanedWindow()
+    unit_information_panedwindow.pack(side="top")
+
+    # 유닛 강화 확률 정보를 담을 frame 을 유닛 정보를 담을 paned window 에 배치
+    unit_upgrade_rate_frame = tkinter.Frame(unit_information_panedwindow, padx=5, pady=5)
+
+    unit_upgrade_rate_scrollbar = tkinter.Scrollbar(unit_upgrade_rate_frame)
+    unit_upgrade_rate_scrollbar.pack(side='right', fill='y')
+
+    unit_upgrade_rate_listbox = tkinter.Listbox(unit_upgrade_rate_frame,
+                                                yscrollcommand=unit_upgrade_rate_scrollbar.set,
+                                                width=38)
+    unit_upgrade_rate_listbox.pack(side='left')
+
+    unit_upgrade_rate_scrollbar["command"] = unit_upgrade_rate_listbox.yview
+
+    unit_upgrade_rate_frame.pack(side='left')
+
+    # 유닛 dps 정보를 담을 frame 을 유닛 정보를 담을 paned window 에 배치
+    unit_dps_frame = tkinter.Frame(unit_information_panedwindow, padx=5, pady=5)
+
+    unit_dps_scrollbar = tkinter.Scrollbar(unit_dps_frame)
+    unit_dps_scrollbar.pack(side='right', fill='y')
+
+    unit_dps_listbox = tkinter.Listbox(unit_dps_frame,
+                                       yscrollcommand=unit_dps_scrollbar.set,
+                                       width=42)
+    unit_dps_listbox.pack(side='left')
+
+    unit_dps_scrollbar["command"] = unit_dps_listbox.yview
+
+    unit_dps_frame.pack(side='left')
+
+    # 유닛 exp 정보를 담을 frame 을 유닛 정보를 담을 paned window 에 배치
+    unit_exp_frame = tkinter.Frame(unit_information_panedwindow, padx=5, pady=5)
+
+    unit_exp_scrollbar = tkinter.Scrollbar(unit_exp_frame)
+    unit_exp_scrollbar.pack(side='right', fill='y')
+
+    unit_exp_listbox = tkinter.Listbox(unit_exp_frame,
+                                       yscrollcommand=unit_exp_scrollbar.set,
+                                       width=57)
+    unit_exp_listbox.pack(side='left')
+
+    unit_exp_scrollbar["command"] = unit_exp_listbox.yview
+
+    unit_exp_frame.pack(side='left')
+
+
+    # 처음 디폴트 출력
+    get_value_calculate_print_all()
 
     # 해당 윈도우 창을 윈도우가 종료될 때 까지 실행
     window.mainloop()

@@ -110,7 +110,7 @@ if __name__ == '__main__':
                                         "시간은 자연수를 입력해야 합니다.")
             return
 
-        if player_start_level < 1 or player_start_level > 10000:
+        if player_start_level < 1 or player_start_level > 9999:
             tkinter.messagebox.showinfo("플레이어 시작 레벨 오류",
                                         "플레이어 레벨은 1 ~ 10000 사이의 정수를 입력해야 합니다.")
             return
@@ -153,12 +153,15 @@ if __name__ == '__main__':
         user_spec_label.config(text=game.return_user_spec())
 
         for i in range(len(game.unit_dict)):
-            unit_number = i + 1
-            unit_upgrade_rate_listbox.insert(unit_number, game.unit_dict[unit_number].__str__())
+            unit_level = i + 1
+            unit_upgrade_rate_listbox.insert(unit_level, game.unit_dict[unit_level].__str__())
             unit_upgrade_rate_listbox.see(END)
-            unit_dps_listbox.insert(unit_number, game.unit_dict[unit_number].print_unit_dps())
+
+            unit_dps_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_dps())
             unit_dps_listbox.see(END)
-            unit_exp_listbox.insert(unit_number, game.unit_dict[unit_number].print_unit_exp())
+
+            if game.unit_dict[unit_level].exp != 0:
+                unit_exp_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_exp())
             unit_exp_listbox.see(END)
 
         level_to_level_label.config(text=game.unit_calc.return_str_level_to_level(unit_start_level,
@@ -426,7 +429,7 @@ if __name__ == '__main__':
 
     # 플레이어 시작 레벨 엔트리
     player_start_level_entry = tkinter.Entry(player_level_frame, width=7, justify='center')
-    player_start_level_entry.insert(2, '1000')
+    player_start_level_entry.insert(2, '5000')
     player_start_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     player_start_level_entry.grid(row=0, column=1)
 
@@ -436,7 +439,7 @@ if __name__ == '__main__':
 
     # 플레이어 마지막 레벨 엔트리
     player_end_level_entry = tkinter.Entry(player_level_frame, width=7, justify='center')
-    player_end_level_entry.insert(2, '2000')
+    player_end_level_entry.insert(2, '6000')
     player_end_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     player_end_level_entry.grid(row=1, column=1)
 

@@ -168,7 +168,10 @@ class Unit:
 
     def print_unit_dps(self):
         """특정 레벨의 유닛의 dps 정보를 반환"""
-        return '{:2d}강 / dps : {:7,} , 강화 시 dps 변화 비율 : {:.3f}'.format(self.level,
+        if self.level == 25:
+            return '{:2d}강 / dps : {:7,} , (두번째 사냥터로 넘어갑니다)'.format(self.level, self.dps)
+        else:
+            return '{:2d}강 / dps : {:7,} , 강화 시 dps 변화 비율 : {:.3f}'.format(self.level,
                                                                        self.dps, self.next_dps_rate)
 
     def print_unit_exp(self):
@@ -207,14 +210,14 @@ class UnitCalculator:
 
         return calc_hours, calc_minutes, calc_seconds
 
-    def print_all_units(self):
-        """모든 유닛의 강화 확률을 출력"""
-
-        print('-----unit upgrade rate information-----')
-
-        for level, value in self.unit_dict.items():
-            print(value)
-        print()
+    # def print_all_units(self):
+    #     """모든 유닛의 강화 확률을 출력"""
+    #
+    #     print('-----unit upgrade rate information-----')
+    #
+    #     for level, value in self.unit_dict.items():
+    #         print(value)
+    #     print()
 
     def set_next_dps_expected_rate(self):
         """
@@ -229,6 +232,23 @@ class UnitCalculator:
             curr_level = i + 1  # 값을 찾을 레벨
             curr_unit = self.unit_dict[curr_level]  # 해당 레벨의 유닛 인스턴스 가져옴
             curr_unit.next_dps_rate = 0  # 해당 유닛을 강화했을 때 예상되는 dps 변화 비율 초기화
+
+            if curr_level == 25:
+                continue
+
+            if curr_level == 24:
+                curr_unit.next_dps_rate += curr_unit.one * self.unit_dict[curr_level + 1].dps
+                curr_unit.next_dps_rate += curr_unit.two * self.unit_dict[curr_level + 1].dps
+                curr_unit.next_dps_rate += curr_unit.three * self.unit_dict[curr_level + 1].dps
+                curr_unit.next_dps_rate /= curr_unit.dps
+                continue
+
+            if curr_level == 23:
+                curr_unit.next_dps_rate += curr_unit.one * self.unit_dict[curr_level + 1].dps
+                curr_unit.next_dps_rate += curr_unit.two * self.unit_dict[curr_level + 2].dps
+                curr_unit.next_dps_rate += curr_unit.three * self.unit_dict[curr_level + 2].dps
+                curr_unit.next_dps_rate /= curr_unit.dps
+                continue
 
             # 40 레벨이면 값을 0으로 남겨놓고 갱신 종료
             if curr_level >= 40:
@@ -294,89 +314,89 @@ class UnitCalculator:
             # 37 레벨 이하의 유닛에 계산된 값 갱신
             curr_unit.next_exp_rate /= curr_unit.exp
 
-    def print_unit_dps_information(self, start_level=1):
-        """start level 부터 유닛의 level, dps, expected next dps rate 를 출력"""
-
-        print('-----unit dps information-----')
-
-        for level, value in self.unit_dict.items():
-            if level >= start_level:
-                print(value.print_unit_dps())
-        print()
-
-    def print_unit_exp_information(self, start_level=15):
-        """start level 부터 유닛의 level, exp, expected next exp rate 를 출력"""
-
-        print('-----unit exp information-----')
-
-        for level, value in self.unit_dict.items():
-            if level >= start_level:
-                print(value.print_unit_exp())
-        print()
+    # def print_unit_dps_information(self, start_level=1):
+    #     """start level 부터 유닛의 level, dps, expected next dps rate 를 출력"""
+    #
+    #     print('-----unit dps information-----')
+    #
+    #     for level, value in self.unit_dict.items():
+    #         if level >= start_level:
+    #             print(value.print_unit_dps())
+    #     print()
+    #
+    # def print_unit_exp_information(self, start_level=15):
+    #     """start level 부터 유닛의 level, exp, expected next exp rate 를 출력"""
+    #
+    #     print('-----unit exp information-----')
+    #
+    #     for level, value in self.unit_dict.items():
+    #         if level >= start_level:
+    #             print(value.print_unit_exp())
+    #     print()
 
     # 제거 예정
-    def find_all_dps_increase_rate_and_print(self, first_input_index=26, last_input_index=40):
-        """
-        first_input_index 를 시작으로 last_input_index 레벨까지 모든 dps 기댓값 비율을 출력
-        """
-
-        start_index = first_input_index
-        last_index = last_input_index
-        start_rate = 1.0
-        print('-----find all dps increase rate-----')
-        print('start level : {}, end level : {}'.format(start_index, last_index))
-
-        for i in range(start_index, last_index):
-            start_rate *= self.unit_dict[i].next_dps_rate
-            print('level : {} -> {} / expected dps rate : {:.3f}'.format(start_index, i + 1, start_rate))
-
-        print()
-
-    # 제거 유무 확인
-    def find_best_dps_increase_and_print(self, first_input_index=26, last_input_index=40):
-        """
-        first_input_index 으로 들어오는 레벨 기준으로 last_input_index 레벨까지 비교해서
-
-        어느 레벨까지 강화 하는 것이 dps 기댓값이 제일 높을지 출력
-        """
-
-        start_index = first_input_index
-        last_index = last_input_index
-        start_rate = 1.0
-        rate_list = [1.0]
-
-        for i in range(start_index, last_index):
-            start_rate *= self.unit_dict[i].next_dps_rate
-            rate_list.append(start_rate)
-
-        best_index = rate_list.index(max(rate_list)) + start_index
-        print('-----find best dps increase level-----')
-        print('start level : {} / end level : {} / best dps level : {}'.format(start_index, last_index, best_index))
-
-        print()
-
-    # 제거 유무 확인
-    def find_best_exp_increase_and_print(self, first_input_index=15, last_input_index=40):
-        """
-            first_input_index 으로 들어오는 레벨 기준으로 last_input_index 레벨까지 비교해서
-
-            어느 레벨까지 강화 하는 것이 exp 기댓값이 제일 높을지 출력
-            """
-
-        start_index = first_input_index
-        last_index = last_input_index
-        start_rate = 1.0
-        rate_list = [1.0]
-
-        for i in range(start_index, last_index):
-            start_rate *= self.unit_dict[i].next_exp_rate
-            rate_list.append(start_rate)
-
-        best_index = rate_list.index(max(rate_list)) + start_index
-        print('-----find best exp increase level-----')
-        print('{}강에서 시작, {}강까지 비교한 결과 {}강까지 강화해서 파는 것이 판매경험치 효율이 제일 좋습니다'.format(start_index,
-                                                                                 last_index, best_index))
-        print()
+    # def find_all_dps_increase_rate_and_print(self, first_input_index=26, last_input_index=40):
+    #     """
+    #     first_input_index 를 시작으로 last_input_index 레벨까지 모든 dps 기댓값 비율을 출력
+    #     """
+    #
+    #     start_index = first_input_index
+    #     last_index = last_input_index
+    #     start_rate = 1.0
+    #     print('-----find all dps increase rate-----')
+    #     print('start level : {}, end level : {}'.format(start_index, last_index))
+    #
+    #     for i in range(start_index, last_index):
+    #         start_rate *= self.unit_dict[i].next_dps_rate
+    #         print('level : {} -> {} / expected dps rate : {:.3f}'.format(start_index, i + 1, start_rate))
+    #
+    #     print()
+    #
+    # # 제거 유무 확인
+    # def find_best_dps_increase_and_print(self, first_input_index=26, last_input_index=40):
+    #     """
+    #     first_input_index 으로 들어오는 레벨 기준으로 last_input_index 레벨까지 비교해서
+    #
+    #     어느 레벨까지 강화 하는 것이 dps 기댓값이 제일 높을지 출력
+    #     """
+    #
+    #     start_index = first_input_index
+    #     last_index = last_input_index
+    #     start_rate = 1.0
+    #     rate_list = [1.0]
+    #
+    #     for i in range(start_index, last_index):
+    #         start_rate *= self.unit_dict[i].next_dps_rate
+    #         rate_list.append(start_rate)
+    #
+    #     best_index = rate_list.index(max(rate_list)) + start_index
+    #     print('-----find best dps increase level-----')
+    #     print('start level : {} / end level : {} / best dps level : {}'.format(start_index, last_index, best_index))
+    #
+    #     print()
+    #
+    # # 제거 유무 확인
+    # def find_best_exp_increase_and_print(self, first_input_index=15, last_input_index=40):
+    #     """
+    #         first_input_index 으로 들어오는 레벨 기준으로 last_input_index 레벨까지 비교해서
+    #
+    #         어느 레벨까지 강화 하는 것이 exp 기댓값이 제일 높을지 출력
+    #         """
+    #
+    #     start_index = first_input_index
+    #     last_index = last_input_index
+    #     start_rate = 1.0
+    #     rate_list = [1.0]
+    #
+    #     for i in range(start_index, last_index):
+    #         start_rate *= self.unit_dict[i].next_exp_rate
+    #         rate_list.append(start_rate)
+    #
+    #     best_index = rate_list.index(max(rate_list)) + start_index
+    #     print('-----find best exp increase level-----')
+    #     print('{}강에서 시작, {}강까지 비교한 결과 {}강까지 강화해서 파는 것이 판매경험치 효율이 제일 좋습니다'.format(start_index,
+    #                                                                              last_index, best_index))
+    #     print()
 
     def return_number_level_to_level(self, first_input_index=30, last_input_index=40):
         """마지막 레벨 한 마리를 만들기 위한 시작 레벨 유닛 갯수 반환"""
@@ -476,7 +496,7 @@ class UnitCalculator:
 
         # 마지막 레벨 하나를 만들기 위해 필요한 시간 출력
         temp_string += '----만약 {}강을 최대 시간 가속 비율({:.2f}배)에서 끊임 없이 생산 중이라면----\n\n'.format(first_input_index,
-                                                                             acc_time)
+                                                                                         acc_time)
         temp_string += '{}강 하나를 만들기 위해 리얼 타임 평균 '.format(last_input_index)
         if hours != 0:
             temp_string += '{}시간 '.format(hours)
@@ -539,7 +559,7 @@ class UnitCalculator:
         return int(seconds / time_one_unit)
 
     def return_str_sell_number_level_to_level(self, first_input_index=30, last_input_index=40,
-                                         input_hours=0, input_minutes=0, input_seconds=0):
+                                              input_hours=0, input_minutes=0, input_seconds=0):
         """특정 시간을 방치했을 때 소모되는 판매티켓 갯수 출력"""
 
         seconds = 3600 * input_hours + 60 * input_minutes + input_seconds
@@ -567,14 +587,22 @@ class ExpOfLevel:
     def __init__(self, level):
         self.level = level
         self.need_exp = 0
+        self.total_exp = 0
 
     def set_need_exp(self):
         """레벨 업에 필요한 경험치 계산"""
         self.need_exp = 3 * self.level * self.level - 3 * self.level + 10
 
+    def set_total_exp(self):
+        l = self.level - 1
+        self.total_exp = int(3 * l * (l + 1) * (2 * l + 1) / 6 - 3 * l * (l + 1) / 2 + 10 * l)
+
     def get_need_exp(self):
         """레벨 업에 필요한 경험치 반환"""
         return self.need_exp
+
+    def get_total_exp(self):
+        return self.total_exp
 
 
 class PlayerLevelCalculator:
@@ -596,20 +624,29 @@ class PlayerLevelCalculator:
         return '플레이어 레벨 : {}, 레벨업에 필요한 경험치 : {:,}'.format(level, exp_of_level.get_need_exp())
 
     @staticmethod
-    def calculate_exp_to_level_up(start_level=1, end_level=10_000):
+    def calculate_exp_to_level_up(start_level=5000, end_level=6000):
         """시작 -> 마지막 레벨까지 필요한 경험치 계산 후 반환"""
 
-        sum_exp = 0
+        # 등비수열 합공식으로 계산 줄임
 
-        if start_level < 1 or end_level > 10000 or start_level >= end_level:
-            return
+        # sum_exp = 0
+        #
+        # if start_level < 1 or end_level > 10000 or start_level >= end_level:
+        #     return
+        #
+        # for curr_level in range(start_level, end_level):
+        #     exp_of_level = ExpOfLevel(curr_level)
+        #     exp_of_level.set_need_exp()
+        #     sum_exp += exp_of_level.get_need_exp()
+        #
+        # return sum_exp
 
-        for curr_level in range(start_level, end_level):
-            exp_of_level = ExpOfLevel(curr_level)
-            exp_of_level.set_need_exp()
-            sum_exp += exp_of_level.get_need_exp()
+        st = ExpOfLevel(start_level)
+        en = ExpOfLevel(end_level)
+        st.set_total_exp()
+        en.set_total_exp()
 
-        return sum_exp
+        return en.get_total_exp() - st.get_total_exp()
 
     def return_str_need_number_of_unit_to_level_up(self, start_level=1, end_level=10_000):
         """
@@ -748,75 +785,36 @@ class Game:
 if __name__ == '__main__':
     game = Game()
 
-    game.set_value(1000, 0.1, 0.05, 0.01, 5.0, 5, 5, True)
+    player_level = 5000
+    first = 0.1
+    second = 0.05
+    third = 0.03
+    deal_upgrade = 5.0
+    private_boss = 5
+    party_boss = 5
+    multi_player = True
+
+    game.set_value(player_level, first, second, third, deal_upgrade, private_boss, party_boss, multi_player)
     print(game.return_unit_info())
     print(game.return_unit_dps_info())
     print(game.return_unit_exp_info())
 
-    # # 유저 스펙 입력
-    # input_player_level = 4444  # 0 ~ 10,000
-    # input_first = 0.1  # 0.0 ~ 0.1
-    # input_second = 0.05  # 0.0 ~ 0.05
-    # input_third = 0.01  # 0.0 ~ 0.03
-    # input_user_damage_up_rate = 5.0  # 0.0 ~ 5.0
-    # input_private_boss_clear_number = 5  # 0 ~ 5
-    # input_party_boss_clear_number = 5  # 0 ~ 5
-    # input_MULTI_PLAYER = True  # True/False
-    #
-    # # 유저 스펙을 보스와 멀티 플레이 환경에 맞게 저장
-    # user = UserSpec(input_player_level, input_first, input_second, input_third, input_user_damage_up_rate,
-    #                 input_private_boss_clear_number, input_party_boss_clear_number, input_MULTI_PLAYER)
-    #
-    # # 유저 스펙 출력
-    # print(user)
-    #
-    # # key 를 level, value 를 Unit 으로 초기화
-    # # Unit class 는 각 level 의 dps, exp, +1, +2, +3 강화 확률 가짐
-    # # 유닛 강화 변화 수치를 user 에서 받음
-    # # 35, 36 이상 level : 예외 조건에 따라 +2, +3 강화 확률 수치가 +1 에 적용됨
-    # unit_dict = {}
-    # for j in range(len(unit_information)):
-    #     current_level = j + 1
-    #     unit_dict[current_level] = Unit(user, current_level, unit_information[current_level][0],
-    #                                     unit_information[current_level][1],
-    #                                     unit_information[current_level][2],
-    #                                     unit_information[current_level][3],
-    #                                     unit_information[current_level][4])
-    #
-    # # 유저 정보와 유닛 정보를 받아 다양하게 활용하는 Calculator 클래스 사용
-    # calc = UnitCalculator(user, input_unit_dict=unit_dict)
-    #
-    # # 모든 유닛의 +1, +2, +3 강화 확률 출력
-    # calc.print_all_units()
-    #
-    # # next dps exp expected rate 계산
-    # calc.set_next_dps_expected_rate()
-    # calc.set_next_exp_expected_rate()
-    #
-    # # next dps exp expected rate 를 계산 후 유닛의 dps, exp 출력
-    # calc.print_unit_dps_information()
-    # calc.print_unit_exp_information()
-    #
-    # calc.find_best_exp_increase_and_print(first_input_index=15, last_input_index=25)
-    #
-    # # 끝 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수
-    # # second : 0.046 / 28 -> 38 1시간 테스트 결과 / 계산 : 257, 실 : 221 개 생산 / 최대 프레임을 못 찍어서 부족한 것으로 추측
-    # # third : 0.001 / 29 -> 40 6시간 30분 테스트 결과 / 계산 : 260, 실 : 285 개 생산
-    # calc.print_level_to_level(first_input_index=29, last_input_index=39, sell_number=950)
-    #
-    # calc.print_sell_number_level_to_level(first_input_index=29, last_input_index=40,
-    #                                       input_hours=8, input_minutes=30, input_seconds=0)
-    #
-    # # 플레이어 레벨 경험치 관련 계산 클래스
-    # player_level_calc = PlayerLevelCalculator(unit_dict)
-    #
-    # # # 레벨 업에 필요한 경험치 출력
-    # # print_exp_to_level_up(1)
-    # player_level_calc.print_exp_to_level_up(3947)
-    #
-    # # # 시작 -> 마지막 레벨까지 필요한 경험치 출력
-    # # # 이에 필요한 레벨 37, 38, 39, 40 유닛 갯수 출력
-    # player_level_calc.print_need_number_of_unit_to_level_up(start_level=input_player_level, end_level=5000)
-    #
-    # # 특정 유닛을 특정 갯수만큼 팔았을 때 플레이어 레벨을 계산 후 출력
-    # player_level_calc.print_final_level_with_units(player_level=input_player_level, unit_level=39, unit_number=1500)
+    unit_start_level = 30
+    unit_last_level = 40
+    sell_number = 500
+    play_hours = 3
+
+    print(game.unit_calc.return_str_level_to_level(unit_start_level, unit_last_level, sell_number))
+    print()
+    print(game.unit_calc.return_str_sell_number_level_to_level(unit_start_level, unit_last_level, play_hours))
+
+    player_start_level = 5000
+    player_last_level = 6000
+    sell_unit_level = 40
+    sell_unit_number = 500
+
+    print(game.player_calc.return_str_exp_to_level_up(player_start_level))
+    print()
+    print(game.player_calc.return_str_need_number_of_unit_to_level_up(player_start_level, player_last_level))
+    print()
+    print(game.player_calc.return_str_final_level_with_units(player_start_level, sell_unit_level, sell_unit_number))

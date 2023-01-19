@@ -688,7 +688,7 @@ class PlayerLevelCalculator:
 
         level -= 1
 
-        return '{}강 유닛 {}마리 판매 : 플레이어 레벨 {} -> {}'.format(unit_level, unit_number, player_level, level)
+        return '플레이어 레벨 {} -> {}'.format(player_level, level)
 
 
 class Game:
@@ -781,6 +781,37 @@ class Game:
 
         return temp_str
 
+    def get_sell_number_return_str_play_time_and_player_level(self, unit_start_level, unit_last_level,
+                                                              sell_number,
+                                                              player_start_level):
+
+        temp_string = ""
+        temp_string += self.unit_calc.return_str_sell_time_level_to_level(unit_start_level, unit_last_level,
+                                                                          sell_number)
+        temp_string += "\n"
+        temp_string += self.player_calc.return_str_final_level_with_units(player_start_level, unit_last_level,
+                                                                          sell_number)
+        temp_string += "\n\n"
+
+        return temp_string
+
+    def get_play_time_return_str_sell_number_and_player_level(self, unit_start_level, unit_last_level,
+                                                              hours, minutes, seconds,
+                                                              player_start_level):
+
+        temp_string = ""
+        sell_ticket = self.unit_calc.return_sell_number_level_to_level(unit_start_level, unit_last_level,
+                                                                       hours * 3_600 + minutes * 60 + seconds)
+
+        temp_string += self.unit_calc.return_str_sell_number_level_to_level(unit_start_level, unit_last_level,
+                                                                            hours, minutes, seconds)
+        temp_string += "\n"
+        temp_string += self.player_calc.return_str_final_level_with_units(player_start_level, unit_last_level,
+                                                                          sell_ticket)
+        temp_string += "\n\n"
+
+        return temp_string
+
 
 if __name__ == '__main__':
     game = Game()
@@ -818,3 +849,6 @@ if __name__ == '__main__':
     print(game.player_calc.return_str_need_number_of_unit_to_level_up(player_start_level, player_last_level))
     print()
     print(game.player_calc.return_str_final_level_with_units(player_start_level, sell_unit_level, sell_unit_number))
+
+    print(game.get_sell_number_return_str_play_time_and_player_level(28, 40, 500, 500))
+    print(game.get_play_time_return_str_sell_number_and_player_level(28, 40, 11, 0, 0, 500))

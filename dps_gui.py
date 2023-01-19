@@ -1,7 +1,6 @@
 import tkinter
 import tkinter.messagebox
 import dps_upgrade
-import math
 
 END = 40
 
@@ -19,7 +18,6 @@ if __name__ == '__main__':
     ###########################
     # 여기에 위젯 추가
     game = dps_upgrade.Game()
-
 
     # 유저 스펙, 보스, 파티 플레이 여부 상태가 바뀌었을 때 실행
     # 처음 실행할 때도 실행

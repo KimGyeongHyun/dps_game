@@ -499,11 +499,11 @@ class UnitCalculator:
                                                                                          acc_time)
         temp_string += '{}강 하나를 만들기 위해 리얼 타임 평균 '.format(last_input_index)
         if hours != 0:
-            temp_string += '{}시간 '.format(hours)
-            temp_string += '{}분 '.format(minutes)
+            temp_string += '{}시간 '.format(int(hours))
+            temp_string += '{}분 '.format(int(minutes))
         else:
             if minutes != 0:
-                temp_string += '{}분 '.format(minutes)
+                temp_string += '{}분 '.format(int(minutes))
         temp_string += '{:.2f}초'.format(seconds)
         temp_string += '의 시간이 필요합니다'
 
@@ -576,7 +576,7 @@ class UnitCalculator:
             if minutes != 0:
                 temp_string += '{}분 '.format(minutes)
         temp_string += '{}초 동안 팔 경우'.format(seconds)
-        temp_string += '평균 {}개의 판매권이 소모됩니다'.format(ticket_number)
+        temp_string += '평균 {:,}개의 판매권이 소모됩니다'.format(ticket_number)
 
         return temp_string
 
@@ -655,20 +655,24 @@ class PlayerLevelCalculator:
         """
 
         sum_exp = self.calculate_exp_to_level_up(start_level, end_level)
-        if start_level < 1 or end_level > 10000 or start_level >= end_level:
+        if start_level < 1 or end_level > 10000 or start_level > end_level:
             print('ERROR. invalid player level')
             return
 
         level_25 = int(sum_exp / self.unit_dictionary[25].get_unit_exp()) + 1
         level_26 = int(sum_exp / self.unit_dictionary[26].get_unit_exp()) + 1
+        level_37 = int(sum_exp / self.unit_dictionary[37].get_unit_exp()) + 1
+        level_38 = int(sum_exp / self.unit_dictionary[38].get_unit_exp()) + 1
         level_39 = int(sum_exp / self.unit_dictionary[39].get_unit_exp()) + 1
         level_40 = int(sum_exp / self.unit_dictionary[40].get_unit_exp()) + 1
 
         temp_string = ""
 
-        temp_string += '플레이어 레벨 {} -> {} 에 필요한 경험치 : {:,}\n'.format(start_level, end_level, sum_exp)
+        temp_string += '플레이어 레벨 {} -> {} 에 필요한 경험치 : {:,}\n\n'.format(start_level, end_level, sum_exp)
         temp_string += '25강 갯수 : {:,}\n'.format(level_25)
         temp_string += '26강 갯수 : {:,}\n'.format(level_26)
+        temp_string += '37강 갯수 : {:,}\n'.format(level_37)
+        temp_string += '38강 갯수 : {:,}\n'.format(level_38)
         temp_string += '39강 갯수 : {:,}\n'.format(level_39)
         temp_string += '40강 갯수 : {:,}\n\n'.format(level_40)
 
@@ -786,12 +790,17 @@ class Game:
                                                               player_start_level):
 
         temp_string = ""
+
+        temp_string += self.unit_calc.return_str_time_level_to_level(unit_start_level, unit_last_level)
+        temp_string += "\n"
+        self.unit_calc.return_str_number_level_to_level(unit_start_level, unit_last_level)
+        temp_string += "\n"
         temp_string += self.unit_calc.return_str_sell_time_level_to_level(unit_start_level, unit_last_level,
                                                                           sell_number)
         temp_string += "\n"
         temp_string += self.player_calc.return_str_final_level_with_units(player_start_level, unit_last_level,
                                                                           sell_number)
-        temp_string += "\n\n"
+        temp_string += "\n"
 
         return temp_string
 
@@ -808,7 +817,7 @@ class Game:
         temp_string += "\n"
         temp_string += self.player_calc.return_str_final_level_with_units(player_start_level, unit_last_level,
                                                                           sell_ticket)
-        temp_string += "\n\n"
+        temp_string += "\n"
 
         return temp_string
 
@@ -850,5 +859,7 @@ if __name__ == '__main__':
     print()
     print(game.player_calc.return_str_final_level_with_units(player_start_level, sell_unit_level, sell_unit_number))
 
-    print(game.get_sell_number_return_str_play_time_and_player_level(28, 40, 500, 500))
-    print(game.get_play_time_return_str_sell_number_and_player_level(28, 40, 11, 0, 0, 500))
+    print(game.get_sell_number_return_str_play_time_and_player_level(unit_start_level, unit_last_level, sell_number,
+                                                                     player_start_level))
+    print(game.get_play_time_return_str_sell_number_and_player_level(unit_start_level, unit_last_level,
+                                                                     play_hours, 0, 0, player_start_level))

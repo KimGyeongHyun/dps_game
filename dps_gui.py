@@ -11,13 +11,14 @@ if __name__ == '__main__':
     # 윈도우 창의 제목
     window.title("DPS 강화하기 유즈맵 계산기")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
-    window.geometry('1300x800+100+100')
+    window.geometry('1300x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
     window.resizable(False, False)
 
     ###########################
     # 여기에 위젯 추가
     game = dps_upgrade.Game()
+
 
     # 유저 스펙, 보스, 파티 플레이 여부 상태가 바뀌었을 때 실행
     # 처음 실행할 때도 실행
@@ -40,10 +41,7 @@ if __name__ == '__main__':
             hour = int(playing_hour_entry.get())
             minute = int(playing_minute_entry.get())
             seconds = int(playing_second_entry.get())
-            player_start_level = int(player_start_level_entry.get())
             player_last_level = int(player_end_level_entry.get())
-            level_of_sell = int(sell_unit_level_entry.get())
-            number_of_sell = int(sell_unit_number_entry.get())
         except ValueError:
             print('ValueError in user spec input parameter')
             return
@@ -109,30 +107,14 @@ if __name__ == '__main__':
                                         "시간은 자연수를 입력해야 합니다.")
             return
 
-        if player_start_level < 1 or player_start_level > 9999:
-            tkinter.messagebox.showinfo("플레이어 시작 레벨 오류",
-                                        "플레이어 레벨은 1 ~ 10000 사이의 정수를 입력해야 합니다.")
-            return
-
         if player_last_level < 1 or player_last_level > 10000:
             tkinter.messagebox.showinfo("플레이어 마지막 레벨 오류",
                                         "플레이어 레벨은 1 ~ 10000 사이의 정수를 입력해야 합니다.")
             return
 
-        if player_start_level > player_last_level:
-            tkinter.messagebox.showinfo("플레이어 레벨 오류",
-                                        "플레이어 마지막 레벨은 플레이어 시작 레벨보다 커야 합니다.")
-            return
-
-        if level_of_sell < 1 or level_of_sell > 40:
-            print(level_of_sell)
-            tkinter.messagebox.showinfo("판매할 유닛 레벨 오류",
-                                        "유닛 레벨은 1 ~ 40 사이의 정수 값을 입력해야 합니다.")
-            return
-
-        if number_of_sell < 0:
-            tkinter.messagebox.showinfo("판매할 유닛 수량 오류",
-                                        "유닛 수량은 자연수를 입력해야 합니다.")
+        if user_level > player_last_level:
+            tkinter.messagebox.showinfo("플레이어 목표 레벨 오류",
+                                        "플레이어 목표 레벨은 플레이어 레벨보다 같거나 커야 합니다")
             return
 
         user_damage = user_damage * 0.1
@@ -163,26 +145,29 @@ if __name__ == '__main__':
                 unit_exp_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_exp())
             unit_exp_listbox.see(END)
 
-        level_to_level_label.config(text=game.unit_calc.return_str_level_to_level(unit_start_level,
-                                                                                  unit_last_level,
-                                                                                  sell_ticket)
+        level_to_level_label.config(text=game.unit_calc.return_str_number_level_to_level(unit_start_level,
+                                                                                         unit_last_level)
                                     + "\n\n"
-                                    + game.unit_calc.return_str_sell_number_level_to_level(unit_start_level,
-                                                                                           unit_last_level,
-                                                                                           hour,
-                                                                                           minute,
-                                                                                           seconds))
+                                    + game.get_sell_number_return_str_play_time_and_player_level(unit_start_level,
+                                                                                                    unit_last_level,
+                                                                                                    sell_ticket,
+                                                                                                    user_level)
+                                    + "\n"
+                                    + game.get_play_time_return_str_sell_number_and_player_level(unit_start_level,
+                                                                                                 unit_last_level,
+                                                                                                 hour, minute,
+                                                                                                 seconds,
+                                                                                                 user_level))
 
-        player_calc_label.config(text=game.player_calc.return_str_exp_to_level_up(player_start_level)
+        player_calc_label.config(text=game.player_calc.return_str_exp_to_level_up(user_level)
                                  + "\n\n"
-                                 + game.player_calc.return_str_need_number_of_unit_to_level_up(player_start_level,
-                                                                                               player_last_level)
-                                 + game.player_calc.return_str_final_level_with_units(player_start_level,
-                                                                                      level_of_sell,
-                                                                                      number_of_sell))
+                                 + game.player_calc.return_str_need_number_of_unit_to_level_up(user_level,
+                                                                                               player_last_level))
+
 
     def get_entry_value_calculate_print_all(event):
         get_value_calculate_print_all()
+
 
     def set_expected_upgrade_rate_and_deal_upgrade(event):
         user_level = int(user_level_entry.get())
@@ -197,18 +182,15 @@ if __name__ == '__main__':
         user_damage_upgrade_entry.delete(0, 10)
         user_damage_upgrade_entry.insert(0, "0")
 
-        player_start_level_entry.delete(0, 10)
         player_end_level_entry.delete(0, 10)
         if user_level == 10_000:
-            player_start_level_entry.insert(0, "9999")
             player_end_level_entry.insert(0, "10000")
         else:
-            player_start_level_entry.insert(0, "{}".format(user_level))
-            player_end_level_entry.insert(0, "{}".format((user_level//500+1) * 500))
+            player_end_level_entry.insert(0, "{}".format((user_level // 500 + 1) * 500))
 
         if points <= 10 * 100:
             first_upgrade_entry.delete(0, 10)
-            first_upgrade_entry.insert(0, "{:.1f}".format((points//10)/10))
+            first_upgrade_entry.insert(0, "{:.1f}".format((points // 10) / 10))
             get_value_calculate_print_all()
             return
 
@@ -218,7 +200,7 @@ if __name__ == '__main__':
 
         if points <= 20 * 50:
             user_damage_upgrade_entry.delete(0, 10)
-            user_damage_upgrade_entry.insert(0, "{}".format(points//20))
+            user_damage_upgrade_entry.insert(0, "{}".format(points // 20))
             get_value_calculate_print_all()
             return
 
@@ -228,7 +210,7 @@ if __name__ == '__main__':
 
         if points <= 200 * 50:
             second_upgrade_entry.delete(0, 10)
-            second_upgrade_entry.insert(0, "{:.1f}".format((points//200)/10))
+            second_upgrade_entry.insert(0, "{:.1f}".format((points // 200) / 10))
             get_value_calculate_print_all()
             return
 
@@ -238,7 +220,7 @@ if __name__ == '__main__':
 
         if points <= 1_000 * 30:
             third_upgrade_entry.delete(0, 10)
-            third_upgrade_entry.insert(0, "{:.1f}".format((points//1_000)/10))
+            third_upgrade_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
             get_value_calculate_print_all()
             return
 
@@ -250,11 +232,14 @@ if __name__ == '__main__':
 
 
     # 처음 안내문
-    first_information_label = tkinter.Label(window, text="먼저 플레이어 레벨을 입력하고 엔터를 눌러주세요.\n"
-                                                         "플레이어 레벨을 입력하고 엔터를 누르면 +1, +2, +3 강화 확률과 공업이 "
-                                                         "어림짐작으로 자동 갱신됩니다."
-                                                         " 또한 플레이어 시작, 마지막 레벨도 자동 갱신됩니다.\n"
-                                                         "이후 나머지 값들을 입력하고 엔터를 눌러주세요.\n"
+    first_information_label = tkinter.Label(window, text="1) 먼저 플레이어 레벨을 입력하고 엔터를 눌러주세요.\n"
+                                                         "플레이어 레벨을 입력하고 엔터를 누르면 +1, +2, +3 강화 확률과 공업, "
+                                                         "플레이어 목표 레벨이 어림짐작으로 자동 갱신됩니다.\n"
+                                                         "2) 이후 유저 스펙을 수정하고 엔터를 눌러주세요.\n"
+                                                         "3) 보스 처치 레벨과 파티 플레이 버프 여부를 선택하세요\n"
+                                                         "4) 보고 싶은 정보를 입력하고 엔터를 눌러주세요.\n"
+                                                         "보고 싶은 정보의 계산 결과는 맨 아래쪽에 '유닛 레벨 계산 결과'칸과, "
+                                                         "'플레이어 레벨 계산 결과'칸에 나타납니다.\n"
                                                          "모든 계산은 유저 스펙이 적용된 유닛의 강화확률 기반으로 비교됩니다.\n"
                                                          "",
                                             anchor='w',
@@ -268,13 +253,11 @@ if __name__ == '__main__':
     # 유저 스펙 라벨 표시
     user_spec_label = tkinter.Label(user_spec_panedwindow, text="유저 스펙")
     boss_and_multi_label = tkinter.Label(user_spec_panedwindow, text="보스 최대 레벨, 파티플레이 버프 여부")
-    unit_level_calculate_label = tkinter.Label(user_spec_panedwindow, text="유닛 레벨 계산")
-    player_level_calculate_label = tkinter.Label(user_spec_panedwindow, text="플레이어 레벨 계산")
+    unit_level_calculate_label = tkinter.Label(user_spec_panedwindow, text="보고 싶은 정보")
 
     user_spec_label.grid(row=0, column=0)
     boss_and_multi_label.grid(row=0, column=1)
     unit_level_calculate_label.grid(row=0, column=2)
-    player_level_calculate_label.grid(row=0, column=3)
 
     # 유저 스펙 중 강화확률 을 기입할 paned window 를 유저 스펙 paned window 에 배치
     upgrade_rate_frame = tkinter.Frame(user_spec_panedwindow, padx=30)
@@ -283,7 +266,7 @@ if __name__ == '__main__':
 
     # 유저 레벨 라벨
     user_level_label = tkinter.Label(upgrade_rate_frame,
-                                      text="유저 레벨 : ")
+                                     text="유저 레벨 : ")
     user_level_label.grid(row=0, column=0)
 
     # 유저 레벨 엔트리
@@ -448,7 +431,7 @@ if __name__ == '__main__':
     unit_last_level_entry.grid(row=1, column=1)
 
     # 판매권 수 레이블
-    sell_ticket_label = tkinter.Label(unit_information, text='판매권 개수 : ')
+    sell_ticket_label = tkinter.Label(unit_information, text='마지막 레벨 유닛 판매 수 : ')
     sell_ticket_label.grid(row=2, column=0)
 
     # 판매권 수 엔트리
@@ -484,51 +467,17 @@ if __name__ == '__main__':
     playing_second_label.grid(row=3, column=6)
     playing_second_entry.grid(row=3, column=5)
 
-    # 플레이어 시작 레벨(디폴트는 현재 플레이어 레벨), 목표 레벨, 판매 유닛과 수
-    # 의 정보를 가지는 paned window 를 유저 스펙 paned window 에 배치
-    player_level_frame = tkinter.Frame(user_spec_panedwindow, padx=30)
-    user_spec_panedwindow.add(player_level_frame)
-    player_level_frame.grid(row=1, column=3)
-
-    # 플레이어 시작 레벨 라벨
-    player_start_level_label = tkinter.Label(player_level_frame, text='플레이어 시작 레벨 : ')
-    player_start_level_label.grid(row=0, column=0)
-
-    # 플레이어 시작 레벨 엔트리
-    player_start_level_entry = tkinter.Entry(player_level_frame, width=7, justify='center')
-    player_start_level_entry.insert(2, '5000')
-    player_start_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    player_start_level_entry.grid(row=0, column=1)
-
     # 플레이어 마지막 레벨 라벨
-    player_end_level_label = tkinter.Label(player_level_frame, text='플레이어 마지막 레벨 : ')
-    player_end_level_label.grid(row=1, column=0)
+    player_end_level_label = tkinter.Label(unit_information, text='플레이어 목표 레벨 : ')
+    player_end_level_label.grid(row=4, column=0)
 
     # 플레이어 마지막 레벨 엔트리
-    player_end_level_entry = tkinter.Entry(player_level_frame, width=7, justify='center')
+    player_end_level_entry = tkinter.Entry(unit_information, width=7, justify='center')
     player_end_level_entry.insert(2, '6000')
     player_end_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    player_end_level_entry.grid(row=1, column=1)
+    player_end_level_entry.grid(row=4, column=1)
 
-    # 판매 유닛 레벨 라벨
-    sell_unit_level_label = tkinter.Label(player_level_frame, text='판매할 유닛 레벨 : ')
-    sell_unit_level_label.grid(row=2, column=0)
 
-    # 판매 유닛 레벨 엔트리
-    sell_unit_level_entry = tkinter.Entry(player_level_frame, width=3, justify='center')
-    sell_unit_level_entry.insert(1, '40')
-    sell_unit_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    sell_unit_level_entry.grid(row=2, column=1)
-
-    # 판매 유닛 수량 라벨
-    sell_unit_number_label = tkinter.Label(player_level_frame, text='판매할 유닛 수량 : ')
-    sell_unit_number_label.grid(row=3, column=0)
-
-    # 판매 유닛 수량 엔트리
-    sell_unit_number_entry = tkinter.Entry(player_level_frame, width=7, justify='center')
-    sell_unit_number_entry.insert(2, '500')
-    sell_unit_number_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    sell_unit_number_entry.grid(row=3, column=1)
 
     # 유닛 정보를 담을 paned window 생성
     unit_information_panedwindow = tkinter.PanedWindow()
@@ -605,7 +554,7 @@ if __name__ == '__main__':
     # level to level 레이블을 나머지 정보들을 담을 paned window 에 추가
     level_to_level_label = tkinter.Label(the_other_panedwindow)
     level_to_level_label.grid(row=1, column=0)
-    
+
     # player level calc 레이블을 나머지 정보들을 담을 paned window 에 추가
     player_calc_label = tkinter.Label(the_other_panedwindow)
     player_calc_label.grid(row=1, column=1)

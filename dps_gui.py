@@ -1,6 +1,7 @@
 import tkinter
 import tkinter.messagebox
 import dps_upgrade
+import math
 
 END = 40
 
@@ -27,7 +28,7 @@ if __name__ == '__main__':
 
         # 타입 유효성 검사
         try:
-            user_number = float(user_number_entry.get())
+            user_level = int(user_level_entry.get())
             first = float(first_upgrade_entry.get()) / 100
             second = float(second_upgrade_entry.get()) / 100
             third = float(third_upgrade_entry.get()) / 100
@@ -50,7 +51,7 @@ if __name__ == '__main__':
             return
 
         # 숫자 범위 유효성 검사
-        if user_number < 1 or user_number > 10000:
+        if user_level < 1 or user_level > 10000:
             tkinter.messagebox.showinfo("유저 레벨 오류",
                                         "유저 레벨은 1 ~ 10000 사이의 정수 값을 입력해야 합니다.")
             return
@@ -138,7 +139,7 @@ if __name__ == '__main__':
 
         user_damage = user_damage * 0.1
 
-        game.set_value(user_number, first, second, third, user_damage,
+        game.set_value(user_level, first, second, third, user_damage,
                        private_boss, party_boss, multy_player)
 
         # print(game.return_user_spec())
@@ -173,7 +174,7 @@ if __name__ == '__main__':
                                                                                            hour,
                                                                                            minute,
                                                                                            seconds))
-        
+
         player_calc_label.config(text=game.player_calc.return_str_exp_to_level_up(player_start_level)
                                  + "\n\n"
                                  + game.player_calc.return_str_need_number_of_unit_to_level_up(player_start_level,
@@ -185,10 +186,78 @@ if __name__ == '__main__':
     def get_entry_value_calculate_print_all(event):
         get_value_calculate_print_all()
 
+    def set_expected_upgrade_rate_and_deal_upgrade(event):
+        user_level = int(user_level_entry.get())
+        points = int(user_level_entry.get()) * 5
+
+        first_upgrade_entry.delete(0, 10)
+        first_upgrade_entry.insert(0, "0.0")
+        second_upgrade_entry.delete(0, 10)
+        second_upgrade_entry.insert(0, "0.0")
+        third_upgrade_entry.delete(0, 10)
+        third_upgrade_entry.insert(0, "0.0")
+        user_damage_upgrade_entry.delete(0, 10)
+        user_damage_upgrade_entry.insert(0, "0")
+
+        player_start_level_entry.delete(0, 10)
+        player_end_level_entry.delete(0, 10)
+        if user_level == 10_000:
+            player_start_level_entry.insert(0, "9999")
+            player_end_level_entry.insert(0, "10000")
+        else:
+            player_start_level_entry.insert(0, "{}".format(user_level))
+            player_end_level_entry.insert(0, "{}".format((user_level//500+1) * 500))
+
+        if points <= 10 * 100:
+            first_upgrade_entry.delete(0, 10)
+            first_upgrade_entry.insert(0, "{:.1f}".format((points//10)/10))
+            get_value_calculate_print_all()
+            return
+
+        first_upgrade_entry.delete(0, 10)
+        first_upgrade_entry.insert(0, "10.0")
+        points -= 10 * 100
+
+        if points <= 20 * 50:
+            user_damage_upgrade_entry.delete(0, 10)
+            user_damage_upgrade_entry.insert(0, "{}".format(points//20))
+            get_value_calculate_print_all()
+            return
+
+        user_damage_upgrade_entry.delete(0, 10)
+        user_damage_upgrade_entry.insert(0, "50")
+        points -= 20 * 50
+
+        if points <= 200 * 50:
+            second_upgrade_entry.delete(0, 10)
+            second_upgrade_entry.insert(0, "{:.1f}".format((points//200)/10))
+            get_value_calculate_print_all()
+            return
+
+        second_upgrade_entry.delete(0, 10)
+        second_upgrade_entry.insert(0, "5.0")
+        points -= 200 * 50
+
+        if points <= 1_000 * 30:
+            third_upgrade_entry.delete(0, 10)
+            third_upgrade_entry.insert(0, "{:.1f}".format((points//1_000)/10))
+            get_value_calculate_print_all()
+            return
+
+        third_upgrade_entry.delete(0, 10)
+        third_upgrade_entry.insert(0, "3.0")
+        # points -= 1_000 * 30
+
+        get_value_calculate_print_all()
+
 
     # 처음 안내문
-    first_information_label = tkinter.Label(window, text="아무 칸에 숫자를 입력하고 엔터를 눌러주세요.\n"
-                                                         "유닛 레벨 계산은 유저 스펙이 적용된 유닛의 강화확률 기반으로 비교됩니다.\n"
+    first_information_label = tkinter.Label(window, text="먼저 플레이어 레벨을 입력하고 엔터를 눌러주세요.\n"
+                                                         "플레이어 레벨을 입력하고 엔터를 누르면 +1, +2, +3 강화 확률과 공업이 "
+                                                         "어림짐작으로 자동 갱신됩니다."
+                                                         " 또한 플레이어 시작, 마지막 레벨도 자동 갱신됩니다.\n"
+                                                         "이후 나머지 값들을 입력하고 엔터를 눌러주세요.\n"
+                                                         "모든 계산은 유저 스펙이 적용된 유닛의 강화확률 기반으로 비교됩니다.\n"
                                                          "",
                                             anchor='w',
                                             justify='left')
@@ -215,15 +284,15 @@ if __name__ == '__main__':
     upgrade_rate_frame.grid(row=1, column=0)
 
     # 유저 레벨 라벨
-    user_number_label = tkinter.Label(upgrade_rate_frame,
+    user_level_label = tkinter.Label(upgrade_rate_frame,
                                       text="유저 레벨 : ")
-    user_number_label.grid(row=0, column=0)
+    user_level_label.grid(row=0, column=0)
 
     # 유저 레벨 엔트리
-    user_number_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
-    user_number_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    user_number_entry.insert(2, '5000')
-    user_number_entry.grid(row=0, column=1)
+    user_level_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
+    user_level_entry.bind("<Return>", set_expected_upgrade_rate_and_deal_upgrade)
+    user_level_entry.insert(2, '5000')
+    user_level_entry.grid(row=0, column=1)
 
     # +1 강화확률 라벨
     first_upgrade_label = tkinter.Label(upgrade_rate_frame,

@@ -479,7 +479,7 @@ class UnitCalculator:
         numbers_of_unit = self.return_number_level_to_level(first_input_index, last_input_index)
 
         # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
-        return '{}강 하나를 만들기 위해선 {}강이 평균 {}마리가 필요합니다'.format(last_input_index, first_input_index,
+        return '{}강 하나를 만들기 위해선 {}강이 평균 {:,}마리가 필요합니다'.format(last_input_index, first_input_index,
                                                             numbers_of_unit)
 
     def return_str_time_level_to_level(self, first_input_index=30, last_input_index=40):
@@ -490,6 +490,15 @@ class UnitCalculator:
         # 시, 분, 초로 변환
         hours, minutes, seconds = self.div_time(seconds)
 
+        days = hours // 24
+        hours %= 24
+
+        months = days // 30
+        days %= 30
+
+        years = months // 12
+        months %= 12
+
         acc_time = BEST_FRAME_RATE / FRAME_RATE  # 게임 최대 가속
 
         temp_string = ""
@@ -497,16 +506,28 @@ class UnitCalculator:
         # 마지막 레벨 하나를 만들기 위해 필요한 시간 출력
         temp_string += '----만약 {}강을 최대 시간 가속 비율({:.2f}배)에서 끊임 없이 생산 중이라면----\n\n'.format(first_input_index,
                                                                                          acc_time)
-        temp_string += '{}강 하나를 만들기 위해 리얼 타임 평균 '.format(last_input_index)
+        temp_string += '{}강 하나를 만들기 위해 리얼 타임 평균 : '.format(last_input_index)
 
-        if hours != 0:
+        if years > 0:
+            temp_string += '{}년 '.format(int(years))
+        if months > 0:
+            temp_string += '{}달 '.format(int(months))
+        if days > 0:
+            temp_string += '{}일 '.format(int(days))
+        if hours > 0:
             temp_string += '{}시간 '.format(int(hours))
+        if minutes > 0:
             temp_string += '{}분 '.format(int(minutes))
-        else:
-            if minutes != 0:
-                temp_string += '{}분 '.format(int(minutes))
         temp_string += '{:.2f}초'.format(seconds)
-        temp_string += '의 시간이 필요합니다'
+
+        # if hours != 0:
+        #     temp_string += '{}시간 '.format(int(hours))
+        #     temp_string += '{}분 '.format(int(minutes))
+        # else:
+        #     if minutes != 0:
+        #         temp_string += '{}분 '.format(int(minutes))
+        # temp_string += '{:.2f}초'.format(seconds)
+        # temp_string += '의 시간이 필요합니다'
 
         return temp_string
 
@@ -519,17 +540,30 @@ class UnitCalculator:
         # 시, 분, 초로 변환
         hours, minutes, seconds = self.div_time(seconds)
 
+        days = hours // 24
+        hours %= 24
+
+        months = days // 30
+        days %= 30
+
+        years = months // 12
+        months %= 12
+
         # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
 
         temp_string = ""
 
         temp_string += '{}강을 {}마리 판매하기 위해 리얼 타임 평균 '.format(last_input_index, sell_number)
-        if hours != 0:
+        if years > 0:
+            temp_string += '{}년 '.format(int(years))
+        if months > 0:
+            temp_string += '{}달 '.format(int(months))
+        if days > 0:
+            temp_string += '{}일 '.format(int(days))
+        if hours > 0:
             temp_string += '{}시간 '.format(int(hours))
+        if minutes > 0:
             temp_string += '{}분 '.format(int(minutes))
-        else:
-            if minutes != 0:
-                temp_string += '{}분 '.format(int(minutes))
         temp_string += '{:.2f}초'.format(seconds)
         temp_string += '의 시간이 필요합니다'
 

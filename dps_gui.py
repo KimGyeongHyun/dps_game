@@ -173,6 +173,17 @@ if __name__ == '__main__':
         user_level = int(user_level_entry.get())
         points = int(user_level_entry.get()) * 5
 
+        unit_start_level_entry.delete(0, 10)
+        unit_last_level_entry.delete(0, 10)
+
+        if user_level <= 1_500:
+            unit_start_level_entry.insert(0, "24")
+            unit_last_level_entry.insert(0, "25")
+
+        else:
+            unit_start_level_entry.insert(0, "30")
+            unit_last_level_entry.insert(0, "39")
+
         first_upgrade_entry.delete(0, 10)
         first_upgrade_entry.insert(0, "0.0")
         second_upgrade_entry.delete(0, 10)
@@ -416,7 +427,7 @@ if __name__ == '__main__':
 
     # 유닛 시작 레벨 엔트리
     unit_start_level_entry = tkinter.Entry(unit_information, width=3, justify='center')
-    unit_start_level_entry.insert(1, '28')
+    unit_start_level_entry.insert(1, '30')
     unit_start_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     unit_start_level_entry.grid(row=0, column=1)
 
@@ -426,7 +437,7 @@ if __name__ == '__main__':
 
     # 유닛 마지막 레벨 엔트리
     unit_last_level_entry = tkinter.Entry(unit_information, width=3, justify='center')
-    unit_last_level_entry.insert(1, '40')
+    unit_last_level_entry.insert(1, '39')
     unit_last_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     unit_last_level_entry.grid(row=1, column=1)
 
@@ -559,7 +570,7 @@ if __name__ == '__main__':
     player_calc_label = tkinter.Label(the_other_panedwindow)
     player_calc_label.grid(row=1, column=1)
 
-    # 처음 디폴트 출력
+    # 모든 엔트리에 디폴트 값 출력
     get_value_calculate_print_all()
 
     # 해당 윈도우 창을 윈도우가 종료될 때 까지 실행

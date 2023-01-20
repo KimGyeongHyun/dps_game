@@ -498,6 +498,7 @@ class UnitCalculator:
         temp_string += '----만약 {}강을 최대 시간 가속 비율({:.2f}배)에서 끊임 없이 생산 중이라면----\n\n'.format(first_input_index,
                                                                                          acc_time)
         temp_string += '{}강 하나를 만들기 위해 리얼 타임 평균 '.format(last_input_index)
+
         if hours != 0:
             temp_string += '{}시간 '.format(int(hours))
             temp_string += '{}분 '.format(int(minutes))
@@ -576,7 +577,7 @@ class UnitCalculator:
             if minutes != 0:
                 temp_string += '{}분 '.format(minutes)
         temp_string += '{}초 동안 팔 경우'.format(seconds)
-        temp_string += '평균 {:,}개의 판매권이 소모됩니다'.format(ticket_number)
+        temp_string += '평균 {:,}개의 유닛이 판매됩니다'.format(ticket_number)
 
         return temp_string
 

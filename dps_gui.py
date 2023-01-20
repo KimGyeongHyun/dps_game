@@ -9,7 +9,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 유즈맵 계산기")
+    window.title("DPS 강화하기 v1.08 유즈맵 계산기    version 1.0.0 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     window.geometry('1300x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
@@ -131,7 +131,7 @@ if __name__ == '__main__':
         unit_dps_listbox.delete(0, END)
         unit_exp_listbox.delete(0, END)
 
-        user_spec_label.config(text=game.return_user_spec())
+        user_exact_spec_label.config(text=game.return_user_spec())
 
         for i in range(len(game.unit_dict)):
             unit_level = i + 1
@@ -412,8 +412,8 @@ if __name__ == '__main__':
     party_check_button.grid(row=2, column=1)
 
     # 유저 스펙 레이블
-    user_spec_label = tkinter.Label(window)
-    user_spec_label.pack(side="top", pady=10)
+    user_exact_spec_label = tkinter.Label(window)
+    user_exact_spec_label.pack(side="top", pady=5)
 
     # 유닛 시작 레벨, 마지막 레벨, 판매권 수, 리얼 타임 진행 시간
     # 정보를 가지는 paned window 를 유저 스펙 paned window 에 배치
@@ -488,11 +488,9 @@ if __name__ == '__main__':
     player_end_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     player_end_level_entry.grid(row=4, column=1)
 
-
-
     # 유닛 정보를 담을 paned window 생성
     unit_information_panedwindow = tkinter.PanedWindow()
-    unit_information_panedwindow.pack(side="top", pady=30)
+    unit_information_panedwindow.pack(side="top", pady=5)
 
     # 유닛 정보 레이블
     unit_upgrade_rate_label = tkinter.Label(unit_information_panedwindow, text="유닛 강화 확률")

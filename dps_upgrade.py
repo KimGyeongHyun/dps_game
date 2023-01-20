@@ -463,6 +463,16 @@ class UnitCalculator:
 
         return numbers_of_unit
 
+    # need
+    def return_str_number_level_to_level(self, first_input_index=30, last_input_index=40):
+        """마지막 레벨 한 마리를 만들기 위한 시작 레벨 유닛 갯수 출력"""
+
+        numbers_of_unit = self.return_number_level_to_level(first_input_index, last_input_index)
+
+        # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
+        return '{}강 하나를 만들기 위해선 {}강이 평균 {:,}마리가 필요합니다'.format(last_input_index, first_input_index,
+                                                            numbers_of_unit)
+
     def return_time_level_to_level(self, first_input_index=30, last_input_index=40):
         """시작 레벨 유닛을 최대 속도로 생산한다고 가정, 마지막 유닛 하나를 만드는 데 걸리는 시간 반환"""
 
@@ -473,15 +483,7 @@ class UnitCalculator:
         seconds = numbers_of_unit / BEST_FRAME_RATE  # 필요한 시간 = 필요한 유닛 / 유닛을 뽑는 속도
         return seconds
 
-    def return_str_number_level_to_level(self, first_input_index=30, last_input_index=40):
-        """마지막 레벨 한 마리를 만들기 위한 시작 레벨 유닛 갯수 출력"""
-
-        numbers_of_unit = self.return_number_level_to_level(first_input_index, last_input_index)
-
-        # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
-        return '{}강 하나를 만들기 위해선 {}강이 평균 {:,}마리가 필요합니다'.format(last_input_index, first_input_index,
-                                                            numbers_of_unit)
-
+    # need
     def return_str_time_level_to_level(self, first_input_index=30, last_input_index=40):
         """시작 레벨 유닛을 최대 속도로 생산한다고 가정, 마지막 유닛 하나를 만드는 데 걸리는 시간 출력"""
 
@@ -531,6 +533,7 @@ class UnitCalculator:
 
         return temp_string
 
+    # need
     def return_str_sell_time_level_to_level(self, first_input_index=30, last_input_index=40, sell_number=500):
         """판매 티켓을 특정 갯수 팔기 위해 필요한 시간 출력"""
         numbers_of_unit, seconds = self.return_number_level_to_level(first_input_index, last_input_index), \
@@ -569,21 +572,21 @@ class UnitCalculator:
 
         return temp_string
 
-    def return_str_level_to_level(self, first_input_index=30, last_input_index=40, sell_number=500):
-        """
-        마지막 레벨 한 마리를 만들기 위한 시작 레벨 유닛 갯수 출력\n
-        시작 레벨 유닛을 최대 속도로 생산한다고 가정, 마지막 유닛 하나를 만드는 데 걸리는 시간 출력\n
-        판매 티켓을 특정 갯수 팔기 위해 필요한 시간 출력
-        """
-
-        temp_string = ""
-        temp_string += self.return_str_number_level_to_level(first_input_index, last_input_index)
-        temp_string += "\n\n"
-        temp_string += self.return_str_time_level_to_level(first_input_index, last_input_index)
-        temp_string += "\n\n"
-        temp_string += self.return_str_sell_time_level_to_level(first_input_index, last_input_index, sell_number)
-
-        return temp_string
+    # def return_str_level_to_level(self, first_input_index=30, last_input_index=40, sell_number=500):
+    #     """
+    #     마지막 레벨 한 마리를 만들기 위한 시작 레벨 유닛 갯수 출력\n
+    #     시작 레벨 유닛을 최대 속도로 생산한다고 가정, 마지막 유닛 하나를 만드는 데 걸리는 시간 출력\n
+    #     판매 티켓을 특정 갯수 팔기 위해 필요한 시간 출력
+    #     """
+    #
+    #     temp_string = ""
+    #     temp_string += self.return_str_number_level_to_level(first_input_index, last_input_index)
+    #     temp_string += "\n\n"
+    #     temp_string += self.return_str_time_level_to_level(first_input_index, last_input_index)
+    #     temp_string += "\n\n"
+    #     temp_string += self.return_str_sell_time_level_to_level(first_input_index, last_input_index, sell_number)
+    #
+    #     return temp_string
 
     def return_sell_number_level_to_level(self, first_input_index=30, last_input_index=40, input_seconds=0):
         """특정 시간을 방치했을 때 소모되는 판매티켓 갯수 반환"""
@@ -593,6 +596,7 @@ class UnitCalculator:
 
         return int(seconds / time_one_unit)
 
+    # need
     def return_str_sell_number_level_to_level(self, first_input_index=30, last_input_index=40,
                                               input_hours=0, input_minutes=0, input_seconds=0):
         """특정 시간을 방치했을 때 소모되는 판매티켓 갯수 출력"""
@@ -717,15 +721,20 @@ class PlayerLevelCalculator:
         """유닛을 팔았을 때 레벨을 계산하고 출력"""
 
         get_exp = self.unit_dictionary[unit_level].get_unit_exp() * unit_number
-        sum_exp = 0
-        level = player_level
-        while get_exp >= sum_exp:
-            exp_of_level = ExpOfLevel(level)
-            exp_of_level.set_need_exp()
-            sum_exp += exp_of_level.get_need_exp()
-            level += 1
+        start_exp_of_level = ExpOfLevel(player_level)
+        start_exp_of_level.set_total_exp()
+        sum_exp = get_exp + start_exp_of_level.get_total_exp()
 
-        level -= 1
+        level = player_level
+
+        while True:
+            if level == 10000:
+                break
+            curr_exp_of_level = ExpOfLevel(level)
+            curr_exp_of_level.set_total_exp()
+            if sum_exp <= curr_exp_of_level.get_total_exp():
+                break
+            level += 1
 
         return '플레이어 레벨 {} -> {}'.format(player_level, level)
 
@@ -858,43 +867,44 @@ class Game:
 
 
 if __name__ == '__main__':
-    game = Game()
-
-    player_level = 5000
-    first = 0.1
-    second = 0.05
-    third = 0.03
-    deal_upgrade = 5.0
-    private_boss = 5
-    party_boss = 5
-    multi_player = True
-
-    game.set_value(player_level, first, second, third, deal_upgrade, private_boss, party_boss, multi_player)
-    print(game.return_unit_info())
-    print(game.return_unit_dps_info())
-    print(game.return_unit_exp_info())
-
-    unit_start_level = 30
-    unit_last_level = 40
-    sell_number = 500
-    play_hours = 3
-
-    print(game.unit_calc.return_str_level_to_level(unit_start_level, unit_last_level, sell_number))
-    print()
-    print(game.unit_calc.return_str_sell_number_level_to_level(unit_start_level, unit_last_level, play_hours))
-
-    player_start_level = 5000
-    player_last_level = 6000
-    sell_unit_level = 40
-    sell_unit_number = 500
-
-    print(game.player_calc.return_str_exp_to_level_up(player_start_level))
-    print()
-    print(game.player_calc.return_str_need_number_of_unit_to_level_up(player_start_level, player_last_level))
-    print()
-    print(game.player_calc.return_str_final_level_with_units(player_start_level, sell_unit_level, sell_unit_number))
-
-    print(game.get_sell_number_return_str_play_time_and_player_level(unit_start_level, unit_last_level, sell_number,
-                                                                     player_start_level))
-    print(game.get_play_time_return_str_sell_number_and_player_level(unit_start_level, unit_last_level,
-                                                                     play_hours, 0, 0, player_start_level))
+    pass
+    # game = Game()
+    #
+    # player_level = 5000
+    # first = 0.1
+    # second = 0.05
+    # third = 0.03
+    # deal_upgrade = 5.0
+    # private_boss = 5
+    # party_boss = 5
+    # multi_player = True
+    #
+    # game.set_value(player_level, first, second, third, deal_upgrade, private_boss, party_boss, multi_player)
+    # print(game.return_unit_info())
+    # print(game.return_unit_dps_info())
+    # print(game.return_unit_exp_info())
+    #
+    # unit_start_level = 30
+    # unit_last_level = 40
+    # sell_number = 500
+    # play_hours = 3
+    #
+    # print(game.unit_calc.return_str_level_to_level(unit_start_level, unit_last_level, sell_number))
+    # print()
+    # print(game.unit_calc.return_str_sell_number_level_to_level(unit_start_level, unit_last_level, play_hours))
+    #
+    # player_start_level = 5000
+    # player_last_level = 6000
+    # sell_unit_level = 40
+    # sell_unit_number = 500
+    #
+    # print(game.player_calc.return_str_exp_to_level_up(player_start_level))
+    # print()
+    # print(game.player_calc.return_str_need_number_of_unit_to_level_up(player_start_level, player_last_level))
+    # print()
+    # print(game.player_calc.return_str_final_level_with_units(player_start_level, sell_unit_level, sell_unit_number))
+    #
+    # print(game.get_sell_number_return_str_play_time_and_player_level(unit_start_level, unit_last_level, sell_number,
+    #                                                                  player_start_level))
+    # print(game.get_play_time_return_str_sell_number_and_player_level(unit_start_level, unit_last_level,
+    #                                                                  play_hours, 0, 0, player_start_level))

@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     ###########################
     # 여기에 위젯 추가
-    game = dps_upgrade.Game()
+    game_info = dps_upgrade.GameInfo()
 
 
     # 유저 스펙, 보스, 파티 플레이 여부 상태가 바뀌었을 때 실행
@@ -129,7 +129,7 @@ if __name__ == '__main__':
                                                   user_level,
                                                   player_last_level)
 
-        game.set_value(parameters)
+        game_info.init_game_info(parameters)
 
         # print(game.return_user_spec())
         # print(game.return_unit_info())
@@ -140,30 +140,29 @@ if __name__ == '__main__':
         unit_dps_listbox.delete(0, END)
         unit_exp_listbox.delete(0, END)
 
-        user_exact_spec_label.config(text=game.return_user_spec())
+        user_exact_spec_label.config(text=game_info.return_str_user_spec())
 
-        for i in range(len(game.unit_dict)):
+        for i in range(len(game_info.unit_dict)):
             unit_level = i + 1
-            unit_upgrade_rate_listbox.insert(unit_level, game.unit_dict[unit_level].__str__())
+            unit_upgrade_rate_listbox.insert(unit_level, game_info.unit_dict[unit_level].__str__())
             unit_upgrade_rate_listbox.see(END)
 
-            unit_dps_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_dps())
+            unit_dps_listbox.insert(unit_level, game_info.unit_dict[unit_level].print_unit_dps())
             unit_dps_listbox.see(END)
 
-            if game.unit_dict[unit_level].exp != 0:
-                unit_exp_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_exp())
+            if game_info.unit_dict[unit_level].exp != 0:
+                unit_exp_listbox.insert(unit_level, game_info.unit_dict[unit_level].print_unit_exp())
             unit_exp_listbox.see(END)
 
-        level_to_level_label.config(text=game.unit_calc.return_str_number_level_to_level(out_parameters)
-                                    + "\n\n"
-                                    + game.get_sell_number_return_str_play_time_and_player_level(out_parameters)
-                                    + "\n"
-                                    + game.get_play_time_return_str_sell_number_and_player_level(parameters,
-                                                                                                 out_parameters))
+        level_to_level_label.config(text=game_info.unit_calc.return_str_number_unit_level_to_level(out_parameters)
+                                         + "\n\n"
+                                         + game_info.return_str_final_player_level_with_units(out_parameters)
+                                         + "\n"
+                                         + game_info.return_str_final_player_level_with_time(out_parameters))
 
-        player_calc_label.config(text=game.player_calc.return_str_exp_to_level_up(out_parameters)
-                                 + "\n\n"
-                                 + game.player_calc.return_str_need_number_of_unit_to_level_up(out_parameters))
+        player_calc_label.config(text=game_info.player_calc.return_str_exp_to_player_level_up(out_parameters)
+                                      + "\n\n"
+                                      + game_info.player_calc.return_str_player_level_to_level(out_parameters))
 
 
     def get_entry_value_calculate_print_all(event):

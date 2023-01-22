@@ -119,8 +119,17 @@ if __name__ == '__main__':
 
         user_damage = user_damage * 0.1
 
-        game.set_value(user_level, first, second, third, user_damage,
-                       private_boss, party_boss, multy_player)
+        parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, user_damage,
+                                                   private_boss, party_boss, multy_player)
+
+        out_parameters = dps_upgrade.OutParameter(unit_start_level,
+                                                  unit_last_level,
+                                                  sell_ticket,
+                                                  hour, minute, seconds,
+                                                  user_level,
+                                                  player_last_level)
+
+        game.set_value(parameters)
 
         # print(game.return_user_spec())
         # print(game.return_unit_info())
@@ -145,24 +154,16 @@ if __name__ == '__main__':
                 unit_exp_listbox.insert(unit_level, game.unit_dict[unit_level].print_unit_exp())
             unit_exp_listbox.see(END)
 
-        level_to_level_label.config(text=game.unit_calc.return_str_number_level_to_level(unit_start_level,
-                                                                                         unit_last_level)
+        level_to_level_label.config(text=game.unit_calc.return_str_number_level_to_level(out_parameters)
                                     + "\n\n"
-                                    + game.get_sell_number_return_str_play_time_and_player_level(unit_start_level,
-                                                                                                    unit_last_level,
-                                                                                                    sell_ticket,
-                                                                                                    user_level)
+                                    + game.get_sell_number_return_str_play_time_and_player_level(out_parameters)
                                     + "\n"
-                                    + game.get_play_time_return_str_sell_number_and_player_level(unit_start_level,
-                                                                                                 unit_last_level,
-                                                                                                 hour, minute,
-                                                                                                 seconds,
-                                                                                                 user_level))
+                                    + game.get_play_time_return_str_sell_number_and_player_level(parameters,
+                                                                                                 out_parameters))
 
-        player_calc_label.config(text=game.player_calc.return_str_exp_to_level_up(user_level)
+        player_calc_label.config(text=game.player_calc.return_str_exp_to_level_up(out_parameters)
                                  + "\n\n"
-                                 + game.player_calc.return_str_need_number_of_unit_to_level_up(user_level,
-                                                                                               player_last_level))
+                                 + game.player_calc.return_str_need_number_of_unit_to_level_up(out_parameters))
 
 
     def get_entry_value_calculate_print_all(event):

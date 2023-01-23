@@ -61,15 +61,18 @@ class UserSpecParameter:
     """UserSpec 파라미터로 사용되는 클래스"""
 
     def __init__(self, player_level, first, second, third,
-                 user_damage_up_rate, private_boss, party_boss, multi_player):
+                 user_damage_up_rate, private_boss, party_boss, multi_player,
+                 special_upgrade_rate, prevent_del_rate, another_first):
         self.player_level = player_level
-        self.first = first
+        self.first = first + another_first
         self.second = second
         self.third = third
         self.user_damage_up_rate = user_damage_up_rate
         self.private_boss = private_boss
         self.party_boss = party_boss
         self.multi_player = multi_player
+        self.special_upgrade_rate = special_upgrade_rate
+        self.prevent_del_rate = prevent_del_rate
 
 
 class UserSpec:
@@ -84,6 +87,8 @@ class UserSpec:
         self.private_boss = parameters.private_boss  # 개인 보스 잡은 최대 레벨
         self.party_boss = parameters.party_boss  # 파티 보스 잡은 최대 레벨
         self.multi_player = parameters.multi_player  # 멀티 플레이 여부
+        self.special_upgrade_rate = parameters.special_upgrade_rate     # 40강 이후 특수 강화 확률
+        self.prevent_del_rate = parameters.prevent_del_rate             # 40강 이후 파괴 방지 확률
 
         self.damage_up_rate = 1.0 + parameters.user_damage_up_rate  # 데미지 조정 비율
         self.exp_up_rate = 1.0  # 경험치 조정 비율
@@ -167,13 +172,13 @@ class Unit:
         self.two = 0.0
         self.three = 0.0
 
-        if level >= SECOND_MAX_LEVEL and level != UNIT_MAX_LEVEL:
+        if level >= UNIT_MAX_LEVEL:
+            pass
+        elif level >= SECOND_MAX_LEVEL:
             sum_of_upgrade_rate = user_spec.first + user_spec.second + user_spec.third
-            self.one = unit_information[level][0] + sum_of_upgrade_rate
+            self.one = unit_information[level][0] + sum_of_upgrade_rate + user_spec.special_upgrade_rate
             if self.one < 0.0:
                 self.one = 0.0
-        elif level == UNIT_MAX_LEVEL:
-            pass
         else:
             self.one = unit_information[level][0]  # +1 강화 확률
             self.two = unit_information[level][1]  # +2 강화 확률
@@ -242,6 +247,7 @@ class UnitCalculator:
         self.exp_up_rate = user_spec.return_exp_up_rate()  # 경험치 조정 비율
         # key : level, value : instance of Unit class
         self.unit_dict = input_unit_dict
+        self.prevent_del_rate = user_spec.prevent_del_rate
 
     @staticmethod
     def div_time(input_seconds):
@@ -330,7 +336,7 @@ class UnitCalculator:
 
             # 세번째 사냥터라면
             if curr_level > SECOND_MAX_LEVEL:
-                curr_unit.next_dps_rate += curr_unit.one * self.unit_dict[curr_level + 1].dps
+                curr_unit.next_dps_rate += curr_unit.one * self.unit_dict[curr_level + 1].dps + curr_unit.dps * self.prevent_del_rate
                 curr_unit.next_dps_rate /= curr_unit.dps
                 continue
 
@@ -378,7 +384,7 @@ class UnitCalculator:
 
             # 세번째 사냥터라면
             if curr_level >= SECOND_MAX_LEVEL:
-                curr_unit.next_exp_rate += curr_unit.one * self.unit_dict[curr_level + 1].exp
+                curr_unit.next_exp_rate += curr_unit.one * self.unit_dict[curr_level + 1].exp + curr_unit.exp * self.prevent_del_rate
                 curr_unit.next_exp_rate /= curr_unit.exp
                 continue
 

@@ -9,7 +9,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v1.08 유즈맵 계산기    version 1.0.0 by-vigene")
+    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.0.0 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     window.geometry('1300x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
@@ -72,12 +72,12 @@ if __name__ == '__main__':
                                         "유저 공업은 0 ~ 50 사이의 정수 값을 입력해야 합니다.")
             return
 
-        if unit_start_level < 1 or unit_last_level > 40:
+        if unit_start_level < 1 or unit_last_level > 44:
             tkinter.messagebox.showinfo("유닛 시작 레벨 오류",
                                         "유닛 시작 레벨은 1 ~ 40 사이의 정수 값을 입력해야 합니다.")
             return
 
-        if unit_last_level < 1 or unit_last_level > 40:
+        if unit_last_level < 1 or unit_last_level > 44:
             tkinter.messagebox.showinfo("유닛 마지막 레벨 오류",
                                         "유닛 마지막 레벨은 1 ~ 40 사이의 정수 값을 입력해야 합니다.")
             return

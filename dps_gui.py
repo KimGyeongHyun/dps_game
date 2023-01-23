@@ -621,7 +621,7 @@ if __name__ == '__main__':
 
     unit_exp_listbox = tkinter.Listbox(unit_exp_frame,
                                        yscrollcommand=unit_exp_scrollbar.set,
-                                       width=57, height=15)
+                                       width=62, height=15)
     unit_exp_listbox.pack(side='left')
 
     unit_exp_scrollbar["command"] = unit_exp_listbox.yview

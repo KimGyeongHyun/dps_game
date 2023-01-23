@@ -176,7 +176,19 @@ if __name__ == '__main__':
         unit_start_level_entry.delete(0, 10)
         unit_last_level_entry.delete(0, 10)
 
-        if user_level <= 1_500:
+        if user_level <= 100:
+            unit_start_level_entry.insert(0, "15")
+            unit_last_level_entry.insert(0, "18")
+
+        elif user_level <= 500:
+            unit_start_level_entry.insert(0, "18")
+            unit_last_level_entry.insert(0, "25")
+
+        elif user_level <= 1_000:
+            unit_start_level_entry.insert(0, "20")
+            unit_last_level_entry.insert(0, "25")
+
+        elif user_level <= 1_500:
             unit_start_level_entry.insert(0, "24")
             unit_last_level_entry.insert(0, "25")
 

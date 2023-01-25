@@ -10,7 +10,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.0.0 by-vigene")
+    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.1.0 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     window.geometry('1300x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
@@ -44,7 +44,7 @@ if __name__ == '__main__':
             seconds = int(playing_second_entry.get())
             player_last_level = int(player_end_level_entry.get())
             special_upgrade_rate = float(special_upgrade_rate_entry.get()) / 100
-            prevent_del_rate = float(prevent_del_rate_entry.get()) / 100
+            zero = float(prevent_del_rate_entry.get()) / 100
             another_first = float(another_first_entry.get()) / 100
         except ValueError:
             print('ValueError in user spec input parameter')
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                                         "특수 강화 확률은 0 % ~ 10.0 % 사이의 값을 입력해야 합니다.")
             return
 
-        if prevent_del_rate < 0 or prevent_del_rate > 0.5:
+        if zero < 0 or zero > 0.5:
             tkinter.messagebox.showinfo("파괴 방지 확률 오류",
                                         "파괴 방지 확률은 0 % ~ 50.0 % 사이의 값을 입력해야 합니다.")
             return
@@ -138,9 +138,9 @@ if __name__ == '__main__':
 
         user_damage = user_damage * 0.1
 
-        parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, user_damage,
+        parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
-                                                   special_upgrade_rate, prevent_del_rate, another_first)
+                                                   special_upgrade_rate, another_first)
 
         out_parameters = dps_upgrade.OutParameter(unit_start_level,
                                                   unit_last_level,

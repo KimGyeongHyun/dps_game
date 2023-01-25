@@ -4,7 +4,7 @@ BEST_FRAME_RATE = 77    # dps 강화하기 게임 내 최대 프레임
 FIRST_MAX_LEVEL = 25    # 첫번째 사냥터 유닛 최대 레벨
 SECOND_MAX_LEVEL = 40   # 두번째 사냥터 유닛 최대 레벨
 
-PLAYER_MAX_LEVEL = 10_000   # 플레이어 최대 레벨
+PLAYER_MAX_LEVEL = 50_000   # 플레이어 최대 레벨
 
 MPS_40 = 285 / 207
 

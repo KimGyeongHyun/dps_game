@@ -2,7 +2,15 @@ import tkinter
 import tkinter.messagebox
 import dps_upgrade
 
-END = 44
+UNIT_MAX_LEVEL = 44         # 유닛 최대 레벨
+PLAYER_MAX_LEVEL = 50_000   # 플레이어 최대 레벨
+FIRST_MAX = 10.0            # +1 강화 확률 최댓값
+SECOND_MAX = 5.0            # +1 강화 확률 최댓값
+THIRD_MAX = 3.0             # +1 강화 확률 최댓값
+USER_DAMAGE_MAX = 50        # 최대 공업
+SPECIAL_UPGRADE_MAX = 10.0  # 특수 강화 확률 최댓값
+ZERO_MAX = 50.0             # 파괴 방지 확률 최댓값
+ANOTHER_FIRST_MAX = 5.0     # 추가 +1 강화 확률 최댓값
 
 
 if __name__ == '__main__':
@@ -10,7 +18,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.1.0 by-vigene")
+    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.2.0 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     window.geometry('1300x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
@@ -51,39 +59,39 @@ if __name__ == '__main__':
             return
 
         # 숫자 범위 유효성 검사
-        if user_level < 1 or user_level > 10000:
+        if user_level < 1 or user_level > PLAYER_MAX_LEVEL:
             tkinter.messagebox.showinfo("유저 레벨 오류",
-                                        "유저 레벨은 1 ~ 10000 사이의 정수 값을 입력해야 합니다.")
+                                        "유저 레벨은 1 ~ {} 사이의 정수 값을 입력해야 합니다.".format(PLAYER_MAX_LEVEL))
             return
 
-        if first < 0 or first > 0.1:
+        if first < 0 or first > FIRST_MAX / 100:
             tkinter.messagebox.showinfo("+1 강화 확률 오류",
-                                        "+1 강화 확률은 0.0 % ~ 10.0 % 사이의 값을 입력해야 합니다.")
+                                        "+1 강화 확률은 0.0 % ~ {} % 사이의 값을 입력해야 합니다.".format(FIRST_MAX))
             return
 
-        if second < 0 or second > 0.05:
+        if second < 0 or second > SECOND_MAX / 100:
             tkinter.messagebox.showinfo("+2 강화 확률 오류",
-                                        "+2 강화 확률은 0.0 % ~ 5.0 % 사이의 값을 입력해야 합니다.")
+                                        "+2 강화 확률은 0.0 % ~ {} % 사이의 값을 입력해야 합니다.".format(SECOND_MAX))
             return
 
-        if third < 0 or third > 0.03:
+        if third < 0 or third > THIRD_MAX / 100:
             tkinter.messagebox.showinfo("+3 강화 확률 오류",
-                                        "+3 강화 확률은 0.0 % ~ 3.0 % 사이의 값을 입력해야 합니다.")
+                                        "+3 강화 확률은 0.0 % ~ {} % 사이의 값을 입력해야 합니다.".format(THIRD_MAX))
             return
 
-        if user_damage < 0 or user_damage > 50:
+        if user_damage < 0 or user_damage > USER_DAMAGE_MAX:
             tkinter.messagebox.showinfo("유저 공업 오류",
-                                        "유저 공업은 0 ~ 50 사이의 정수 값을 입력해야 합니다.")
+                                        "유저 공업은 0 ~ {} 사이의 정수 값을 입력해야 합니다.".format(USER_DAMAGE_MAX))
             return
 
-        if unit_start_level < 1 or unit_last_level > 44:
+        if unit_start_level < 1 or unit_last_level > UNIT_MAX_LEVEL:
             tkinter.messagebox.showinfo("유닛 시작 레벨 오류",
-                                        "유닛 시작 레벨은 1 ~ 40 사이의 정수 값을 입력해야 합니다.")
+                                        "유닛 시작 레벨은 1 ~ {} 사이의 정수 값을 입력해야 합니다.".format(UNIT_MAX_LEVEL))
             return
 
-        if unit_last_level < 1 or unit_last_level > 44:
+        if unit_last_level < 1 or unit_last_level > UNIT_MAX_LEVEL:
             tkinter.messagebox.showinfo("유닛 마지막 레벨 오류",
-                                        "유닛 마지막 레벨은 1 ~ 40 사이의 정수 값을 입력해야 합니다.")
+                                        "유닛 마지막 레벨은 1 ~ {} 사이의 정수 값을 입력해야 합니다.".format(UNIT_MAX_LEVEL))
             return
 
         if unit_start_level > unit_last_level:
@@ -111,9 +119,9 @@ if __name__ == '__main__':
                                         "시간은 자연수를 입력해야 합니다.")
             return
 
-        if player_last_level < 1 or player_last_level > 10000:
+        if player_last_level < 1 or player_last_level > PLAYER_MAX_LEVEL:
             tkinter.messagebox.showinfo("플레이어 마지막 레벨 오류",
-                                        "플레이어 레벨은 1 ~ 10000 사이의 정수를 입력해야 합니다.")
+                                        "플레이어 레벨은 1 ~ {} 사이의 정수 값을 입력해야 합니다.".format(PLAYER_MAX_LEVEL))
             return
 
         if user_level > player_last_level:
@@ -121,19 +129,19 @@ if __name__ == '__main__':
                                         "플레이어 목표 레벨은 플레이어 레벨보다 같거나 커야 합니다.")
             return
 
-        if special_upgrade_rate < 0 or special_upgrade_rate > 0.1:
+        if special_upgrade_rate < 0 or special_upgrade_rate > SPECIAL_UPGRADE_MAX / 100:
             tkinter.messagebox.showinfo("특수 강화 확률 오류",
-                                        "특수 강화 확률은 0 % ~ 10.0 % 사이의 값을 입력해야 합니다.")
+                                        "특수 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(SPECIAL_UPGRADE_MAX))
             return
 
-        if zero < 0 or zero > 0.5:
+        if zero < 0 or zero > ZERO_MAX / 100:
             tkinter.messagebox.showinfo("파괴 방지 확률 오류",
-                                        "파괴 방지 확률은 0 % ~ 50.0 % 사이의 값을 입력해야 합니다.")
+                                        "파괴 방지 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ZERO_MAX))
             return
 
-        if another_first < 0 or another_first > 0.05:
+        if another_first < 0 or another_first > ANOTHER_FIRST_MAX / 100:
             tkinter.messagebox.showinfo("추가 +1 강화 확률 오류",
-                                        "추가 +1 강화 확률은 0 % ~ 5.0 % 사이의 값을 입력해야 합니다.")
+                                        "추가 +1 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_FIRST_MAX))
             return
 
         user_damage = user_damage * 0.1
@@ -156,23 +164,23 @@ if __name__ == '__main__':
         # print(game.return_unit_dps_info())
         # print(game.return_unit_exp_info())
 
-        unit_upgrade_rate_listbox.delete(0, END)
-        unit_dps_listbox.delete(0, END)
-        unit_exp_listbox.delete(0, END)
+        unit_upgrade_rate_listbox.delete(0, UNIT_MAX_LEVEL)
+        unit_dps_listbox.delete(0, UNIT_MAX_LEVEL)
+        unit_exp_listbox.delete(0, UNIT_MAX_LEVEL)
 
         user_exact_spec_label.config(text=game_info.return_str_user_spec())
 
         for i in range(len(game_info.unit_dict)):
             unit_level = i + 1
             unit_upgrade_rate_listbox.insert(unit_level, game_info.unit_dict[unit_level].__str__())
-            unit_upgrade_rate_listbox.see(END)
+            unit_upgrade_rate_listbox.see(UNIT_MAX_LEVEL)
 
             unit_dps_listbox.insert(unit_level, game_info.unit_dict[unit_level].print_unit_dps())
-            unit_dps_listbox.see(END)
+            unit_dps_listbox.see(UNIT_MAX_LEVEL)
 
             if game_info.unit_dict[unit_level].exp != 0:
                 unit_exp_listbox.insert(unit_level, game_info.unit_dict[unit_level].print_unit_exp())
-            unit_exp_listbox.see(END)
+            unit_exp_listbox.see(UNIT_MAX_LEVEL)
 
         level_to_level_label.config(text=game_info.unit_calc.return_str_number_unit_level_to_level(out_parameters)
                                          + "\n\n"
@@ -191,7 +199,7 @@ if __name__ == '__main__':
 
 
     def set_expected_upgrade_rate_and_deal_upgrade(event):
-        """유저 레벨에 따라 +1, +2, +3, 공업, 유닛 시작, 마지막 레벨 디폴트 값 갱신"""
+        """유저 레벨에 따라 +1, +2, +3, 공업, 유닛 시작, 마지막 레벨 , 특수 강화 확률, 파괴 방지 확률, +1 추가 확률 디폴트 값 갱신"""
 
         user_level = int(user_level_entry.get())
         points = int(user_level_entry.get()) * 5
@@ -227,52 +235,72 @@ if __name__ == '__main__':
         third_upgrade_entry.insert(0, "0.0")
         user_damage_upgrade_entry.delete(0, 10)
         user_damage_upgrade_entry.insert(0, "0")
+        
+        while True:
+        
+            player_end_level_entry.delete(0, 10)
+            if user_level == 50_000:
+                player_end_level_entry.insert(0, "50000")
+            else:
+                player_end_level_entry.insert(0, "{}".format((user_level // 500 + 1) * 500))
 
-        player_end_level_entry.delete(0, 10)
-        if user_level == 10_000:
-            player_end_level_entry.insert(0, "10000")
-        else:
-            player_end_level_entry.insert(0, "{}".format((user_level // 500 + 1) * 500))
-
-        if points <= 10 * 100:
             first_upgrade_entry.delete(0, 10)
-            first_upgrade_entry.insert(0, "{:.1f}".format((points // 10) / 10))
-            get_value_calculate_print_all()
-            return
+            if points <= 10 * 100:
+                first_upgrade_entry.insert(0, "{:.1f}".format((points // 10) / 10))
+                get_value_calculate_print_all()
+                break
+            first_upgrade_entry.insert(0, "10.0")
+            points -= 10 * 100
 
-        first_upgrade_entry.delete(0, 10)
-        first_upgrade_entry.insert(0, "10.0")
-        points -= 10 * 100
-
-        if points <= 20 * 50:
             user_damage_upgrade_entry.delete(0, 10)
-            user_damage_upgrade_entry.insert(0, "{}".format(points // 20))
-            get_value_calculate_print_all()
-            return
+            if points <= 20 * 50:
+                user_damage_upgrade_entry.insert(0, "{}".format(points // 20))
+                get_value_calculate_print_all()
+                break
+            user_damage_upgrade_entry.insert(0, "50")
+            points -= 20 * 50
 
-        user_damage_upgrade_entry.delete(0, 10)
-        user_damage_upgrade_entry.insert(0, "50")
-        points -= 20 * 50
-
-        if points <= 200 * 50:
             second_upgrade_entry.delete(0, 10)
-            second_upgrade_entry.insert(0, "{:.1f}".format((points // 200) / 10))
-            get_value_calculate_print_all()
-            return
+            if points <= 200 * 50:
+                second_upgrade_entry.insert(0, "{:.1f}".format((points // 200) / 10))
+                get_value_calculate_print_all()
+                break
+            second_upgrade_entry.insert(0, "5.0")
+            points -= 200 * 50
 
-        second_upgrade_entry.delete(0, 10)
-        second_upgrade_entry.insert(0, "5.0")
-        points -= 200 * 50
-
-        if points <= 1_000 * 30:
             third_upgrade_entry.delete(0, 10)
-            third_upgrade_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
-            get_value_calculate_print_all()
-            return
+            if points <= 1_000 * 30:
+                third_upgrade_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
+                get_value_calculate_print_all()
+                break
+            third_upgrade_entry.insert(0, "3.0")
+            points -= 1_000 * 30
 
-        third_upgrade_entry.delete(0, 10)
-        third_upgrade_entry.insert(0, "3.0")
-        # points -= 1_000 * 30
+            another_first_entry.delete(0, 10)
+            if points <= 1_000 * 50:
+                another_first_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
+                get_value_calculate_print_all()
+                break
+            another_first_entry.insert(0, "5.0")
+            points -= 1_000 * 50
+
+            special_upgrade_rate_entry.delete(0, 10)
+            if points <= 500 * 100:
+                special_upgrade_rate_entry.insert(0, "{:.1f}".format((points // 500) / 10))
+                get_value_calculate_print_all()
+                break
+            special_upgrade_rate_entry.insert(0, "10.0")
+            points -= 500 * 100
+
+            prevent_del_rate_entry.delete(0, 10)
+            if points <= 150 * 500:
+                prevent_del_rate_entry.insert(0, "{:.1f}".format((points // 150) / 10))
+                get_value_calculate_print_all()
+                break
+            prevent_del_rate_entry.insert(0, "50.0")
+            points -= 150 * 500
+            
+            break
 
         get_value_calculate_print_all()
 

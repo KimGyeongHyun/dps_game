@@ -469,60 +469,12 @@ class UnitCalculator:
     def return_number_unit_level_to_level(self, out_parameters):
         """마지막 레벨 한 마리를 만들기 위한 시작 레벨 유닛 갯수 반환"""
 
-        temp_dict = {
-            1: 0,
-            2: 0,
-            3: 0,
-            4: 0,
-            5: 0,
-            6: 0,
-            7: 0,
-            8: 0,
-            9: 0,
-            10: 0,
-            11: 0,
-            12: 0,
-            13: 0,
-            14: 0,
-            15: 0,
-            16: 0,
-            17: 0,
-            18: 0,
-            19: 0,
-            20: 0,
-            21: 0,
-            22: 0,
-            23: 0,
-            24: 0,
-            25: 0,
-            26: 0,
-            27: 0,
-            28: 0,
-            29: 0,
-            30: 0,
-            31: 0,
-            32: 0,
-            33: 0,
-            34: 0,
-            35: 0,
-            36: 0,
-            37: 0,
-            38: 0,
-            39: 0,
-            40: 0,
-            41: 0,
-            42: 0,
-            43: 0,
-            44: 0,
-            45: 0,
-            46: 0,
-            47: 0
-        }
-        if type(out_parameters.unit_start_level) != int:
-            print("ERROR. need int type value in first_input_index parameter")
-            return
-        else:
-            temp_dict[out_parameters.unit_start_level] = 1.0  # 시작 레벨 1마리가 있다고 가정
+        temp_dict = {}
+
+        for i in range(out_parameters.unit_start_level, out_parameters.unit_last_level+3):
+            temp_dict[i] = 0
+
+        temp_dict[out_parameters.unit_start_level] = 1.0  # 시작 레벨 1마리가 있다고 가정
 
         # 마지막 레벨에 도달할 때까지 계산 반복
         for i in range(out_parameters.unit_start_level, out_parameters.unit_last_level):

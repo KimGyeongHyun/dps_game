@@ -18,7 +18,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.2.0 by-vigene")
+    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.2.1 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     window.geometry('1300x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정

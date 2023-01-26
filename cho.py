@@ -52,9 +52,13 @@ class ChoCalc:
             temp_ratio *= self.cho.prev_ratio + self.cho.curr_ratio
             m_number += 1
 
+        self.cho.vac = int(m_number * self.prev_cho.next_price * (
+                    self.cho.prev_ratio / (self.cho.prev_ratio + self.cho.curr_ratio))) - VAC * m_number
+
         self.cho.next_price = int(m_number * self.cho.price + m_number * self.prev_cho.next_price * (self.cho.prev_ratio / (self.cho.prev_ratio + self.cho.curr_ratio)))
 
-        self.cho.vac = int(m_number * self.prev_cho.next_price * (self.cho.prev_ratio / (self.cho.prev_ratio + self.cho.curr_ratio))) - VAC * m_number
+        if self.cho.vac > 0:
+            self.cho.next_price -= self.cho.vac
 
 
 if __name__ == "__main__":
@@ -82,9 +86,12 @@ if __name__ == "__main__":
         print(cho_dict[i])
         cho_sum += cho_dict[i].next_price
 
+    # 승급 비용
+    cho_sum += 1_000_000
+
     print(cho_sum)
 
-    # 계산 결과 9 레벨에서 백신을 사용해야 하며, 총 크래딧 갯수는 1642459 개에서 1076052 개로 바뀜
+    # 계산 결과 9 레벨에서 백신을 사용해야 하며, 총 크래딧 갯수는 2642459 개에서 2076052 개로 바뀜
 
 
 

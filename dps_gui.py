@@ -1,16 +1,7 @@
 import tkinter
 import tkinter.messagebox
 import dps_upgrade
-
-UNIT_MAX_LEVEL = 44         # 유닛 최대 레벨
-PLAYER_MAX_LEVEL = 50_000   # 플레이어 최대 레벨
-FIRST_MAX = 10.0            # +1 강화 확률 최댓값
-SECOND_MAX = 5.0            # +1 강화 확률 최댓값
-THIRD_MAX = 3.0             # +1 강화 확률 최댓값
-USER_DAMAGE_MAX = 50        # 최대 공업
-SPECIAL_UPGRADE_MAX = 10.0  # 특수 강화 확률 최댓값
-ZERO_MAX = 50.0             # 파괴 방지 확률 최댓값
-ANOTHER_FIRST_MAX = 5.0     # 추가 +1 강화 확률 최댓값
+from static_info.static_info import *
 
 
 if __name__ == '__main__':
@@ -18,7 +9,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.2.1 by-vigene")
+    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.2.2 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     window.geometry('1300x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
@@ -157,7 +148,7 @@ if __name__ == '__main__':
                                                   user_level,
                                                   player_last_level)
 
-        game_info.init_game_info(parameters)
+        game_info.init_game_info(parameters, out_parameters)
 
         # print(game.return_user_spec())
         # print(game.return_unit_info())
@@ -182,15 +173,15 @@ if __name__ == '__main__':
                 unit_exp_listbox.insert(unit_level, game_info.unit_dict[unit_level].print_unit_exp())
             unit_exp_listbox.see(UNIT_MAX_LEVEL)
 
-        level_to_level_label.config(text=game_info.unit_calc.return_str_number_unit_level_to_level(out_parameters)
+        level_to_level_label.config(text=game_info.unit_calc.return_str_number_unit_level_to_level()
                                          + "\n\n"
-                                         + game_info.return_str_final_player_level_with_units(out_parameters)
+                                         + game_info.return_str_final_player_level_with_units()
                                          + "\n"
-                                         + game_info.return_str_final_player_level_with_time(out_parameters))
+                                         + game_info.return_str_final_player_level_with_time())
 
-        player_calc_label.config(text=game_info.player_calc.return_str_exp_to_player_level_up(out_parameters)
+        player_calc_label.config(text=game_info.player_calc.return_str_exp_to_player_level_up()
                                       + "\n\n"
-                                      + game_info.player_calc.return_str_player_level_to_level(out_parameters))
+                                      + game_info.player_calc.return_str_player_level_to_level())
 
 
     def get_entry_value_calculate_print_all(event):
@@ -201,7 +192,12 @@ if __name__ == '__main__':
     def set_expected_upgrade_rate_and_deal_upgrade(event):
         """유저 레벨에 따라 +1, +2, +3, 공업, 유닛 시작, 마지막 레벨 , 특수 강화 확률, 파괴 방지 확률, +1 추가 확률 디폴트 값 갱신"""
 
-        user_level = int(user_level_entry.get())
+        try:
+            user_level = int(user_level_entry.get())
+        except ValueError:
+            print('ValueError in user spec input parameter')
+            return
+
         points = int(user_level_entry.get()) * 5
 
         unit_start_level_entry.delete(0, 10)
@@ -235,6 +231,12 @@ if __name__ == '__main__':
         third_upgrade_entry.insert(0, "0.0")
         user_damage_upgrade_entry.delete(0, 10)
         user_damage_upgrade_entry.insert(0, "0")
+        special_upgrade_rate_entry.delete(0, 10)
+        special_upgrade_rate_entry.insert(0, "0.0")
+        prevent_del_rate_entry.delete(0, 10)
+        prevent_del_rate_entry.insert(0, "0.0")
+        another_first_entry.delete(0, 10)
+        another_first_entry.insert(0, "0.0")
         
         while True:
         
@@ -349,7 +351,7 @@ if __name__ == '__main__':
     # 유저 레벨 엔트리
     user_level_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
     user_level_entry.bind("<Return>", set_expected_upgrade_rate_and_deal_upgrade)
-    user_level_entry.insert(2, '5000')
+    user_level_entry.insert(2, '8500')
     user_level_entry.grid(row=0, column=1)
 
     # +1 강화확률 레이블
@@ -584,7 +586,7 @@ if __name__ == '__main__':
 
     # 플레이어 마지막 레벨 엔트리
     player_end_level_entry = tkinter.Entry(unit_information, width=7, justify='center')
-    player_end_level_entry.insert(2, '6000')
+    player_end_level_entry.insert(2, '9000')
     player_end_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     player_end_level_entry.grid(row=4, column=1)
 

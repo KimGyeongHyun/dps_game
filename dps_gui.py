@@ -9,7 +9,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.3.0 by-vigene")
+    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.3.1 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     window.geometry('1500x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
@@ -19,9 +19,9 @@ if __name__ == '__main__':
     # 여기에 위젯 추가
     game_info = dps_upgrade.GameInfo()
 
-    # 유저 스펙, 보스, 파티 플레이 여부 상태가 바뀌었을 때 실행
+    # 모든 엔트리, 보스, 파티 플레이 여부 상태가 바뀌었을 때 실행
     # 처음 실행할 때도 실행
-    # 모든 출력을 다시 갱신하여 출력
+    # 엔트리 값, 체크 박스, 라디오 박스 정보를 받아 다시 갱신하여 모두 출력
     def get_value_calculate_print_all():
         """모든 수치를 받아 계산 후 모두 출력"""
 
@@ -152,11 +152,13 @@ if __name__ == '__main__':
 
         user_damage = user_damage * 0.1
 
+        # 유저 스펙 파라미터
         parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
                                                    special_upgrade_rate, another_first,
                                                    cho_exp_rate, cho_another_first, cho_special)
 
+        # 외부 파라미터
         out_parameters = dps_upgrade.OutParameter(unit_start_level,
                                                   unit_last_level,
                                                   sell_ticket,
@@ -164,19 +166,17 @@ if __name__ == '__main__':
                                                   user_level,
                                                   player_last_level)
 
+        # 모든 파라미터를 받아 GameInfo 인스턴스 초기화
         game_info.init_game_info(parameters, out_parameters)
-
-        # print(game.return_user_spec())
-        # print(game.return_unit_info())
-        # print(game.return_unit_dps_info())
-        # print(game.return_unit_exp_info())
 
         unit_upgrade_rate_listbox.delete(0, UNIT_MAX_LEVEL)
         unit_dps_listbox.delete(0, UNIT_MAX_LEVEL)
         unit_exp_listbox.delete(0, UNIT_MAX_LEVEL)
 
+        # 유저 최종 스펙 출력
         user_exact_spec_label.config(text=game_info.return_str_user_spec())
 
+        # 리스트 박스에 유닛 정보 출력
         for i in range(len(game_info.unit_dict)):
             unit_level = i + 1
             unit_upgrade_rate_listbox.insert(unit_level, game_info.unit_dict[unit_level].__str__())
@@ -189,15 +189,17 @@ if __name__ == '__main__':
                 unit_exp_listbox.insert(unit_level, game_info.unit_dict[unit_level].print_unit_exp())
             unit_exp_listbox.see(UNIT_MAX_LEVEL)
 
+        # 유닛 레벨 관련 정보 출력
         level_to_level_label.config(text=game_info.unit_calc.return_str_number_unit_level_to_level()
-                                         + "\n\n"
-                                         + game_info.return_str_final_player_level_with_units()
-                                         + "\n"
-                                         + game_info.return_str_final_player_level_with_time())
+                                    + "\n\n"
+                                    + game_info.return_str_final_player_level_with_units()
+                                    + "\n"
+                                    + game_info.return_str_final_player_level_with_time())
 
+        # 플레이어 레벨 관련 정보 출력
         player_calc_label.config(text=game_info.player_calc.return_str_exp_to_player_level_up()
-                                      + "\n\n"
-                                      + game_info.player_calc.return_str_player_level_to_level())
+                                 + "\n\n"
+                                 + game_info.player_calc.return_str_player_level_to_level())
 
 
     def get_entry_value_calculate_print_all(event):
@@ -208,17 +210,20 @@ if __name__ == '__main__':
     def set_expected_upgrade_rate_and_deal_upgrade(event):
         """유저 레벨에 따라 +1, +2, +3, 공업, 유닛 시작, 마지막 레벨 , 특수 강화 확률, 파괴 방지 확률, +1 추가 확률 디폴트 값 갱신"""
 
+        # 유저 레벨 유효성 검사
         try:
             user_level = int(user_level_entry.get())
         except ValueError:
             print('ValueError in user spec input parameter')
             return
 
+        # 포인트 총합
         points = int(user_level_entry.get()) * 5
 
         unit_start_level_entry.delete(0, 10)
         unit_last_level_entry.delete(0, 10)
 
+        # 유저 레벨에 따라 유닛 시작, 마지막 레벨 엔트리 값 초기화
         if user_level <= 100:
             unit_start_level_entry.insert(0, "15")
             unit_last_level_entry.insert(0, "18")
@@ -239,6 +244,7 @@ if __name__ == '__main__':
             unit_start_level_entry.insert(0, "30")
             unit_last_level_entry.insert(0, "39")
 
+        # 갱신할 엔트리 값 초기화
         first_upgrade_entry.delete(0, 10)
         first_upgrade_entry.insert(0, "0.0")
         second_upgrade_entry.delete(0, 10)
@@ -253,79 +259,85 @@ if __name__ == '__main__':
         prevent_del_rate_entry.insert(0, "0.0")
         another_first_entry.delete(0, 10)
         another_first_entry.insert(0, "0.0")
-        
-        while True:
-        
-            player_end_level_entry.delete(0, 10)
-            if user_level == 50_000:
-                player_end_level_entry.insert(0, "50000")
-            else:
-                player_end_level_entry.insert(0, "{}".format((user_level // 500 + 1) * 500))
 
-            first_upgrade_entry.delete(0, 10)
-            if points <= 10 * 100:
-                first_upgrade_entry.insert(0, "{:.1f}".format((points // 10) / 10))
-                get_value_calculate_print_all()
-                break
-            first_upgrade_entry.insert(0, "10.0")
-            points -= 10 * 100
+        # 플레이어 목표 레벨 디폴트 값 지정
+        player_end_level_entry.delete(0, 10)
+        if user_level == 50_000:
+            player_end_level_entry.insert(0, "50000")
+        else:
+            player_end_level_entry.insert(0, "{}".format((user_level // 500 + 1) * 500))
 
-            user_damage_upgrade_entry.delete(0, 10)
-            if points <= 20 * 50:
-                user_damage_upgrade_entry.insert(0, "{}".format(points // 20))
-                get_value_calculate_print_all()
-                break
-            user_damage_upgrade_entry.insert(0, "50")
-            points -= 20 * 50
+        # +1 강화 확률 디폴트 값 지정
+        first_upgrade_entry.delete(0, 10)
+        if points <= 10 * 100:
+            first_upgrade_entry.insert(0, "{:.1f}".format((points // 10) / 10))
+            get_value_calculate_print_all()
+            return
+        first_upgrade_entry.insert(0, "10.0")
+        points -= 10 * 100
 
-            second_upgrade_entry.delete(0, 10)
-            if points <= 200 * 50:
-                second_upgrade_entry.insert(0, "{:.1f}".format((points // 200) / 10))
-                get_value_calculate_print_all()
-                break
-            second_upgrade_entry.insert(0, "5.0")
-            points -= 200 * 50
+        # 유저 공업 디폴트 값 지정
+        user_damage_upgrade_entry.delete(0, 10)
+        if points <= 20 * 50:
+            user_damage_upgrade_entry.insert(0, "{}".format(points // 20))
+            get_value_calculate_print_all()
+            return
+        user_damage_upgrade_entry.insert(0, "50")
+        points -= 20 * 50
 
-            third_upgrade_entry.delete(0, 10)
-            if points <= 1_000 * 30:
-                third_upgrade_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
-                get_value_calculate_print_all()
-                break
-            third_upgrade_entry.insert(0, "3.0")
-            points -= 1_000 * 30
+        # +2 강화 확률 디폴트 값 지정
+        second_upgrade_entry.delete(0, 10)
+        if points <= 200 * 50:
+            second_upgrade_entry.insert(0, "{:.1f}".format((points // 200) / 10))
+            get_value_calculate_print_all()
+            return
+        second_upgrade_entry.insert(0, "5.0")
+        points -= 200 * 50
 
-            another_first_entry.delete(0, 10)
-            if points <= 1_000 * 50:
-                another_first_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
-                get_value_calculate_print_all()
-                break
-            another_first_entry.insert(0, "5.0")
-            points -= 1_000 * 50
+        # +3 강화 확률 디폴트 값 지정
+        third_upgrade_entry.delete(0, 10)
+        if points <= 1_000 * 30:
+            third_upgrade_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
+            get_value_calculate_print_all()
+            return
+        third_upgrade_entry.insert(0, "3.0")
+        points -= 1_000 * 30
 
-            special_upgrade_rate_entry.delete(0, 10)
-            if points <= 500 * 100:
-                special_upgrade_rate_entry.insert(0, "{:.1f}".format((points // 500) / 10))
-                get_value_calculate_print_all()
-                break
-            special_upgrade_rate_entry.insert(0, "10.0")
-            points -= 500 * 100
+        # 추가 +1 강화 확률 디폴트 값 지정
+        another_first_entry.delete(0, 10)
+        if points <= 1_000 * 50:
+            another_first_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
+            get_value_calculate_print_all()
+            return
+        another_first_entry.insert(0, "5.0")
+        points -= 1_000 * 50
 
-            prevent_del_rate_entry.delete(0, 10)
-            if points <= 150 * 500:
-                prevent_del_rate_entry.insert(0, "{:.1f}".format((points // 150) / 10))
-                get_value_calculate_print_all()
-                break
-            prevent_del_rate_entry.insert(0, "50.0")
-            points -= 150 * 500
-            
-            break
+        # 특수 강화 확률 디폴트 값 지정
+        special_upgrade_rate_entry.delete(0, 10)
+        if points <= 500 * 100:
+            special_upgrade_rate_entry.insert(0, "{:.1f}".format((points // 500) / 10))
+            get_value_calculate_print_all()
+            return
+        special_upgrade_rate_entry.insert(0, "10.0")
+        points -= 500 * 100
 
+        # 파괴 방지 확률 디폴트 값 지정
+        prevent_del_rate_entry.delete(0, 10)
+        if points <= 150 * 500:
+            prevent_del_rate_entry.insert(0, "{:.1f}".format((points // 150) / 10))
+            get_value_calculate_print_all()
+            return
+        prevent_del_rate_entry.insert(0, "50.0")
+        points -= 150 * 500
+
+        # 갱신된 값을 받아 계산 후 모두 출력
         get_value_calculate_print_all()
 
     ###################################################################################################################
     # 처음 안내문
     first_information_label = tkinter.Label(window, text="1) 먼저 플레이어 레벨을 입력하고 엔터를 눌러주세요.\n"
                                                          "플레이어 레벨을 입력하고 엔터를 누르면 +1, +2, +3 강화 확률과 공업, "
+                                                         "특수 강화, 파괴 방지, 추가 +1 강화 확률, "
                                                          "플레이어 목표 레벨이 어림짐작으로 자동 갱신됩니다.\n"
                                                          "2) 이후 유저 스펙을 수정하고 엔터를 눌러주세요.\n"
                                                          "3) 보스 처치 레벨과 파티 플레이 버프 여부를 선택하세요\n"
@@ -350,13 +362,14 @@ if __name__ == '__main__':
     boss_and_multi_label = tkinter.Label(user_spec_panedwindow, text="보스 최대 레벨, 파티플레이 버프 여부")
     unit_level_calculate_label = tkinter.Label(user_spec_panedwindow, text="보고 싶은 정보")
 
+    # 유저 스펙 레이블 배치
     user_spec_label.grid(row=0, column=0)
     cho_label.grid(row=0, column=1)
     boss_and_multi_label.grid(row=0, column=2)
     unit_level_calculate_label.grid(row=0, column=3)
 
     ###################################################################################################################
-    # 유저 스펙 중 강화확률과 공업, 특수 강화확률, 파괴 방지 확률, +1 추가 강화 확률을 기입할 paned window 를 유저 스펙 paned window 에 배치
+    # 유저 스펙 중 강화확률과 공업, 특수 강화확률, 파괴 방지 확률, +1 추가 강화 확률을 기입할 frame 을 유저 스펙 paned window 에 배치
     upgrade_rate_frame = tkinter.Frame(user_spec_panedwindow, padx=30)
     user_spec_panedwindow.add(upgrade_rate_frame)
     upgrade_rate_frame.grid(row=1, column=0)
@@ -469,30 +482,37 @@ if __name__ == '__main__':
     user_spec_panedwindow.add(cho_frame)
     cho_frame.grid(row=1, column=1)
 
+    # 고유 유닛 경험치 증가량 레이블
     cho_exp_rate_label = tkinter.Label(cho_frame, text="경험치 증가량 : ")
     cho_exp_rate_label.grid(row=0, column=0)
 
+    # 고유 유닛 경험치 증가량 엔트리
     cho_exp_rate_entry = tkinter.Entry(cho_frame, width=7, justify='center')
     cho_exp_rate_entry.bind("<Return>", get_entry_value_calculate_print_all)
     cho_exp_rate_entry.insert(2, '0.0')
     cho_exp_rate_entry.grid(row=0, column=1)
 
+    # 추가 +1 강화 확률 레이블
     cho_another_first_label = tkinter.Label(cho_frame, text="추가 +1 강화 확률 : ")
     cho_another_first_label.grid(row=1, column=0)
 
+    # 추가 +1 강화 확률 엔트리
     cho_another_first_entry = tkinter.Entry(cho_frame, width=7, justify='center')
     cho_another_first_entry.bind("<Return>", get_entry_value_calculate_print_all)
     cho_another_first_entry.insert(2, '0.0')
     cho_another_first_entry.grid(row=1, column=1)
 
+    # 특수 강화 확률 레이블
     cho_special_label = tkinter.Label(cho_frame, text="특수 강화 확률 : ")
     cho_special_label.grid(row=2, column=0)
 
+    # 특수 강화 확률 엔트리
     cho_special_entry = tkinter.Entry(cho_frame, width=7, justify='center')
     cho_special_entry.bind("<Return>", get_entry_value_calculate_print_all)
     cho_special_entry.insert(2, '0.0')
     cho_special_entry.grid(row=2, column=1)
 
+    # % 레이블
     percent8 = tkinter.Label(cho_frame, text='%')
     percent9 = tkinter.Label(cho_frame, text='%')
     percent10 = tkinter.Label(cho_frame, text='%')
@@ -502,7 +522,7 @@ if __name__ == '__main__':
     percent10.grid(row=2, column=2)
 
     ###################################################################################################################
-    # 유저 스펙 중 보스 라운드와 파티플레이 여부를 체크할 paned window 를 유저 스펙 paned window 에 배치
+    # 유저 스펙 중 보스 라운드와 파티플레이 여부를 체크할 frame 을 유저 스펙 paned window 에 배치
     boss_and_multy = tkinter.Frame(user_spec_panedwindow, padx=30)
     user_spec_panedwindow.add(boss_and_multy)
     boss_and_multy.grid(row=1, column=2)
@@ -636,18 +656,18 @@ if __name__ == '__main__':
     playing_second_label.grid(row=3, column=6)
     playing_second_entry.grid(row=3, column=5)
 
-    # 플레이어 마지막 레벨 레이블
+    # 플레이어 목표 레벨 레이블
     player_end_level_label = tkinter.Label(unit_information, text='플레이어 목표 레벨 : ')
     player_end_level_label.grid(row=4, column=0)
 
-    # 플레이어 마지막 레벨 엔트리
+    # 플레이어 목표 레벨 엔트리
     player_end_level_entry = tkinter.Entry(unit_information, width=7, justify='center')
     player_end_level_entry.insert(2, '9000')
     player_end_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     player_end_level_entry.grid(row=4, column=1)
 
     ##################################################################################################################
-    # 유저 스펙 레이블
+    # 유저 최종 스펙 레이블
     user_exact_spec_label = tkinter.Label(window)
     user_exact_spec_label.pack(side="top", pady=5)
 

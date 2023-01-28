@@ -6,7 +6,8 @@ class UserSpecParameter:
 
     def __init__(self, player_level, first, second, third, zero,
                  user_damage_up_rate, private_boss, party_boss, multi_player,
-                 special_upgrade_rate, another_first):
+                 special_upgrade_rate, another_first,
+                 cho_exp_rate, cho_another_first, cho_special_rate):
         self.player_level = player_level
         self.first = first + another_first
         self.second = second
@@ -17,6 +18,9 @@ class UserSpecParameter:
         self.party_boss = party_boss
         self.multi_player = multi_player
         self.special_upgrade_rate = special_upgrade_rate
+        self.cho_exp_rate = cho_exp_rate
+        self.cho_another_first = cho_another_first
+        self.cho_special_rate = cho_special_rate
 
 
 class UserSpec:
@@ -36,6 +40,10 @@ class UserSpec:
 
         self.damage_up_rate = 1.0 + parameters.user_damage_up_rate  # 데미지 조정 비율
         self.exp_up_rate = 1.0  # 경험치 조정 비율
+
+        self.exp_up_rate += parameters.cho_exp_rate
+        self.first += parameters.cho_another_first
+        self.special_upgrade_rate += parameters.cho_special_rate
 
         # 개인 보스 조건에 따라 유저 스펙 갱신
         if parameters.private_boss >= 1:

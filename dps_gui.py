@@ -9,7 +9,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.01 유즈맵 계산기    version 2.3.1 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.0 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     window.geometry('1500x900+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
@@ -45,6 +45,8 @@ if __name__ == '__main__':
             special_upgrade_rate = float(special_upgrade_rate_entry.get()) / 100
             zero = float(prevent_del_rate_entry.get()) / 100
             another_first = float(another_first_entry.get()) / 100
+            another_second = float(another_second_entry.get()) / 100
+            another_third = float(another_third_entry.get()) / 100
             w_exp_rate = float(cho_exp_rate_entry.get()) / 100
             w_another_first = float(cho_another_first_entry.get()) / 100
             w_special_upgrade = float(cho_special_entry.get()) / 100
@@ -137,25 +139,38 @@ if __name__ == '__main__':
             tkinter.messagebox.showinfo("추가 +1 강화 확률 오류",
                                         "추가 +1 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_FIRST_MAX))
             return
+            
+        if another_second < 0 or another_second > ANOTHER_SECOND_MAX / 100:
+            tkinter.messagebox.showinfo("추가 +2 강화 확률 오류",
+                                        "추가 +2 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_SECOND_MAX))
+            return
+        
+        if another_third < 0 or another_third > ANOTHER_SECOND_MAX / 100:
+            tkinter.messagebox.showinfo("추가 +3 강화 확률 오류",
+                                        "추가 +3 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_THIRD_MAX))
+            return
 
         if w_exp_rate < 0 or w_exp_rate > W_EXP_RATE_MAX / 100:
             tkinter.messagebox.showinfo("고유 유닛 경험치 증가량 확률 오류",
                                         "고유 유닛 경험치 증가량 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_EXP_RATE_MAX))
+            return
 
         if w_another_first < 0 or w_another_first > W_ANOTHER_FIRST_MAX / 100:
-            tkinter.messagebox.showinfo("추가 +1 강화 확률 오류",
-                                        "추가 +1 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_ANOTHER_FIRST_MAX))
+            tkinter.messagebox.showinfo("고유 유닛 추가 +1 강화 확률 오류",
+                                        "고유 유닛 추가 +1 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_ANOTHER_FIRST_MAX))
+            return
 
         if w_special_upgrade < 0 or w_special_upgrade > W_SPECIAL_UPGRADE_MAX / 100:
-            tkinter.messagebox.showinfo("특수 강화 확률 오류",
-                                        "특수 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_SPECIAL_UPGRADE_MAX))
+            tkinter.messagebox.showinfo("고유 유닛 특수 강화 확률 오류",
+                                        "고유 유닛 특수 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_SPECIAL_UPGRADE_MAX))
+            return
 
         user_damage = user_damage * 0.1
 
         # 유저 스펙 파라미터
         parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
-                                                   special_upgrade_rate, another_first,
+                                                   special_upgrade_rate, another_first, another_second, another_third,
                                                    w_exp_rate, w_another_first, w_special_upgrade)
 
         # 외부 파라미터
@@ -259,6 +274,10 @@ if __name__ == '__main__':
         prevent_del_rate_entry.insert(0, "0.0")
         another_first_entry.delete(0, 10)
         another_first_entry.insert(0, "0.0")
+        another_second_entry.delete(0, 10)
+        another_second_entry.insert(0, "0.0")
+        another_third_entry.delete(0, 10)
+        another_third_entry.insert(0, "0.0")
 
         # 플레이어 목표 레벨 디폴트 값 지정
         player_end_level_entry.delete(0, 10)
@@ -329,6 +348,24 @@ if __name__ == '__main__':
             return
         prevent_del_rate_entry.insert(0, "50.0")
         points -= 150 * 500
+
+        # 추가 +2 강화 확률 디폴트 값 지정
+        another_second_entry.delete(0, 10)
+        if points <= 2_500 * 20:
+            another_second_entry.insert(0, "{:.1f}".format((points // 2_500) / 10))
+            get_value_calculate_print_all()
+            return
+        another_second_entry.insert(0, "2.0")
+        points -= 2_500 * 20
+
+        # 추가 +3 강화 확률 디폴트 값 지정
+        another_third_entry.delete(0, 10)
+        if points <= 5_000 * 10:
+            another_third_entry.insert(0, "{:.1f}".format((points // 5_000) / 10))
+            get_value_calculate_print_all()
+            return
+        another_third_entry.insert(0, "1.0")
+        points -= 5_000 * 10
 
         # 갱신된 값을 받아 계산 후 모두 출력
         get_value_calculate_print_all()
@@ -459,6 +496,26 @@ if __name__ == '__main__':
     another_first_entry.insert(2, '0.0')
     another_first_entry.grid(row=2, column=4)
 
+    # 추가 +2 강화 확률 레이블
+    another_second_label = tkinter.Label(upgrade_rate_frame, text="추가 +2 강화 확률 : ")
+    another_second_label.grid(row=3, column=3)
+
+    # 추가 +2 강화 확률 엔트리
+    another_second_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
+    another_second_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    another_second_entry.insert(2, '0.0')
+    another_second_entry.grid(row=3, column=4)
+
+    # 추가 +3 강화 확률 레이블
+    another_third_label = tkinter.Label(upgrade_rate_frame, text="추가 +3 강화 확률 : ")
+    another_third_label.grid(row=4, column=3)
+
+    # 추가 +3 강화 확률 엔트리
+    another_third_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
+    another_third_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    another_third_entry.insert(2, '0.0')
+    another_third_entry.grid(row=4, column=4)
+
     # % 레이블
     percent1 = tkinter.Label(upgrade_rate_frame, text='%')
     percent2 = tkinter.Label(upgrade_rate_frame, text='%')
@@ -467,6 +524,8 @@ if __name__ == '__main__':
     percent5 = tkinter.Label(upgrade_rate_frame, text='%')
     percent6 = tkinter.Label(upgrade_rate_frame, text='%')
     percent7 = tkinter.Label(upgrade_rate_frame, text='%')
+    percent8 = tkinter.Label(upgrade_rate_frame, text='%')
+    percent9 = tkinter.Label(upgrade_rate_frame, text='%')
 
     percent1.grid(row=1, column=2)
     percent2.grid(row=2, column=2)
@@ -475,6 +534,8 @@ if __name__ == '__main__':
     percent5.grid(row=0, column=5)
     percent6.grid(row=1, column=5)
     percent7.grid(row=2, column=5)
+    percent8.grid(row=3, column=5)
+    percent9.grid(row=4, column=5)
 
     ###################################################################################################################
     # 유저 스펙 중 고유 유닛 스펙 Frame 을 유저 스펙 paned window 에 배치

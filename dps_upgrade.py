@@ -6,21 +6,21 @@ class UserSpecParameter:
 
     def __init__(self, player_level, first, second, third, zero,
                  user_damage_up_rate, private_boss, party_boss, multi_player,
-                 special_upgrade_rate, another_first,
-                 cho_exp_rate, cho_another_first, cho_special_rate):
+                 special_upgrade_rate, another_first, another_second, another_third,
+                 w_exp_rate, w_another_first, w_special_rate):
         self.player_level = player_level
         self.first = first + another_first
-        self.second = second
-        self.third = third
+        self.second = second + another_second
+        self.third = third + another_third
         self.zero = zero
         self.user_damage_up_rate = user_damage_up_rate
         self.private_boss = private_boss
         self.party_boss = party_boss
         self.multi_player = multi_player
         self.special_upgrade_rate = special_upgrade_rate
-        self.cho_exp_rate = cho_exp_rate
-        self.cho_another_first = cho_another_first
-        self.cho_special_rate = cho_special_rate
+        self.w_exp_rate = w_exp_rate
+        self.w_another_first = w_another_first
+        self.w_special_rate = w_special_rate
 
 
 class UserSpec:
@@ -41,9 +41,9 @@ class UserSpec:
         self.damage_up_rate = 1.0 + parameters.user_damage_up_rate  # 데미지 조정 비율
         self.exp_up_rate = 1.0  # 경험치 조정 비율
 
-        self.exp_up_rate += parameters.cho_exp_rate     # 고유 유닛 경험치 증가량 확률 추가
-        self.first += parameters.cho_another_first      # 고유 유닛 추가 +1 강화 확률 추가
-        self.special_upgrade_rate += parameters.cho_special_rate    # 고유 유닛 특수 강화 확률 추가
+        self.exp_up_rate += parameters.w_exp_rate     # 고유 유닛 경험치 증가량 확률 추가
+        self.first += parameters.w_another_first      # 고유 유닛 추가 +1 강화 확률 추가
+        self.special_upgrade_rate += parameters.w_special_rate    # 고유 유닛 특수 강화 확률 추가
 
         # 개인 보스 조건에 따라 유저 스펙 갱신
         if parameters.private_boss >= 1:

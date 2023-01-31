@@ -67,3 +67,6 @@ USER_DAMAGE_MAX = 50        # 최대 공업
 SPECIAL_UPGRADE_MAX = 10.0  # 특수 강화 확률 최댓값
 ZERO_MAX = 50.0             # 파괴 방지 확률 최댓값
 ANOTHER_FIRST_MAX = 5.0     # 추가 +1 강화 확률 최댓값
+W_EXP_RATE_MAX = 100.0      # 레이스 경험치 추가 획득 % 최댓값
+W_ANOTHER_FIRST_MAX = 5.0   # 레이스 추가 +1 강화 확률 최댓값
+W_SPECIAL_UPGRADE_MAX = 5.0     # 레이스 특수 강화 확률 최댓값

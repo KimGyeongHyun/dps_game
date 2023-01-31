@@ -83,9 +83,9 @@ class UserSpec:
         # 형식 변화 중 길게 나오는 소숫점 제거
         self.damage_up_rate = round(self.damage_up_rate, 1)
         self.exp_up_rate = round(self.exp_up_rate, 1)
-        self.first = round(self.first, 3)
-        self.second = round(self.second, 3)
-        self.third = round(self.third, 3)
+        self.first = round(self.first, 4)
+        self.second = round(self.second, 4)
+        self.third = round(self.third, 4)
 
     def return_123(self):
         """유저 스펙의 +1, +2, +3 강화 확률을 반환"""
@@ -101,7 +101,7 @@ class UserSpec:
 
     def __str__(self):
         """유저 스펙 문자열 반환"""
-        return '+1 강화확률 : %.1f%% , +2 강화확률 : %.1f%% , +3 강화확률 : %.1f%%, ' % \
+        return '+1 강화확률 : %.2f%% , +2 강화확률 : %.2f%% , +3 강화확률 : %.2f%%, ' % \
                (self.first * 100, self.second * 100, self.third * 100) + \
                '데미지 조정 비율 : {}% , '.format(int(self.damage_up_rate * 100)) + \
                '경험치 조정 비율 : {}%\n'.format(int(self.exp_up_rate * 100))

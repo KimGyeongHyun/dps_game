@@ -45,9 +45,9 @@ if __name__ == '__main__':
             special_upgrade_rate = float(special_upgrade_rate_entry.get()) / 100
             zero = float(prevent_del_rate_entry.get()) / 100
             another_first = float(another_first_entry.get()) / 100
-            cho_exp_rate = float(cho_exp_rate_entry.get()) / 100
-            cho_another_first = float(cho_another_first_entry.get()) / 100
-            cho_special = float(cho_special_entry.get()) / 100
+            w_exp_rate = float(cho_exp_rate_entry.get()) / 100
+            w_another_first = float(cho_another_first_entry.get()) / 100
+            w_special_upgrade = float(cho_special_entry.get()) / 100
         except ValueError:
             print('ValueError in user spec input parameter')
             return
@@ -138,17 +138,17 @@ if __name__ == '__main__':
                                         "추가 +1 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_FIRST_MAX))
             return
 
-        if cho_exp_rate < 0:
+        if w_exp_rate < 0 or w_exp_rate > W_EXP_RATE_MAX / 100:
             tkinter.messagebox.showinfo("고유 유닛 경험치 증가량 확률 오류",
-                                        "고유 유닛 경험치 증가량 확률은 0 % ~ ? % 사이의 값을 입력해야 합니다.")
+                                        "고유 유닛 경험치 증가량 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_EXP_RATE_MAX))
 
-        if cho_another_first < 0:
+        if w_another_first < 0 or w_another_first > W_ANOTHER_FIRST_MAX / 100:
             tkinter.messagebox.showinfo("추가 +1 강화 확률 오류",
-                                        "추가 +1 강화 확률은 0 % ~ ? % 사이의 값을 입력해야 합니다.")
+                                        "추가 +1 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_ANOTHER_FIRST_MAX))
 
-        if cho_special < 0:
+        if w_special_upgrade < 0 or w_special_upgrade > W_SPECIAL_UPGRADE_MAX / 100:
             tkinter.messagebox.showinfo("특수 강화 확률 오류",
-                                        "특수 강화 확률은 0 % ~ ? % 사이의 값을 입력해야 합니다.")
+                                        "특수 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_SPECIAL_UPGRADE_MAX))
 
         user_damage = user_damage * 0.1
 
@@ -156,7 +156,7 @@ if __name__ == '__main__':
         parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
                                                    special_upgrade_rate, another_first,
-                                                   cho_exp_rate, cho_another_first, cho_special)
+                                                   w_exp_rate, w_another_first, w_special_upgrade)
 
         # 외부 파라미터
         out_parameters = dps_upgrade.OutParameter(unit_start_level,

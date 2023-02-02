@@ -134,7 +134,7 @@ class Unit:
             self.one = 0.0
             self.two = 0.0
             self.three = 0.0
-            pass
+            return
 
         # 특수 강화 확률
         if level >= SECOND_MAX_LEVEL:
@@ -285,8 +285,6 @@ class UnitCalculator:
             else:
                 dps_rate_dict[curr_level] = self.unit_dict[curr_level + 1].dps / self.unit_dict[curr_level].dps
 
-        print(dps_rate_dict)
-
         for i in range(len(self.unit_dict)):
 
             curr_level = i + 1
@@ -362,50 +360,6 @@ class UnitCalculator:
 
             # 37 레벨 이하의 유닛에 계산된 값 갱신
             curr_unit.next_exp_rate /= curr_unit.exp
-
-    # def find_best_dps_increase_and_print(self, first_input_index=26, last_input_index=40):
-    #     """
-    #     first_input_index 으로 들어오는 레벨 기준으로 last_input_index 레벨까지 비교해서
-    #
-    #     어느 레벨까지 강화 하는 것이 dps 기댓값이 제일 높을지 출력
-    #     """
-    #
-    #     start_index = first_input_index
-    #     last_index = last_input_index
-    #     start_rate = 1.0
-    #     rate_list = [1.0]
-    #
-    #     for i in range(start_index, last_index):
-    #         start_rate *= self.unit_dict[i].next_dps_rate
-    #         rate_list.append(start_rate)
-    #
-    #     best_index = rate_list.index(max(rate_list)) + start_index
-    #     print('-----find best dps increase level-----')
-    #     print('start level : {} / end level : {} / best dps level : {}'.format(start_index, last_index, best_index))
-    #
-    #     print()
-    #
-    # def find_best_exp_increase_and_print(self, first_input_index=15, last_input_index=40):
-    #     """
-    #         first_input_index 으로 들어오는 레벨 기준으로 last_input_index 레벨까지 비교해서
-    #
-    #         어느 레벨까지 강화 하는 것이 exp 기댓값이 제일 높을지 출력
-    #         """
-    #
-    #     start_index = first_input_index
-    #     last_index = last_input_index
-    #     start_rate = 1.0
-    #     rate_list = [1.0]
-    #
-    #     for i in range(start_index, last_index):
-    #         start_rate *= self.unit_dict[i].next_exp_rate
-    #         rate_list.append(start_rate)
-    #
-    #     best_index = rate_list.index(max(rate_list)) + start_index
-    #     print('-----find best exp increase level-----')
-    #     print('{}강에서 시작, {}강까지 비교한 결과 {}강까지 강화해서 파는 것이 판매경험치 효율이 제일 좋습니다'.format(start_index,
-    #                                                                              last_index, best_index))
-    #     print()
 
     def return_number_unit_level_to_level(self):
         """

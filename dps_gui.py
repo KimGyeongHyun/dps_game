@@ -9,9 +9,9 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.0 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.1 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
-    window.geometry('1500x900+100+100')
+    window.geometry('1400x750+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
     window.resizable(False, False)
 
@@ -47,9 +47,10 @@ if __name__ == '__main__':
             another_first = float(another_first_entry.get()) / 100
             another_second = float(another_second_entry.get()) / 100
             another_third = float(another_third_entry.get()) / 100
-            w_exp_rate = float(cho_exp_rate_entry.get()) / 100
-            w_another_first = float(cho_another_first_entry.get()) / 100
-            w_special_upgrade = float(cho_special_entry.get()) / 100
+            w_exp_rate = float(w_exp_rate_entry.get()) / 100
+            w_another_first = float(w_another_first_entry.get()) / 100
+            w_special_upgrade = float(w_special_entry.get()) / 100
+            w_zero = float(w_zero_entry.get()) / 100
         except ValueError:
             print('ValueError in user spec input parameter')
             return
@@ -116,8 +117,8 @@ if __name__ == '__main__':
             return
 
         if player_last_level < 1 or player_last_level > PLAYER_MAX_LEVEL:
-            tkinter.messagebox.showinfo("플레이어 마지막 레벨 오류",
-                                        "플레이어 레벨은 1 ~ {} 사이의 정수 값을 입력해야 합니다.".format(PLAYER_MAX_LEVEL))
+            tkinter.messagebox.showinfo("플레이어 목표 레벨 오류",
+                                        "플레이어 목표 레벨은 1 ~ {} 사이의 정수 값을 입력해야 합니다.".format(PLAYER_MAX_LEVEL))
             return
 
         if user_level > player_last_level:
@@ -165,13 +166,18 @@ if __name__ == '__main__':
                                         "고유 유닛 특수 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_SPECIAL_UPGRADE_MAX))
             return
 
+        if w_zero < 0 or w_zero > W_ZERO_MAX / 100:
+            tkinter.messagebox.showinfo("고유 유닛 파괴 방지 확률 오류",
+                                        "고유 유닛 파괴 방지 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_ZERO_MAX))
+            return
+
         user_damage = user_damage * 0.1
 
         # 유저 스펙 파라미터
         parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
                                                    special_upgrade_rate, another_first, another_second, another_third,
-                                                   w_exp_rate, w_another_first, w_special_upgrade)
+                                                   w_exp_rate, w_another_first, w_special_upgrade, w_zero)
 
         # 외부 파라미터
         out_parameters = dps_upgrade.OutParameter(unit_start_level,
@@ -281,8 +287,8 @@ if __name__ == '__main__':
 
         # 플레이어 목표 레벨 디폴트 값 지정
         player_end_level_entry.delete(0, 10)
-        if user_level == 50_000:
-            player_end_level_entry.insert(0, "50000")
+        if user_level >= PLAYER_MAX_LEVEL:
+            player_end_level_entry.insert(0, str(PLAYER_MAX_LEVEL))
         else:
             player_end_level_entry.insert(0, "{}".format((user_level // 500 + 1) * 500))
 
@@ -381,7 +387,7 @@ if __name__ == '__main__':
                                                          "4) 보고 싶은 정보를 입력하고 엔터를 눌러주세요.\n"
                                                          "보고 싶은 정보의 계산 결과는 맨 아래쪽에 '유닛 레벨 계산 결과'칸과, "
                                                          "'플레이어 레벨 계산 결과'칸에 나타납니다.\n"
-                                                         "모든 계산은 유저 스펙이 적용된 유닛의 강화확률 기반으로 비교됩니다.\n"
+                                                         "모든 계산은 최종 스펙이 적용된 유닛의 강화확률 기반으로 비교됩니다.\n"
                                                          "",
                                             anchor='w',
                                             justify='left')
@@ -407,7 +413,7 @@ if __name__ == '__main__':
 
     ###################################################################################################################
     # 유저 스펙 중 강화확률과 공업, 특수 강화확률, 파괴 방지 확률, +1 추가 강화 확률을 기입할 frame 을 유저 스펙 paned window 에 배치
-    upgrade_rate_frame = tkinter.Frame(user_spec_panedwindow, padx=30)
+    upgrade_rate_frame = tkinter.Frame(user_spec_panedwindow, padx=15)
     user_spec_panedwindow.add(upgrade_rate_frame)
     upgrade_rate_frame.grid(row=1, column=0)
 
@@ -539,52 +545,64 @@ if __name__ == '__main__':
 
     ###################################################################################################################
     # 유저 스펙 중 고유 유닛 스펙 Frame 을 유저 스펙 paned window 에 배치
-    cho_frame = tkinter.Frame(user_spec_panedwindow, padx=30)
-    user_spec_panedwindow.add(cho_frame)
-    cho_frame.grid(row=1, column=1)
+    w_frame = tkinter.Frame(user_spec_panedwindow, padx=15)
+    user_spec_panedwindow.add(w_frame)
+    w_frame.grid(row=1, column=1)
 
     # 고유 유닛 경험치 증가량 레이블
-    cho_exp_rate_label = tkinter.Label(cho_frame, text="경험치 증가량 : ")
-    cho_exp_rate_label.grid(row=0, column=0)
+    w_exp_rate_label = tkinter.Label(w_frame, text="경험치 증가량 : ")
+    w_exp_rate_label.grid(row=0, column=0)
 
     # 고유 유닛 경험치 증가량 엔트리
-    cho_exp_rate_entry = tkinter.Entry(cho_frame, width=7, justify='center')
-    cho_exp_rate_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    cho_exp_rate_entry.insert(2, '0.0')
-    cho_exp_rate_entry.grid(row=0, column=1)
+    w_exp_rate_entry = tkinter.Entry(w_frame, width=7, justify='center')
+    w_exp_rate_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    w_exp_rate_entry.insert(2, '0.0')
+    w_exp_rate_entry.grid(row=0, column=1)
 
     # 추가 +1 강화 확률 레이블
-    cho_another_first_label = tkinter.Label(cho_frame, text="추가 +1 강화 확률 : ")
-    cho_another_first_label.grid(row=1, column=0)
+    w_another_first_label = tkinter.Label(w_frame, text="추가 +1 강화 확률 : ")
+    w_another_first_label.grid(row=1, column=0)
 
     # 추가 +1 강화 확률 엔트리
-    cho_another_first_entry = tkinter.Entry(cho_frame, width=7, justify='center')
-    cho_another_first_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    cho_another_first_entry.insert(2, '0.0')
-    cho_another_first_entry.grid(row=1, column=1)
+    w_another_first_entry = tkinter.Entry(w_frame, width=7, justify='center')
+    w_another_first_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    w_another_first_entry.insert(2, '0.0')
+    w_another_first_entry.grid(row=1, column=1)
 
     # 특수 강화 확률 레이블
-    cho_special_label = tkinter.Label(cho_frame, text="특수 강화 확률 : ")
-    cho_special_label.grid(row=2, column=0)
+    w_special_label = tkinter.Label(w_frame, text="특수 강화 확률 : ")
+    w_special_label.grid(row=2, column=0)
 
     # 특수 강화 확률 엔트리
-    cho_special_entry = tkinter.Entry(cho_frame, width=7, justify='center')
-    cho_special_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    cho_special_entry.insert(2, '0.0')
-    cho_special_entry.grid(row=2, column=1)
+    w_special_entry = tkinter.Entry(w_frame, width=7, justify='center')
+    w_special_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    w_special_entry.insert(2, '0.0')
+    w_special_entry.grid(row=2, column=1)
+
+    # 파괴 방지 확률 레이블
+    w_zero_label = tkinter.Label(w_frame, text="파괴 방지 확률 : ")
+    w_zero_label.grid(row=3, column=0)
+
+    # 파괴 방지 확률 엔트리
+    w_zero_entry = tkinter.Entry(w_frame, width=7, justify='center')
+    w_zero_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    w_zero_entry.insert(2, '0.0')
+    w_zero_entry.grid(row=3, column=1)
 
     # % 레이블
-    percent8 = tkinter.Label(cho_frame, text='%')
-    percent9 = tkinter.Label(cho_frame, text='%')
-    percent10 = tkinter.Label(cho_frame, text='%')
+    percent8 = tkinter.Label(w_frame, text='%')
+    percent9 = tkinter.Label(w_frame, text='%')
+    percent10 = tkinter.Label(w_frame, text='%')
+    percent11 = tkinter.Label(w_frame, text='%')
 
     percent8.grid(row=0, column=2)
     percent9.grid(row=1, column=2)
     percent10.grid(row=2, column=2)
+    percent11.grid(row=3, column=2)
 
     ###################################################################################################################
     # 유저 스펙 중 보스 라운드와 파티플레이 여부를 체크할 frame 을 유저 스펙 paned window 에 배치
-    boss_and_multy = tkinter.Frame(user_spec_panedwindow, padx=30)
+    boss_and_multy = tkinter.Frame(user_spec_panedwindow, padx=15)
     user_spec_panedwindow.add(boss_and_multy)
     boss_and_multy.grid(row=1, column=2)
 
@@ -656,7 +674,7 @@ if __name__ == '__main__':
     ###################################################################################################################
     # 유닛 시작 레벨, 마지막 레벨, 판매권 수, 리얼 타임 진행 시간
     # 정보를 가지는 paned window 를 유저 스펙 paned window 에 배치
-    unit_information = tkinter.Frame(user_spec_panedwindow, padx=30)
+    unit_information = tkinter.Frame(user_spec_panedwindow, padx=15)
     user_spec_panedwindow.add(unit_information)
     unit_information.grid(row=1, column=3)
 
@@ -729,14 +747,14 @@ if __name__ == '__main__':
 
     ##################################################################################################################
     # 유저 최종 스펙 레이블
-    user_exact_spec_label = tkinter.Label(window)
-    user_exact_spec_label.pack(side="top", pady=5)
+    user_exact_spec_label = tkinter.Label(window, font=12, foreground='#9900cc')
+    user_exact_spec_label.pack(side="top")
 
     ###################################################################################################################
     ###################################################################################################################
     # 유닛 정보를 담을 paned window 생성
     unit_information_panedwindow = tkinter.PanedWindow()
-    unit_information_panedwindow.pack(side="top", pady=5)
+    unit_information_panedwindow.pack(side="top", pady=0)
 
     # 유닛 정보 레이블
     unit_upgrade_rate_label = tkinter.Label(unit_information_panedwindow, text="유닛 강화 확률")
@@ -756,7 +774,7 @@ if __name__ == '__main__':
 
     unit_upgrade_rate_listbox = tkinter.Listbox(unit_upgrade_rate_frame,
                                                 yscrollcommand=unit_upgrade_rate_scrollbar.set,
-                                                width=38, height=15)
+                                                width=38, height=10)
     unit_upgrade_rate_listbox.pack(side='left')
 
     unit_upgrade_rate_scrollbar["command"] = unit_upgrade_rate_listbox.yview
@@ -772,7 +790,7 @@ if __name__ == '__main__':
 
     unit_dps_listbox = tkinter.Listbox(unit_dps_frame,
                                        yscrollcommand=unit_dps_scrollbar.set,
-                                       width=42, height=15)
+                                       width=42, height=10)
     unit_dps_listbox.pack(side='left')
 
     unit_dps_scrollbar["command"] = unit_dps_listbox.yview
@@ -788,7 +806,7 @@ if __name__ == '__main__':
 
     unit_exp_listbox = tkinter.Listbox(unit_exp_frame,
                                        yscrollcommand=unit_exp_scrollbar.set,
-                                       width=62, height=15)
+                                       width=62, height=10)
     unit_exp_listbox.pack(side='left')
 
     unit_exp_scrollbar["command"] = unit_exp_listbox.yview
@@ -799,7 +817,7 @@ if __name__ == '__main__':
     ###################################################################################################################
     # 나머지 정보들을 담을 paned window
     the_other_panedwindow = tkinter.PanedWindow()
-    the_other_panedwindow.pack(side='top')
+    the_other_panedwindow.pack(side='top', pady=5)
 
     # level to level 제목 레이블
     level_to_level_title_lable = tkinter.Label(the_other_panedwindow, padx=75)

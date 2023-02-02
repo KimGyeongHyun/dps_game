@@ -4,7 +4,7 @@ BEST_FRAME_RATE = 77    # dps 강화하기 게임 내 최대 프레임
 FIRST_MAX_LEVEL = 25    # 첫번째 사냥터 유닛 최대 레벨
 SECOND_MAX_LEVEL = 40   # 두번째 사냥터 유닛 최대 레벨
 
-PLAYER_MAX_LEVEL = 50_000   # 플레이어 최대 레벨
+PLAYER_MAX_LEVEL = 100_000   # 플레이어 최대 레벨
 
 MPS_40 = 285 / 207
 
@@ -72,3 +72,4 @@ ANOTHER_THIRD_MAX = 1.0     # 추가 +3 강화 확률 최댓값
 W_EXP_RATE_MAX = 100.0      # 레이스 경험치 추가 획득 % 최댓값
 W_ANOTHER_FIRST_MAX = 5.0   # 레이스 추가 +1 강화 확률 최댓값
 W_SPECIAL_UPGRADE_MAX = 5.0     # 레이스 특수 강화 확률 최댓값
+W_ZERO_MAX = 20.0           # 레이스 파괴 방지 확률 최댓값

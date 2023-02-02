@@ -9,8 +9,11 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.1 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.2 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
+    # 14인치 : 1366 * 768
+    # 15인치 : 1600 * 900
+    # 16인치 : 1920 * 1080
     window.geometry('1400x750+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
     window.resizable(False, False)
@@ -746,8 +749,9 @@ if __name__ == '__main__':
     player_end_level_entry.grid(row=4, column=1)
 
     ##################################################################################################################
+    ##################################################################################################################
     # 유저 최종 스펙 레이블
-    user_exact_spec_label = tkinter.Label(window, font=12, foreground='#9900cc')
+    user_exact_spec_label = tkinter.Label(window, font=('Arial', 10), foreground='#9900cc')
     user_exact_spec_label.pack(side="top")
 
     ###################################################################################################################

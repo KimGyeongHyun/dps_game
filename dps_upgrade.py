@@ -33,18 +33,18 @@ class UserSpec:
         self.first = parameters.first  # +1 강화 확률
         self.second = parameters.second  # +2 강화 확률
         self.third = parameters.third  # +3 강화 확률
-        self.zero = parameters.zero + parameters.w_zero     # 유지 확률
+        self.zero = parameters.zero + parameters.w_zero  # 유지 확률
         self.private_boss = parameters.private_boss  # 개인 보스 잡은 최대 레벨
         self.party_boss = parameters.party_boss  # 파티 보스 잡은 최대 레벨
         self.multi_player = parameters.multi_player  # 멀티 플레이 여부
-        self.special_upgrade_rate = parameters.special_upgrade_rate     # 40강 이후 특수 강화 확률
+        self.special_upgrade_rate = parameters.special_upgrade_rate  # 40강 이후 특수 강화 확률
 
         self.damage_up_rate = 1.0 + parameters.user_damage_up_rate  # 데미지 조정 비율
         self.exp_up_rate = 1.0  # 경험치 조정 비율
 
-        self.exp_up_rate += parameters.w_exp_rate     # 고유 유닛 경험치 증가량 확률 추가
-        self.first += parameters.w_another_first      # 고유 유닛 추가 +1 강화 확률 추가
-        self.special_upgrade_rate += parameters.w_special_rate    # 고유 유닛 특수 강화 확률 추가
+        self.exp_up_rate += parameters.w_exp_rate  # 고유 유닛 경험치 증가량 확률 추가
+        self.first += parameters.w_another_first  # 고유 유닛 추가 +1 강화 확률 추가
+        self.special_upgrade_rate += parameters.w_special_rate  # 고유 유닛 특수 강화 확률 추가
 
         # 개인 보스 조건에 따라 유저 스펙 갱신
         if parameters.private_boss >= 1:
@@ -104,6 +104,7 @@ class UserSpec:
         """유저 스펙 문자열 반환"""
         return '+1 강화확률 : %.2f%% , +2 강화확률 : %.2f%% , +3 강화확률 : %.2f%%, ' % \
                (self.first * 100, self.second * 100, self.third * 100) + \
+               '파괴 방지 확률 : {}% , '.format(int(self.zero * 100)) + \
                '데미지 조정 비율 : {}% , '.format(int(self.damage_up_rate * 100)) + \
                '경험치 조정 비율 : {}%\n'.format(int(self.exp_up_rate * 100))
 
@@ -122,40 +123,39 @@ class Unit:
         self.exp = unit_information[level][4] * user_spec.return_exp_up_rate()  # 조정된 exp
         self.next_dps_rate = 0  # 강화했을 때 예상되는 dps 비율
         self.next_exp_rate = 0  # 강화했을 때 예상되는 exp 비율
-        self.one = 0.0          # +1 강화 확률
-        self.two = 0.0          # +2 강화 확률
-        self.three = 0.0        # +3 강화 확률
+        self.one = unit_information[level][0]  # +1 강화 확률
+        self.two = unit_information[level][1]  # +2 강화 확률
+        self.three = unit_information[level][2]  # +3 강화 확률
         self.zero = user_spec.zero  # 강화 유지 확률
 
-        if level >= UNIT_MAX_LEVEL:     # 마지막 레벨의 유닛은 예외 처리
+        sum_of_upgrade_rate = user_spec.first + user_spec.second + user_spec.third + user_spec.special_upgrade_rate
+
+        if level >= UNIT_MAX_LEVEL:  # 마지막 레벨의 유닛은 예외 처리
+            self.one = 0.0
+            self.two = 0.0
+            self.three = 0.0
             pass
-        elif level >= SECOND_MAX_LEVEL:     # 40강 이상
-            # +1, +2, +3 강화 확률이 +1 강화 확률로 합쳐짐
-            sum_of_upgrade_rate = user_spec.first + user_spec.second + user_spec.third
-            # 특수 강화 확률 추가
-            self.one = unit_information[level][0] + sum_of_upgrade_rate + user_spec.special_upgrade_rate
-            if self.one < 0.0:
-                self.one = 0.0
-        else:   # 40강 미만
-            self.one = unit_information[level][0]  # +1 강화 확률
-            self.two = unit_information[level][1]  # +2 강화 확률
-            self.three = unit_information[level][2]  # +3 강화 확률
 
-            first, second, third = user_spec.return_123()  # 유저 스펙으로 추가되는 +1, +2, +3 강화 확률
+        # 특수 강화 확률
+        if level >= SECOND_MAX_LEVEL:
+            self.one += user_spec.special_upgrade_rate
 
-            # 유닛 레벨에 따른 +1, +2, +3 강화 확률 결정
-            self.one += first
-            if self.level > 35:
-                self.one += second
+        # 유닛 레벨에 따른 +1, +2, +3 강화 확률 적용
+        if level >= 36:
+            self.one += user_spec.third
+            self.one += user_spec.second
+        else:
+            self.two += user_spec.second
+            if level == 35:
+                self.two += user_spec.third
             else:
-                self.two += second
+                self.three += user_spec.third
 
-            if self.level == 35:
-                self.two += third
-            elif self.level >= 36:
-                self.one += third
-            else:
-                self.three += third
+        self.one += user_spec.first
+
+        # 강화 확률이 - 이면 0으로 바꿈
+        if self.one < 0:
+            self.one = 0.0
 
     def __str__(self):
         """
@@ -174,9 +174,8 @@ class Unit:
         40강 유닛은 강화했을 때 dps 변화 비율 대신 돈 증가 비율을 출력 (mps)\n
         25강 유닛은 강화했을 때 dps 변화 비율 대신 다음 사냥터로 넘어간다고 출력
         """
-        if self.level == FIRST_MAX_LEVEL:
-            return '{:2d}강 / dps : {:7,} , (다음 사냥터로 넘어갑니다)\n'.format(self.level, self.dps)
-        elif self.level == SECOND_MAX_LEVEL:
+        if self.level == SECOND_MAX_LEVEL or self.level == FIRST_MAX_LEVEL or \
+                self.level == FIRST_MAX_LEVEL - 1 or self.level == FIRST_MAX_LEVEL - 2:
             return '{:2d}강 / dps : {:7,} , 강화 시 mps 변화 비율 : {:.3f}\n'.format(self.level,
                                                                              self.dps, self.next_dps_rate)
         else:
@@ -215,9 +214,9 @@ class UnitCalculator:
         self.damage_up_rate = user_spec.return_damage_up_rate()  # 데미지 조정 비율
         self.exp_up_rate = user_spec.return_exp_up_rate()  # 경험치 조정 비율
         # key : level, value : instance of Unit class
-        self.unit_dict = input_unit_dict    # Unit 인스턴스를 담은 딕셔너리
-        self.zero = user_spec.zero          # 유지 확률
-        self.out_parameters = out_parameters    # 외부 파라미터
+        self.unit_dict = input_unit_dict  # Unit 인스턴스를 담은 딕셔너리
+        self.zero = user_spec.zero  # 유지 확률
+        self.out_parameters = out_parameters  # 외부 파라미터
 
     @staticmethod
     def div_time(input_seconds):
@@ -272,73 +271,52 @@ class UnitCalculator:
         계산된 값은 유닛 딕셔러니의 각 유닛 인스턴스에 갱신됨
         """
 
-        # 유닛 레벨 수만큼 반복
+        # 다음 유닛 레벨로 넘어갈 때 기대되는 mps(dps) 변화 비율 (성공 100% 가정)
+        dps_rate_dict = {}
+
+        for i in range(len(self.unit_dict) - 1):
+            curr_level = i + 1
+            if curr_level == 25:
+                dps_rate_dict[curr_level] = MPS_25
+            elif curr_level == 40:
+                dps_rate_dict[curr_level] = MPS_40
+            elif curr_level >= UNIT_MAX_LEVEL:
+                break
+            else:
+                dps_rate_dict[curr_level] = self.unit_dict[curr_level + 1].dps / self.unit_dict[curr_level].dps
+
+        print(dps_rate_dict)
+
         for i in range(len(self.unit_dict)):
 
-            curr_level = i + 1  # 값을 찾을 레벨
-            curr_unit = self.unit_dict[curr_level]  # 해당 레벨의 유닛 인스턴스 가져옴
-            curr_unit.next_dps_rate = 0  # 해당 유닛을 강화했을 때 예상되는 dps 변화 비율 초기화
+            curr_level = i + 1
+            curr_unit = self.unit_dict[curr_level]
+            curr_unit.next_dps_rate = 0
 
-            # 마지막 레벨이면 값을 0으로 남겨놓고 갱신 종료
             if curr_level >= UNIT_MAX_LEVEL:
                 break
 
-            # 25강은 next_dps_rate 를 계산할 필요가 없음
-            # 26강부터 다른 사냥터 들어가기 때문
-            if curr_level == FIRST_MAX_LEVEL:
-                continue
+            # 파괴 방지
+            if curr_level >= SECOND_MAX_LEVEL:
+                curr_unit.next_dps_rate += curr_unit.zero
 
-            # 24강은 +1, +2, +3 강화 확률을 모두 +1 강화로 적용하여 next_dps_rate 계산 (25강이 최대 레벨이라고 가정)
-            if curr_level == FIRST_MAX_LEVEL - 1:
-                curr_unit.next_dps_rate += curr_unit.one * self.unit_dict[curr_level + 1].dps
-                curr_unit.next_dps_rate += curr_unit.two * self.unit_dict[curr_level + 1].dps
-                curr_unit.next_dps_rate += curr_unit.three * self.unit_dict[curr_level + 1].dps
-                curr_unit.next_dps_rate /= curr_unit.dps
-                continue
+            if curr_level == 35:
+                curr_unit.next_dps_rate += curr_unit.three * dps_rate_dict[curr_level] * dps_rate_dict[curr_level + 1]
+            elif curr_level > 35:
+                curr_unit.next_dps_rate += curr_unit.three * dps_rate_dict[curr_level]
+            else:
+                curr_unit.next_dps_rate += curr_unit.three * dps_rate_dict[curr_level] * \
+                                           dps_rate_dict[curr_level + 1] * dps_rate_dict[curr_level + 2]
 
-            # 23강도 마찬가지로 25강이 최대 레벨이라고 가정하고 계산
-            # +3 강화 확률은 +2 강화로 적용
-            if curr_level == FIRST_MAX_LEVEL - 2:
-                curr_unit.next_dps_rate += curr_unit.one * self.unit_dict[curr_level + 1].dps
-                curr_unit.next_dps_rate += curr_unit.two * self.unit_dict[curr_level + 2].dps
-                curr_unit.next_dps_rate += curr_unit.three * self.unit_dict[curr_level + 2].dps
-                curr_unit.next_dps_rate /= curr_unit.dps
-                continue
+            if curr_level >= 36:
+                curr_unit.next_dps_rate += curr_unit.two * dps_rate_dict[curr_level]
+            else:
+                curr_unit.next_dps_rate += curr_unit.two * dps_rate_dict[curr_level] * dps_rate_dict[curr_level + 1]
 
-            # 세번째 사냥터라면
-            if curr_level > SECOND_MAX_LEVEL:
-                curr_unit.next_dps_rate += curr_unit.one * self.unit_dict[curr_level + 1].dps + curr_unit.dps * self.zero
-                curr_unit.next_dps_rate /= curr_unit.dps
-                continue
+            curr_unit.next_dps_rate += curr_unit.one * dps_rate_dict[curr_level]
 
-            # 40 레벨이면 값을 0으로 남겨놓고 넘어감
-            if curr_level == SECOND_MAX_LEVEL:
-                curr_unit.next_dps_rate += curr_unit.dps * self.zero
-                curr_unit.next_dps_rate /= curr_unit.dps
-                curr_unit.next_dps_rate += curr_unit.one * MPS_40
-                continue
-
-            # 39 레벨 이하의 유닛 +1 강화했을 때 예상되는 dps 비율 추가
-            curr_unit.next_dps_rate += curr_unit.one * self.unit_dict[curr_level + 1].dps
-
-            # 39 레벨이면 값을 갱신, 넘어감
-            if curr_level == SECOND_MAX_LEVEL - 1:
-                curr_unit.next_dps_rate /= curr_unit.dps
-                continue
-
-            # 38 레벨 이하의 유닛 +2 강화했을 때 예상되는 dps 비율 추가
-            curr_unit.next_dps_rate += curr_unit.two * self.unit_dict[curr_level + 2].dps
-
-            # 38 레벨이면 값을 갱신, 넘어감
-            if curr_level == SECOND_MAX_LEVEL - 2:
-                curr_unit.next_dps_rate /= curr_unit.dps
-                continue
-
-            # 37 레벨 이하의 유닛 +3 강화했을 때 예상되는 dps 비율 추가
-            curr_unit.next_dps_rate += curr_unit.three * self.unit_dict[curr_level + 3].dps
-
-            # 37 레벨 이하의 유닛에 계산된 값 갱신
-            curr_unit.next_dps_rate /= curr_unit.dps
+            if curr_unit.next_dps_rate < 0:
+                curr_unit.next_dps_rate = 0
 
     def set_next_exp_rate(self, input_start_level=15):
         """유닛을 강화 했을 때 기대되는 exp 변화량 계산"""
@@ -358,7 +336,8 @@ class UnitCalculator:
 
             # 세번째 사냥터라면
             if curr_level >= SECOND_MAX_LEVEL:
-                curr_unit.next_exp_rate += curr_unit.one * self.unit_dict[curr_level + 1].exp + curr_unit.exp * self.zero
+                curr_unit.next_exp_rate += curr_unit.one * self.unit_dict[
+                    curr_level + 1].exp + curr_unit.exp * self.zero
                 curr_unit.next_exp_rate /= curr_unit.exp
                 continue
 
@@ -438,7 +417,7 @@ class UnitCalculator:
         temp_dict = {}
 
         # 딕셔너리 초기화
-        for i in range(self.out_parameters.unit_start_level, self.out_parameters.unit_last_level+3):
+        for i in range(self.out_parameters.unit_start_level, self.out_parameters.unit_last_level + 3):
             temp_dict[i] = 0
 
         temp_dict[self.out_parameters.unit_start_level] = 1.0  # 시작 레벨 1마리가 있다고 가정
@@ -450,12 +429,12 @@ class UnitCalculator:
             temp_dict[i + 2] += curr_number * self.unit_dict[i].two  # +2 레벨에 유닛 추가
             temp_dict[i + 3] += curr_number * self.unit_dict[i].three  # +3 레벨에 유닛 추가
 
-            if i >= SECOND_MAX_LEVEL:   # 40강 이상이라면 유지 확률 적용    /   등비수열 총합 이론
+            if i >= SECOND_MAX_LEVEL:  # 40강 이상이라면 유지 확률 적용    /   등비수열 총합 이론
                 temp_dict[i + 1] /= 1 - self.unit_dict[i].zero
                 temp_dict[i + 2] /= 1 - self.unit_dict[i].zero
                 temp_dict[i + 3] /= 1 - self.unit_dict[i].zero
 
-        if temp_dict[self.out_parameters.unit_last_level] == 0:     # 유닛을 만들 수 없다면 None 반환
+        if temp_dict[self.out_parameters.unit_last_level] == 0:  # 유닛을 만들 수 없다면 None 반환
             return None
 
         # 마지막 레벨 한 마리를 만들기 위해서 필요한 시작 레벨 유닛 수
@@ -513,8 +492,9 @@ class UnitCalculator:
         temp_string = ""
 
         # 마지막 레벨 하나를 만들기 위해 필요한 시간 출력
-        temp_string += '----만약 {}강을 최대 시간 가속 비율({:.2f}배)에서 끊임 없이 생산 중이라면----\n\n'.format(self.out_parameters.unit_start_level,
-                                                                                         acc_time)
+        temp_string += '----만약 {}강을 최대 시간 가속 비율({:.2f}배)에서 끊임 없이 생산 중이라면----\n\n'.format(
+            self.out_parameters.unit_start_level,
+            acc_time)
         temp_string += '{}강 하나를 만들기 위한 리얼 타임 평균 : '.format(self.out_parameters.unit_last_level)
 
         temp_string += self.return_str_div_time(years, months, days, hours, minutes, seconds)
@@ -528,8 +508,7 @@ class UnitCalculator:
         """시작 레벨 유닛을 최대 속도로 생산한다고 가정, 마지막 유닛을 sell unit number 만큼 만드는 데 걸리는 시간 출력"""
 
         # 마지막 유닛 하나를 만들기 위한 시작 유닛 갯수, 걸리는 시간
-        numbers_of_unit, seconds = self.return_number_unit_level_to_level(), \
-                                   self.return_time_unit_level_to_level()
+        numbers_of_unit, seconds = self.return_number_unit_level_to_level(), self.return_time_unit_level_to_level()
 
         # 마지막 유닛을 만들 수 없으면 예외 처리
         if numbers_of_unit is None:
@@ -596,7 +575,7 @@ class ExpOfLevel:
 
     def __init__(self, level):
         self.level = level  # 플레이어 레벨
-        self.need_exp = 0   # 레벨 업에 필요한 경험치
+        self.need_exp = 0  # 레벨 업에 필요한 경험치
         self.total_exp = 0  # 해당 레벨까지 모인 경험치
 
     def set_need_exp(self):
@@ -622,7 +601,7 @@ class PlayerLevelCalculator:
 
     def __init__(self, unit_dictionary, out_parameters):
         self.unit_dictionary = unit_dictionary  # Unit 인스턴스를 담은 딕셔너리
-        self.out_parameters = out_parameters    # 외부 파라미터
+        self.out_parameters = out_parameters  # 외부 파라미터
 
     def return_str_exp_to_player_level_up(self):
         """해당 레벨에서 레벨 업에 필요한 경험치 출력"""
@@ -636,7 +615,7 @@ class PlayerLevelCalculator:
         exp_of_level = ExpOfLevel(self.out_parameters.player_start_level)
         exp_of_level.set_need_exp()
         return '플레이어 레벨 : {:,}, 레벨업에 필요한 경험치 : {:,}\n'.format(self.out_parameters.player_start_level,
-                                                            exp_of_level.get_need_exp())
+                                                              exp_of_level.get_need_exp())
 
     def return_exp_player_level_to_level(self):
         """시작 -> 마지막 레벨까지 필요한 경험치 계산 후 반환"""
@@ -658,7 +637,8 @@ class PlayerLevelCalculator:
         # 시작 -> 마지막 레벨까지 필요한 경험치
         sum_exp = self.return_exp_player_level_to_level()
         # 플레이어 레벨 유효성 검사
-        if self.out_parameters.player_start_level < 1 or self.out_parameters.player_last_level > PLAYER_MAX_LEVEL or self.out_parameters.player_start_level > self.out_parameters.player_last_level:
+        if self.out_parameters.player_start_level < 1 or self.out_parameters.player_last_level > PLAYER_MAX_LEVEL or \
+                self.out_parameters.player_start_level > self.out_parameters.player_last_level:
             print('ERROR. invalid player level')
             return
 
@@ -715,10 +695,10 @@ class GameInfo:
     """
 
     def __init__(self):
-        self.unit_dict = {}         # Unit 인스턴스 저장할 딕셔너리
-        self.user = None            # 유저 스펙
-        self.unit_calc = None       # 유닛 레벨 계산기
-        self.player_calc = None     # 플레이어 레벨 계산기
+        self.unit_dict = {}  # Unit 인스턴스 저장할 딕셔너리
+        self.user = None  # 유저 스펙
+        self.unit_calc = None  # 유닛 레벨 계산기
+        self.player_calc = None  # 플레이어 레벨 계산기
         self.out_parameters = None  # 외부 파라미터
 
     def init_game_info(self, parameters, out_parameters):
@@ -728,8 +708,8 @@ class GameInfo:
         """
 
         # 유저 스펙을 보스와 멀티 플레이 환경에 맞게 저장
-        self.user = UserSpec(parameters)        # 유저 스펙 초기화
-        self.out_parameters = out_parameters    # 외부 파라미터
+        self.user = UserSpec(parameters)  # 유저 스펙 초기화
+        self.out_parameters = out_parameters  # 외부 파라미터
 
         # key <- level / value <- Unit 으로 초기화
         # Unit 인스턴스를 가지는 딕셔너리
@@ -791,7 +771,7 @@ class GameInfo:
         if self.player_calc.out_parameters.player_start_level > 1000:
             get_exp = self.player_calc.unit_dictionary[
                           self.out_parameters.unit_last_level].get_unit_exp() * self.out_parameters.sell_unit_number
-        else:   # 유저 레벨이 1000 이하라면
+        else:  # 유저 레벨이 1000 이하라면
             curr_user_level = ExpOfLevel(self.player_calc.out_parameters.player_start_level)
             thousand_level = ExpOfLevel(1001)
 
@@ -802,16 +782,18 @@ class GameInfo:
             to_thousand_exp = thousand_level.total_exp - curr_user_level.total_exp
 
             # 들어온 경험치로 레벨 1000 을 못 찍는다면 그대로 진행
-            if self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp() * self.out_parameters.sell_unit_number < to_thousand_exp:
-                get_exp = self.player_calc.unit_dictionary[
-                              self.out_parameters.unit_last_level].get_unit_exp() * self.out_parameters.sell_unit_number
-            else:   # 아니라면 레벨 1000 초과 후 발생하는 경험치 버프 손실을 적용
+            if self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp() * \
+                    self.out_parameters.sell_unit_number < to_thousand_exp:
+                get_exp = self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp() * \
+                          self.out_parameters.sell_unit_number
+            else:  # 아니라면 레벨 1000 초과 후 발생하는 경험치 버프 손실을 적용
 
                 # 1000 레벨까지 들어간 경험치
                 get_exp += to_thousand_exp
 
                 # 1000 레벨까지 들어간 경험치를 체우고 남은 유닛 갯수
-                remain_number_unit = self.out_parameters.sell_unit_number - to_thousand_exp // self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp()
+                remain_number_unit = self.out_parameters.sell_unit_number - to_thousand_exp // \
+                    self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp()
 
                 # UserSpec 인스턴스 복사
                 temp_user = self.user
@@ -872,7 +854,7 @@ class GameInfo:
 
             # 들어온 경험치로 레벨 1000 을 못 찍는다면 그대로 진행
             if self.player_calc.unit_dictionary[
-                self.out_parameters.unit_last_level].get_unit_exp() * sell_number < to_thousand_exp:
+                    self.out_parameters.unit_last_level].get_unit_exp() * sell_number < to_thousand_exp:
                 get_exp = self.player_calc.unit_dictionary[
                               self.out_parameters.unit_last_level].get_unit_exp() * sell_number
             else:  # 아니라면 레벨 1000 초과 후 발생하는 경험치 버프 손실을 적용
@@ -882,8 +864,7 @@ class GameInfo:
 
                 # 1000 레벨까지 들어간 경험치를 체우고 남은 유닛 갯수
                 remain_number_unit = sell_number - to_thousand_exp // \
-                                     self.player_calc.unit_dictionary[
-                                         self.out_parameters.unit_last_level].get_unit_exp()
+                    self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp()
 
                 # UserSpec 인스턴스 복사
                 temp_user = self.user
@@ -914,4 +895,3 @@ class GameInfo:
 
 if __name__ == '__main__':
     pass
-

@@ -9,7 +9,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.3 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.4 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     # 14인치 : 1366 * 768
     # 15인치 : 1600 * 900
@@ -264,6 +264,10 @@ if __name__ == '__main__':
             unit_start_level_entry.insert(0, "24")
             unit_last_level_entry.insert(0, "25")
 
+        elif user_level <= 3_000:
+            unit_start_level_entry.insert(0, "24")
+            unit_last_level_entry.insert(0, "35")
+
         else:
             unit_start_level_entry.insert(0, "30")
             unit_last_level_entry.insert(0, "39")
@@ -385,11 +389,13 @@ if __name__ == '__main__':
                                                          "플레이어 레벨을 입력하고 엔터를 누르면 +1, +2, +3 강화 확률과 공업, "
                                                          "특수 강화, 파괴 방지, 추가 +1 강화 확률, "
                                                          "플레이어 목표 레벨이 어림짐작으로 자동 갱신됩니다.\n"
-                                                         "2) 이후 유저 스펙을 수정하고 엔터를 눌러주세요.\n"
+                                                         "2) 유저 스펙을 수정하고 엔터를 눌러주세요.\n"
                                                          "3) 보스 처치 레벨과 파티 플레이 버프 여부를 선택하세요\n"
                                                          "4) 보고 싶은 정보를 입력하고 엔터를 눌러주세요.\n"
                                                          "보고 싶은 정보의 계산 결과는 맨 아래쪽에 '유닛 레벨 계산 결과'칸과, "
                                                          "'플레이어 레벨 계산 결과'칸에 나타납니다.\n"
+                                                         "25/26강 사이 돈 버는 비율 차이 (mps)는 미네랄 64배, 가스 1배 기준이고,  "
+                                                         "40/41강 사이 mps 는 가스 64배 기준입니다.\n"
                                                          "모든 계산은 최종 스펙이 적용된 유닛의 강화확률 기반으로 비교됩니다.\n"
                                                          "",
                                             anchor='w',
@@ -428,7 +434,7 @@ if __name__ == '__main__':
     # 유저 레벨 엔트리
     user_level_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
     user_level_entry.bind("<Return>", set_expected_upgrade_rate_and_deal_upgrade)
-    user_level_entry.insert(2, '8500')
+    user_level_entry.insert(2, '1')
     user_level_entry.grid(row=0, column=1)
 
     # +1 강화확률 레이블
@@ -439,7 +445,7 @@ if __name__ == '__main__':
     # +1 강화확률 엔트리
     first_upgrade_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
     first_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    first_upgrade_entry.insert(2, '10.0')
+    first_upgrade_entry.insert(2, '0.0')
     first_upgrade_entry.grid(row=1, column=1)
 
     # +2 강화확률 레이블
@@ -450,7 +456,7 @@ if __name__ == '__main__':
     # +2 강화확률 엔트리
     second_upgrade_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
     second_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    second_upgrade_entry.insert(2, '5.0')
+    second_upgrade_entry.insert(2, '0.0')
     second_upgrade_entry.grid(row=2, column=1)
 
     # +3 강화확률 레이블
@@ -461,7 +467,7 @@ if __name__ == '__main__':
     # +3 강화확률 엔트리
     third_upgrade_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
     third_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    third_upgrade_entry.insert(2, '3.0')
+    third_upgrade_entry.insert(2, '0.0')
     third_upgrade_entry.grid(row=3, column=1)
 
     # 유저 공격력 업그레이드 레이블
@@ -472,7 +478,7 @@ if __name__ == '__main__':
     # 유저 공격력 업그레이드 엔트리
     user_damage_upgrade_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
     user_damage_upgrade_entry.bind("<Return>", get_entry_value_calculate_print_all)
-    user_damage_upgrade_entry.insert(2, '50')
+    user_damage_upgrade_entry.insert(2, '0')
     user_damage_upgrade_entry.grid(row=4, column=1)
     
     # 특수 강화확률 레이블

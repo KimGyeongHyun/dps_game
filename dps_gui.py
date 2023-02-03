@@ -2,6 +2,7 @@ import tkinter
 import tkinter.messagebox
 import dps_upgrade
 from static_info.static_info import *
+import time
 
 
 if __name__ == '__main__':
@@ -9,7 +10,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.4 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.5 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     # 14인치 : 1366 * 768
     # 15인치 : 1600 * 900
@@ -234,6 +235,8 @@ if __name__ == '__main__':
     def set_expected_upgrade_rate_and_deal_upgrade(event):
         """유저 레벨에 따라 +1, +2, +3, 공업, 유닛 시작, 마지막 레벨 , 특수 강화 확률, 파괴 방지 확률, +1 추가 확률 디폴트 값 갱신"""
 
+        start = time.time()
+
         # 유저 레벨 유효성 검사
         try:
             user_level = int(user_level_entry.get())
@@ -304,6 +307,8 @@ if __name__ == '__main__':
         if points <= 10 * 100:
             first_upgrade_entry.insert(0, "{:.1f}".format((points // 10) / 10))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         first_upgrade_entry.insert(0, "10.0")
         points -= 10 * 100
@@ -313,6 +318,8 @@ if __name__ == '__main__':
         if points <= 20 * 50:
             user_damage_upgrade_entry.insert(0, "{}".format(points // 20))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         user_damage_upgrade_entry.insert(0, "50")
         points -= 20 * 50
@@ -322,6 +329,8 @@ if __name__ == '__main__':
         if points <= 200 * 50:
             second_upgrade_entry.insert(0, "{:.1f}".format((points // 200) / 10))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         second_upgrade_entry.insert(0, "5.0")
         points -= 200 * 50
@@ -331,6 +340,8 @@ if __name__ == '__main__':
         if points <= 1_000 * 30:
             third_upgrade_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         third_upgrade_entry.insert(0, "3.0")
         points -= 1_000 * 30
@@ -340,6 +351,8 @@ if __name__ == '__main__':
         if points <= 1_000 * 50:
             another_first_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         another_first_entry.insert(0, "5.0")
         points -= 1_000 * 50
@@ -349,6 +362,8 @@ if __name__ == '__main__':
         if points <= 500 * 100:
             special_upgrade_rate_entry.insert(0, "{:.1f}".format((points // 500) / 10))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         special_upgrade_rate_entry.insert(0, "10.0")
         points -= 500 * 100
@@ -358,6 +373,8 @@ if __name__ == '__main__':
         if points <= 150 * 500:
             prevent_del_rate_entry.insert(0, "{:.1f}".format((points // 150) / 10))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         prevent_del_rate_entry.insert(0, "50.0")
         points -= 150 * 500
@@ -367,6 +384,8 @@ if __name__ == '__main__':
         if points <= 2_500 * 20:
             another_second_entry.insert(0, "{:.1f}".format((points // 2_500) / 10))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         another_second_entry.insert(0, "2.0")
         points -= 2_500 * 20
@@ -376,12 +395,17 @@ if __name__ == '__main__':
         if points <= 5_000 * 10:
             another_third_entry.insert(0, "{:.1f}".format((points // 5_000) / 10))
             get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.6f}ms'.format(1000 * (end - start)))
             return
         another_third_entry.insert(0, "1.0")
         points -= 5_000 * 10
 
         # 갱신된 값을 받아 계산 후 모두 출력
         get_value_calculate_print_all()
+
+        end = time.time()
+        print('run time = {:.6f}ms'.format(1000 * (end - start)))
 
     ###################################################################################################################
     # 처음 안내문

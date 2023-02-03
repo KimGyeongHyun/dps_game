@@ -305,29 +305,17 @@ class UnitCalculator:
             curr_multiply = dps_rate_dict[curr_level]
             curr_unit.next_dps_rate += curr_unit.one * curr_multiply
 
+            if curr_unit.two == 0.0:
+                continue
+
             curr_multiply *= dps_rate_dict[curr_level+1]
             curr_unit.next_dps_rate += curr_unit.two * curr_multiply
 
+            if curr_unit.three == 0.0:
+                continue
+
             curr_multiply *= dps_rate_dict[curr_level+2]
             curr_unit.next_dps_rate += curr_unit.three * curr_multiply
-
-            # if curr_level == 35:
-            #     curr_unit.next_dps_rate += curr_unit.three * dps_rate_dict[curr_level] * dps_rate_dict[curr_level + 1]
-            # elif curr_level > 35:
-            #     curr_unit.next_dps_rate += curr_unit.three * dps_rate_dict[curr_level]
-            # else:
-            #     curr_unit.next_dps_rate += curr_unit.three * dps_rate_dict[curr_level] * \
-            #                                dps_rate_dict[curr_level + 1] * dps_rate_dict[curr_level + 2]
-            #
-            # if curr_level >= 36:
-            #     curr_unit.next_dps_rate += curr_unit.two * dps_rate_dict[curr_level]
-            # else:
-            #     curr_unit.next_dps_rate += curr_unit.two * dps_rate_dict[curr_level] * dps_rate_dict[curr_level + 1]
-            #
-            # curr_unit.next_dps_rate += curr_unit.one * dps_rate_dict[curr_level]
-            #
-            # if curr_unit.next_dps_rate < 0:
-            #     curr_unit.next_dps_rate = 0
 
     def set_next_exp_rate(self, input_start_level=15):
         """유닛을 강화 했을 때 기대되는 exp 변화량 계산"""
@@ -347,47 +335,18 @@ class UnitCalculator:
 
             curr_unit.next_exp_rate += curr_unit.one * self.unit_dict[curr_level+1].exp
 
-            if curr_level == UNIT_MAX_LEVEL-1:
+            if curr_unit.two == 0:
                 curr_unit.next_exp_rate /= curr_unit.exp
                 continue
 
             curr_unit.next_exp_rate += curr_unit.two * self.unit_dict[curr_level+2].exp
 
-            if curr_level == UNIT_MAX_LEVEL-2:
+            if curr_unit.three == 0:
                 curr_unit.next_exp_rate /= curr_unit.exp
                 continue
 
             curr_unit.next_exp_rate += curr_unit.three * self.unit_dict[curr_level+3].exp
             curr_unit.next_exp_rate /= curr_unit.exp
-
-            # # 세번째 사냥터라면
-            # if curr_level >= SECOND_MAX_LEVEL:
-            #     curr_unit.next_exp_rate += curr_unit.one * self.unit_dict[
-            #         curr_level + 1].exp + curr_unit.exp * self.zero
-            #     curr_unit.next_exp_rate /= curr_unit.exp
-            #     continue
-            #
-            # # 39 레벨 이하의 유닛 +1 강화했을 때 예상되는 exp 비율 추가
-            # curr_unit.next_exp_rate += curr_unit.one * self.unit_dict[curr_level + 1].exp
-            #
-            # # 39 레벨이면 값을 갱신, 넘어감
-            # if curr_level == SECOND_MAX_LEVEL - 1:
-            #     curr_unit.next_exp_rate /= curr_unit.exp
-            #     continue
-            #
-            # # 38 레벨 이하의 유닛 +2 강화했을 때 예상되는 exp 비율 추가
-            # curr_unit.next_exp_rate += curr_unit.two * self.unit_dict[curr_level + 2].exp
-            #
-            # # 38 레벨이면 값을 갱신, 넘어감
-            # if curr_level == SECOND_MAX_LEVEL - 2:
-            #     curr_unit.next_exp_rate /= curr_unit.exp
-            #     continue
-            #
-            # # 37 레벨 이하의 유닛 +3 강화했을 때 예상되는 exp 비율 추가
-            # curr_unit.next_exp_rate += curr_unit.three * self.unit_dict[curr_level + 3].exp
-            #
-            # # 37 레벨 이하의 유닛에 계산된 값 갱신
-            # curr_unit.next_exp_rate /= curr_unit.exp
 
     def return_number_unit_level_to_level(self):
         """

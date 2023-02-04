@@ -1,5 +1,5 @@
 from static_info.static_info import *
-
+import time
 
 class UserSpecParameter:
     """UserSpec 파라미터로 사용되는 클래스"""
@@ -611,22 +611,43 @@ class PlayerLevelCalculator:
         start_exp_of_level = ExpOfLevel(player_start_level)  # 플레이어 시작 레벨
         start_exp_of_level.set_total_exp()  # 플레이어 레벨까지 경험치 총합
         sum_exp = get_exp + start_exp_of_level.get_total_exp()  # 들어오는 경험치 더하기
-        level = player_start_level  # 계산에 사용할 레벨
+        level = PLAYER_MAX_LEVEL  # 계산에 사용할 플레이어 시작 레벨
+        last_level = PLAYER_MAX_LEVEL   # 계산에 사용할 마지막 플레이어 레벨
 
-        while True:
-            curr_exp_of_level = ExpOfLevel(level)  # 계산 중인 레벨 인스턴스 생성
-            curr_exp_of_level.set_total_exp()  # 계산 중인 레벨까지 경험치 총합
-            # 경험치 총합이 계산 중인 레벨 경험치 총합보다 작으면
-            # 해당 레벨까지 경험치 총합이 도달하지 못 했다는 것을 의미
-            # 때문에 level - 1 이 최종 플레어이 레벨
-            if sum_exp < curr_exp_of_level.get_total_exp():
-                return level - 1
-            # 경험치 총합이 계산 중인 레벨 경험치와 같다면
-            # 정확히 해당 레벨까지 경험치 총합에 도달했다는 뜻이므로 level 이 최종 플레이어 레벨
-            # 레벨이 10000일 경우 (당분간은) 더 이상 계산이 필요 없으므로 그대로 리턴
-            if sum_exp == curr_exp_of_level.get_total_exp() or level == PLAYER_MAX_LEVEL:
-                return level
-            level += 1
+        # 계산에 활용할 ExpOfLevel 인스턴스
+        temp_eol = ExpOfLevel(level)
+        temp_eol.set_total_exp()
+
+        # PLAYER_MAX_LEVEL 부터 4로 나누면서 시작 플레이어 레벨 찾음
+        while temp_eol.total_exp > sum_exp:
+            last_level = level
+            level = int(level/4)
+            temp_eol = ExpOfLevel(level)
+            temp_eol.set_total_exp()
+
+        temp_eol.set_need_exp()
+
+        # 최종 플레이어 레벨 찾을 때까지 반복
+        # 이분법 적용
+        while temp_eol.total_exp > sum_exp or sum_exp >= temp_eol.total_exp + temp_eol.need_exp:
+
+            # 최대 플레이어 레벨일 경우 예외처리
+            if temp_eol.level == PLAYER_MAX_LEVEL:
+                break
+
+            # 플레이어 시작, 마지막 레벨의 중간 값 기준
+            temp_eol = ExpOfLevel(int((level + last_level)/2))
+            temp_eol.set_total_exp()
+
+            # 중간 값 기준으로 반 나눠서 반복문 다시 적용
+            if temp_eol.total_exp <= sum_exp:
+                level += int((last_level - level)/2)
+            else:
+                last_level -= int((last_level - level)/2)
+
+            temp_eol.set_need_exp()
+
+        return level
 
 
 class GameInfo:

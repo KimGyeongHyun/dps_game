@@ -1,6 +1,7 @@
 from static_info.static_info import *
 import time
 
+
 class UserSpecParameter:
     """UserSpec 파라미터로 사용되는 클래스"""
 

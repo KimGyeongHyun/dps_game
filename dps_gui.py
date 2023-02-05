@@ -10,7 +10,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.6 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.7 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     # 14인치 : 1366 * 768
     # 15인치 : 1600 * 900
@@ -723,7 +723,7 @@ if __name__ == '__main__':
 
     # 유닛 시작 레벨 엔트리
     unit_start_level_entry = tkinter.Entry(unit_information, width=3, justify='center')
-    unit_start_level_entry.insert(1, '30')
+    unit_start_level_entry.insert(1, '15')
     unit_start_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     unit_start_level_entry.grid(row=0, column=1)
 
@@ -733,7 +733,7 @@ if __name__ == '__main__':
 
     # 유닛 마지막 레벨 엔트리
     unit_last_level_entry = tkinter.Entry(unit_information, width=3, justify='center')
-    unit_last_level_entry.insert(1, '39')
+    unit_last_level_entry.insert(1, '18')
     unit_last_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     unit_last_level_entry.grid(row=1, column=1)
 
@@ -780,7 +780,7 @@ if __name__ == '__main__':
 
     # 플레이어 목표 레벨 엔트리
     player_end_level_entry = tkinter.Entry(unit_information, width=7, justify='center')
-    player_end_level_entry.insert(2, '9000')
+    player_end_level_entry.insert(2, '150')
     player_end_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     player_end_level_entry.grid(row=4, column=1)
 

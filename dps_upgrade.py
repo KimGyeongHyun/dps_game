@@ -104,8 +104,8 @@ class UserSpec:
         """유저 스펙 문자열 반환"""
         return '+1 강화확률 : %.2f%% , +2 강화확률 : %.2f%% , +3 강화확률 : %.2f%%, ' % \
                (self.first * 100, self.second * 100, self.third * 100) + \
-               '파괴 방지 확률 : {}% , '.format(int(self.zero * 100)) + \
-               '특수 강화 확률 : {:.1f}% , '.format(float(self.special_upgrade_rate * 100)) + \
+               '파괴 방지 확률 : {:.2f}% , '.format(float(self.zero * 100)) + \
+               '특수 강화 확률 : {:.2f}% , '.format(float(self.special_upgrade_rate * 100)) + \
                '데미지 조정 비율 : {}% , '.format(int(self.damage_up_rate * 100)) + \
                '경험치 조정 비율 : {}%\n'.format(int(self.exp_up_rate * 100))
 

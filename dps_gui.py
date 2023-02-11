@@ -10,12 +10,12 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.4.8 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.5.0 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     # 14인치 : 1366 * 768
     # 15인치 : 1600 * 900
     # 16인치 : 1920 * 1080
-    window.geometry('1400x750+100+100')
+    window.geometry('1400x770+100+100')
     # 윈도우 창 크기 조절 가능 여부 설정
     window.resizable(False, False)
 
@@ -57,6 +57,7 @@ if __name__ == '__main__':
             w_another_first = float(w_another_first_entry.get()) / 100
             w_special_upgrade = float(w_special_entry.get()) / 100
             w_zero = float(w_zero_entry.get()) / 100
+            max_hunting = float(max_hunting_entry.get()) / 100
         except ValueError:
             print('ValueError in user spec input parameter')
             return
@@ -177,13 +178,19 @@ if __name__ == '__main__':
                                         "고유 유닛 파괴 방지 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_ZERO_MAX))
             return
 
+        if max_hunting < 0 or max_hunting > MAX_HUNTING_MAX / 100:
+            tkinter.messagebox.showinfo("MAX 사냥터 돈 증가량 오류",
+                                        "MAX 사냥터 돈 증가량은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(MAX_HUNTING_MAX))
+            return
+
         user_damage = user_damage * 0.1
 
         # 유저 스펙 파라미터
         parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
                                                    special_upgrade_rate, another_first, another_second, another_third,
-                                                   w_exp_rate, w_another_first, w_special_upgrade, w_zero)
+                                                   w_exp_rate, w_another_first, w_special_upgrade, w_zero,
+                                                   max_hunting)
 
         # 외부 파라미터
         out_parameters = dps_upgrade.OutParameter(unit_start_level,
@@ -328,6 +335,9 @@ if __name__ == '__main__':
             print('run time = {:.2f}ms'.format(1000 * (end - start)))
             return
         user_damage_upgrade_entry.insert(0, "50")
+        points -= 20 * 50
+
+        # 5보스 처치시 레벨업 적용
         points -= 20 * 50
 
         # +2 강화 확률 디폴트 값 지정
@@ -561,6 +571,16 @@ if __name__ == '__main__':
     another_third_entry.insert(2, '0.0')
     another_third_entry.grid(row=4, column=4)
 
+    # MX 사냥터 돈 증가량 획득량 레이블
+    max_hunting_label = tkinter.Label(upgrade_rate_frame, text="MX 사냥터 돈 증가량 : ")
+    max_hunting_label.grid(row=5, column=3)
+
+    # MX 사냥터 돈 증가량 획득량 엔트리
+    max_hunting_entry = tkinter.Entry(upgrade_rate_frame, width=7, justify='center')
+    max_hunting_entry.bind("<Return>", get_entry_value_calculate_print_all)
+    max_hunting_entry.insert(2, '0.0')
+    max_hunting_entry.grid(row=5, column=4)
+
     # % 레이블
     percent1 = tkinter.Label(upgrade_rate_frame, text='%')
     percent2 = tkinter.Label(upgrade_rate_frame, text='%')
@@ -571,6 +591,7 @@ if __name__ == '__main__':
     percent7 = tkinter.Label(upgrade_rate_frame, text='%')
     percent8 = tkinter.Label(upgrade_rate_frame, text='%')
     percent9 = tkinter.Label(upgrade_rate_frame, text='%')
+    percent10 = tkinter.Label(upgrade_rate_frame, text='%')
 
     percent1.grid(row=1, column=2)
     percent2.grid(row=2, column=2)
@@ -581,6 +602,7 @@ if __name__ == '__main__':
     percent7.grid(row=2, column=5)
     percent8.grid(row=3, column=5)
     percent9.grid(row=4, column=5)
+    percent10.grid(row=5, column=5)
 
     ###################################################################################################################
     # 유저 스펙 중 고유 유닛 스펙 Frame 을 유저 스펙 paned window 에 배치

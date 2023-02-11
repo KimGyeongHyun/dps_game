@@ -8,7 +8,8 @@ class UserSpecParameter:
     def __init__(self, player_level, first, second, third, zero,
                  user_damage_up_rate, private_boss, party_boss, multi_player,
                  special_upgrade_rate, another_first, another_second, another_third,
-                 w_exp_rate, w_another_first, w_special_rate, w_zero):
+                 w_exp_rate, w_another_first, w_special_rate, w_zero,
+                 max_hunting_rate):
         self.player_level = player_level
         self.first = first + another_first
         self.second = second + another_second
@@ -23,6 +24,7 @@ class UserSpecParameter:
         self.w_another_first = w_another_first
         self.w_special_rate = w_special_rate
         self.w_zero = w_zero
+        self.max_hunting_rate = max_hunting_rate
 
 
 class UserSpec:
@@ -46,6 +48,7 @@ class UserSpec:
         self.exp_up_rate += parameters.w_exp_rate  # 고유 유닛 경험치 증가량 확률 추가
         self.first += parameters.w_another_first  # 고유 유닛 추가 +1 강화 확률 추가
         self.special_upgrade_rate += parameters.w_special_rate  # 고유 유닛 특수 강화 확률 추가
+        self.max_hunting_rate = 1.0 + parameters.max_hunting_rate   # MAX 허수아비 돈 수급량 증가량 추가
 
         # 개인 보스 조건에 따라 유저 스펙 갱신
         if parameters.private_boss >= 1:
@@ -215,6 +218,7 @@ class UnitCalculator:
         self.first, self.second, self.third = user_spec.return_123()  # 유저 스펙 +1, +2, +3 강화 확률
         self.damage_up_rate = user_spec.return_damage_up_rate()  # 데미지 조정 비율
         self.exp_up_rate = user_spec.return_exp_up_rate()  # 경험치 조정 비율
+        self.max_hunting_rate = user_spec.max_hunting_rate  # MX 사냥터 돈 획득량 증가량
         # key : level, value : instance of Unit class
         self.unit_dict = input_unit_dict  # Unit 인스턴스를 담은 딕셔너리
         self.zero = user_spec.zero  # 유지 확률
@@ -249,6 +253,8 @@ class UnitCalculator:
     @staticmethod
     def return_str_div_time(years, months, days, hours, minutes, seconds):
         """분리된 시간을 입력받아 str 형식으로 출력"""
+        if years == 0 and months == 0 and days == 0 and hours == 0 and minutes == 0 and seconds == 0:
+            return '0 초'
 
         temp_string = ""
 
@@ -284,7 +290,7 @@ class UnitCalculator:
             if curr_level == 25:
                 dps_rate_dict[curr_level] = MPS_25
             elif curr_level == 40:
-                dps_rate_dict[curr_level] = MPS_40
+                dps_rate_dict[curr_level] = MPS_40 * self.max_hunting_rate
             elif curr_level >= UNIT_MAX_LEVEL:
                 break
             else:

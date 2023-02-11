@@ -550,6 +550,8 @@ class PlayerLevelCalculator:
     def __init__(self, unit_dictionary, out_parameters):
         self.unit_dictionary = unit_dictionary  # Unit 인스턴스를 담은 딕셔너리
         self.out_parameters = out_parameters  # 외부 파라미터
+        self.exp_level_to_level = 0
+        self.set_exp_player_level_to_level()
 
     def return_str_exp_to_player_level_up(self):
         """해당 레벨에서 레벨 업에 필요한 경험치 출력"""
@@ -565,7 +567,7 @@ class PlayerLevelCalculator:
         return '플레이어 레벨 : {:,}, 레벨업에 필요한 경험치 : {:,}\n'.format(self.out_parameters.player_start_level,
                                                               exp_of_level.get_need_exp())
 
-    def return_exp_player_level_to_level(self):
+    def set_exp_player_level_to_level(self):
         """시작 -> 마지막 레벨까지 필요한 경험치 계산 후 반환"""
 
         # 시작 레벨까지의 경험치, 마지막 레벨까지의 경험치 차이를 반환
@@ -574,21 +576,11 @@ class PlayerLevelCalculator:
         st.set_total_exp()
         en.set_total_exp()
 
-        return en.get_total_exp() - st.get_total_exp()
+        self.exp_level_to_level = en.get_total_exp() - st.get_total_exp()
 
-    def return_str_player_level_to_level(self):
-        """
-        시작 -> 마지막 레벨까지 필요한 경험치 계산 후 출력\n
-        이에 따른 레벨 25, 26, 37, 38, 39, 40 유닛 갯수 출력
-        """
-
-        # 시작 -> 마지막 레벨까지 필요한 경험치
-        sum_exp = self.return_exp_player_level_to_level()
-        # 플레이어 레벨 유효성 검사
-        if self.out_parameters.player_start_level < 1 or self.out_parameters.player_last_level > PLAYER_MAX_LEVEL or \
-                self.out_parameters.player_start_level > self.out_parameters.player_last_level:
-            print('ERROR. invalid player level')
-            return
+    def return_str_25_40_number(self):
+        """플레이어 목표 레벨까지 도달하기 위해 필요한 유닛 25, 26, 37, 38, 39, 40강 갯수"""
+        sum_exp = self.exp_level_to_level
 
         # 해당 경험치까지 도달하기 위해 팔아야 하는 유닛
         level_25 = int(sum_exp / self.unit_dictionary[25].get_unit_exp()) + 1
@@ -599,9 +591,6 @@ class PlayerLevelCalculator:
         level_40 = int(sum_exp / self.unit_dictionary[40].get_unit_exp()) + 1
 
         temp_string = ""
-
-        temp_string += '플레이어 레벨 {} -> {} 에 필요한 경험치 : {:,}\n\n'.format(self.out_parameters.player_start_level,
-                                                                      self.out_parameters.player_last_level, sum_exp)
         temp_string += '25강 갯수 : {:,}\n'.format(level_25)
         temp_string += '26강 갯수 : {:,}\n'.format(level_26)
         temp_string += '37강 갯수 : {:,}\n'.format(level_37)
@@ -610,6 +599,40 @@ class PlayerLevelCalculator:
         temp_string += '40강 갯수 : {:,}\n'.format(level_40)
 
         return temp_string
+
+    def return_str_41_44_number(self):
+        """플레이어 목표 레벨까지 도달하기 위해 필요한 유닛 41, 42, 43, 44강 갯수"""
+
+        sum_exp = self.exp_level_to_level
+
+        # 해당 경험치까지 도달하기 위해 팔아야 하는 유닛
+        level_41 = int(sum_exp / self.unit_dictionary[41].get_unit_exp()) + 1
+        level_42 = int(sum_exp / self.unit_dictionary[42].get_unit_exp()) + 1
+        level_43 = int(sum_exp / self.unit_dictionary[43].get_unit_exp()) + 1
+        level_44 = int(sum_exp / self.unit_dictionary[44].get_unit_exp()) + 1
+
+        temp_string = ""
+        temp_string += '41강 갯수 : {:,}\n'.format(level_41)
+        temp_string += '42강 갯수 : {:,}\n'.format(level_42)
+        temp_string += '43강 갯수 : {:,}\n'.format(level_43)
+        temp_string += '44강 갯수 : {:,}\n'.format(level_44)
+
+        return temp_string
+
+    def return_str_player_level_to_level(self):
+        """
+        시작 -> 마지막 레벨까지 필요한 경험치 계산 후 출력
+        """
+
+        # 플레이어 레벨 유효성 검사
+        # if self.out_parameters.player_start_level < 1 or self.out_parameters.player_last_level > PLAYER_MAX_LEVEL or \
+        #         self.out_parameters.player_start_level > self.out_parameters.player_last_level:
+        #     print('ERROR. invalid player level')
+        #     return
+
+        return '플레이어 레벨 {} -> {} 에 필요한 경험치 : {:,}\n'.format(self.out_parameters.player_start_level,
+                                                              self.out_parameters.player_last_level,
+                                                              self.exp_level_to_level)
 
     @staticmethod
     def return_final_player_level(player_start_level, get_exp):

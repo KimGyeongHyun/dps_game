@@ -10,7 +10,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.5.0 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.5.1 by-vigene")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     # 14인치 : 1366 * 768
     # 15인치 : 1600 * 900
@@ -232,8 +232,11 @@ if __name__ == '__main__':
 
         # 플레이어 레벨 관련 정보 출력
         player_calc_label.config(text=game_info.player_calc.return_str_exp_to_player_level_up()
-                                 + "\n\n"
+                                 + "\n"
                                  + game_info.player_calc.return_str_player_level_to_level())
+
+        player_calc_25_40.config(text=game_info.player_calc.return_str_25_40_number())
+        player_calc_41_44.config(text=game_info.player_calc.return_str_41_44_number())
 
         end = time.time()
         print('=========================')
@@ -429,9 +432,9 @@ if __name__ == '__main__':
                                                          "플레이어 레벨을 입력하고 엔터를 누르면 유저 스펙, "
                                                          "유닛 시작, 마지막 레벨, "
                                                          "플레이어 목표 레벨이 어림짐작으로 자동 갱신됩니다.\n"
-                                                         "2) 유저 스펙을 수정하고 엔터를 눌러주세요.\n"
-                                                         "3) 보스 처치 레벨과 파티 플레이 버프 여부를 선택하세요\n"
-                                                         "4) 보고 싶은 정보를 입력하고 엔터를 눌러주세요.\n"
+                                                         "2) 유저 스펙을 수정하고 엔터를 눌러주세요.  ->  "
+                                                         "3) 보스 처치 레벨과 파티 플레이 버프 여부를 선택하세요.  ->  "
+                                                         "4) 보고 싶은 정보를 입력하고 엔터를 눌러주세요.\n\n"
                                                          "보고 싶은 정보의 계산 결과는 맨 아래쪽에 '유닛 레벨 계산 결과'칸과, "
                                                          "'플레이어 레벨 계산 결과'칸에 나타납니다.\n"
                                                          "25/26강 사이 돈 버는 비율 차이 (mps)는 미네랄 64배, 가스 1배 기준이고,  "
@@ -886,18 +889,30 @@ if __name__ == '__main__':
     level_to_level_title_lable.config(text="===============유닛 레벨 계산 결과===============\n")
     level_to_level_title_lable.grid(row=0, column=0)
 
+    # level to level 레이블을 나머지 정보들을 담을 paned window 에 추가
+    level_to_level_label = tkinter.Label(the_other_panedwindow)
+    level_to_level_label.grid(row=1, column=0)
+
     # player level calc 제목 레이블
     player_calc_title_label = tkinter.Label(the_other_panedwindow, padx=75)
     player_calc_title_label.config(text="===============플레이어 레벨 계산 결과===============\n")
     player_calc_title_label.grid(row=0, column=1)
 
-    # level to level 레이블을 나머지 정보들을 담을 paned window 에 추가
-    level_to_level_label = tkinter.Label(the_other_panedwindow)
-    level_to_level_label.grid(row=1, column=0)
+    # player level calc frame 을 나머지 정보들을 담을 paned window 에 추가
+    player_calc_frame = tkinter.Frame(the_other_panedwindow)
+    player_calc_frame.grid(row=1, column=1)
 
-    # player level calc 레이블을 나머지 정보들을 담을 paned window 에 추가
-    player_calc_label = tkinter.Label(the_other_panedwindow)
-    player_calc_label.grid(row=1, column=1)
+    player_calc_label = tkinter.Label(player_calc_frame)
+    player_calc_label.pack(side='top')
+
+    player_calc_unit_number_frame = tkinter.Frame(player_calc_frame)
+    player_calc_unit_number_frame.pack(side='top')
+
+    player_calc_25_40 = tkinter.Label(player_calc_unit_number_frame, padx=10)
+    player_calc_25_40.grid(row=0, column=0)
+
+    player_calc_41_44 = tkinter.Label(player_calc_unit_number_frame, padx=10)
+    player_calc_41_44.grid(row=0, column=1)
 
     # 모든 엔트리에 디폴트 값 출력
     get_value_calculate_print_all()

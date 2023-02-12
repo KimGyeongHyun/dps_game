@@ -10,7 +10,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.5.2 by-vigene")
+    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.5.3 made by - ddeerraa")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     # 14인치 : 1366 * 768
     # 15인치 : 1600 * 900
@@ -183,8 +183,6 @@ if __name__ == '__main__':
                                         "MAX 사냥터 돈 증가량은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(MAX_HUNTING_MAX))
             return
 
-        user_damage = user_damage * 0.1
-
         # 유저 스펙 파라미터
         parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
@@ -214,26 +212,19 @@ if __name__ == '__main__':
         for i in range(len(game_info.unit_dict)):
             unit_level = i + 1
             unit_upgrade_rate_listbox.insert(unit_level, game_info.unit_dict[unit_level].__str__())
-            unit_upgrade_rate_listbox.see(UNIT_MAX_LEVEL)
-
             unit_dps_listbox.insert(unit_level, game_info.unit_dict[unit_level].print_unit_dps())
-            unit_dps_listbox.see(UNIT_MAX_LEVEL)
-
             if game_info.unit_dict[unit_level].exp != 0:
                 unit_exp_listbox.insert(unit_level, game_info.unit_dict[unit_level].print_unit_exp())
-            unit_exp_listbox.see(UNIT_MAX_LEVEL)
+
+        unit_upgrade_rate_listbox.see(UNIT_MAX_LEVEL)
+        unit_dps_listbox.see(UNIT_MAX_LEVEL)
+        unit_exp_listbox.see(UNIT_MAX_LEVEL)
 
         # 유닛 레벨 관련 정보 출력
-        level_to_level_label.config(text=game_info.unit_calc.return_str_number_unit_level_to_level()
-                                    + "\n\n"
-                                    + game_info.return_str_final_player_level_with_units()
-                                    + "\n"
-                                    + game_info.return_str_final_player_level_with_time())
+        level_to_level_label.config(text=game_info.return_str_unit_label())
 
         # 플레이어 레벨 관련 정보 출력
-        player_calc_label.config(text=game_info.player_calc.return_str_exp_to_player_level_up()
-                                 + "\n"
-                                 + game_info.player_calc.return_str_player_level_to_level())
+        player_calc_label.config(text=game_info.return_str_player_label())
 
         player_calc_25_40.config(text=game_info.player_calc.return_str_25_40_number())
         player_calc_41_44.config(text=game_info.player_calc.return_str_41_44_number())
@@ -262,34 +253,6 @@ if __name__ == '__main__':
 
         # 포인트 총합
         points = int(user_level_entry.get()) * 5
-
-        unit_start_level_entry.delete(0, 10)
-        unit_last_level_entry.delete(0, 10)
-
-        # 유저 레벨에 따라 유닛 시작, 마지막 레벨 엔트리 값 초기화
-        if user_level <= 100:
-            unit_start_level_entry.insert(0, "15")
-            unit_last_level_entry.insert(0, "18")
-
-        elif user_level <= 500:
-            unit_start_level_entry.insert(0, "18")
-            unit_last_level_entry.insert(0, "25")
-
-        elif user_level <= 1_000:
-            unit_start_level_entry.insert(0, "20")
-            unit_last_level_entry.insert(0, "25")
-
-        elif user_level <= 1_500:
-            unit_start_level_entry.insert(0, "24")
-            unit_last_level_entry.insert(0, "25")
-
-        elif user_level <= 3_000:
-            unit_start_level_entry.insert(0, "24")
-            unit_last_level_entry.insert(0, "35")
-
-        else:
-            unit_start_level_entry.insert(0, "30")
-            unit_last_level_entry.insert(0, "39")
 
         # 갱신할 엔트리 값 초기화
         first_upgrade_entry.delete(0, 10)
@@ -748,7 +711,7 @@ if __name__ == '__main__':
 
     # 유닛 시작 레벨 엔트리
     unit_start_level_entry = tkinter.Entry(unit_information, width=3, justify='center')
-    unit_start_level_entry.insert(1, '15')
+    unit_start_level_entry.insert(1, '1')
     unit_start_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     unit_start_level_entry.grid(row=0, column=1)
 
@@ -758,7 +721,7 @@ if __name__ == '__main__':
 
     # 유닛 마지막 레벨 엔트리
     unit_last_level_entry = tkinter.Entry(unit_information, width=3, justify='center')
-    unit_last_level_entry.insert(1, '18')
+    unit_last_level_entry.insert(1, '40')
     unit_last_level_entry.bind("<Return>", get_entry_value_calculate_print_all)
     unit_last_level_entry.grid(row=1, column=1)
 

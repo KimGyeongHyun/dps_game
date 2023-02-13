@@ -534,7 +534,8 @@ class ExpOfLevel:
 class PlayerLevelCalculator:
     """플레이어 레벨 경험치 관련 계산, 반환, 출력 담당 클래스"""
 
-    def __init__(self, unit_dictionary, out_parameters):
+    def __init__(self, user_spec, unit_dictionary, out_parameters):
+        self.user_spec = user_spec
         self.unit_dictionary = unit_dictionary  # Unit 인스턴스를 담은 딕셔너리
         self.out_parameters = out_parameters  # 외부 파라미터
         self.exp_level_to_level = 0
@@ -610,13 +611,61 @@ class PlayerLevelCalculator:
                                                             self.out_parameters.player_last_level,
                                                             self.exp_level_to_level)
 
-    @staticmethod
-    def return_final_player_level(player_start_level, get_exp):
+    def _return_exact_exp(self, player_start_level, sell_number):
+        """플레이어 시작레벨을 받아 판매 유닛 레벨과 갯수로 획득할 경험치 반환"""
+
+        unit_exp = self.unit_dictionary[self.out_parameters.unit_last_level].exp
+        unit_number = sell_number
+
+        get_exp = unit_exp * unit_number
+
+        temp_eol = ExpOfLevel(1000)
+        temp_eol.set_total_exp()
+        thousand_exp = temp_eol.total_exp
+        temp_eol = ExpOfLevel(player_start_level)
+        temp_eol.set_total_exp()
+        player_total_exp = temp_eol.total_exp
+
+        sum_exp = player_total_exp + get_exp
+
+        if player_start_level <= 1000 and sum_exp > thousand_exp:
+
+            while sum_exp > thousand_exp:
+                unit_number //= 2
+                sum_exp = player_total_exp + unit_exp * unit_number
+                if unit_number == 0:
+                    break
+
+            while sum_exp <= thousand_exp:
+                unit_number += 1
+                sum_exp = player_total_exp + unit_exp * unit_number
+                if unit_number == self.out_parameters.sell_unit_number:
+                    break
+
+            unit_number -= 1
+            first_exp = unit_exp * unit_number
+
+            # UserSpec 인스턴스 복사
+            temp_user = self.user_spec
+            # UserSpec 인스턴스의 exp_up_rate 에서 초보자 경험치 버프를 제거
+            temp_user.exp_up_rate -= 1
+            # 초보자 경험치가 버프된 UnitSpec 인스턴스를 받는 Unit 인스턴스 생성
+            temp_unit = Unit(temp_user, self.out_parameters.unit_last_level)
+
+            unit_exp = temp_unit.exp
+            second_exp = unit_exp * (sell_number - unit_number)
+
+            return first_exp + second_exp
+
+        else:
+            return get_exp
+
+    def return_final_player_level(self, player_start_level, sell_number):
         """플레이어 시작 레벨과 들어오는 경험치를 받아 최종 플레이어 레벨을 계산, 반환"""
 
         start_exp_of_level = ExpOfLevel(player_start_level)  # 플레이어 시작 레벨
         start_exp_of_level.set_total_exp()  # 플레이어 레벨까지 경험치 총합
-        sum_exp = get_exp + start_exp_of_level.get_total_exp()  # 들어오는 경험치 더하기
+        sum_exp = self._return_exact_exp(player_start_level, sell_number) + start_exp_of_level.get_total_exp()  # 들어오는 경험치 더하기
         level = PLAYER_MAX_LEVEL  # 계산에 사용할 플레이어 시작 레벨
         last_level = PLAYER_MAX_LEVEL   # 계산에 사용할 마지막 플레이어 레벨
 
@@ -686,7 +735,7 @@ class GameInfo:
             self.unit_dict[current_level] = Unit(self.user, current_level)
 
         self.unit_calc = UnitCalculator(self.user, self.unit_dict, out_parameters)  # 유닛 레벨 계산기 초기화
-        self.player_calc = PlayerLevelCalculator(self.unit_dict, out_parameters)  # 플레이어 레벨 계산기 초기화
+        self.player_calc = PlayerLevelCalculator(self.user, self.unit_dict, out_parameters)  # 플레이어 레벨 계산기 초기화
 
         self.unit_calc.set_next_dps_rate()  # 유닛 next dps rate 갱신
         self.unit_calc.set_next_exp_rate()  # 유닛 next exp rate 갱신
@@ -702,49 +751,9 @@ class GameInfo:
         if self.unit_calc.return_sell_number_with_time_unit_level_to_level() is None:
             return " "
 
-        # 추가 되는 경험치
-        get_exp = 0
-
-        # 유저 레벨이 1000 을 넘어간다면 추가연산 필요 없음
-        if self.player_calc.out_parameters.player_start_level > 1000:
-            get_exp = self.player_calc.unit_dictionary[
-                          self.out_parameters.unit_last_level].get_unit_exp() * self.out_parameters.sell_unit_number
-        else:  # 유저 레벨이 1000 이하라면
-            curr_user_level = ExpOfLevel(self.player_calc.out_parameters.player_start_level)
-            thousand_level = ExpOfLevel(1001)
-
-            curr_user_level.set_total_exp()
-            thousand_level.set_total_exp()
-
-            # 현재 유저 레벨 ~ 1000 레벨까지 남은 exp
-            to_thousand_exp = thousand_level.total_exp - curr_user_level.total_exp
-
-            # 들어온 경험치로 레벨 1000 을 못 찍는다면 그대로 진행
-            if self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp() * \
-                    self.out_parameters.sell_unit_number < to_thousand_exp:
-                get_exp = self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp() * \
-                          self.out_parameters.sell_unit_number
-            else:  # 아니라면 레벨 1000 초과 후 발생하는 경험치 버프 손실을 적용
-
-                # 1000 레벨까지 들어간 경험치
-                get_exp += to_thousand_exp
-
-                # 1000 레벨까지 들어간 경험치를 체우고 남은 유닛 갯수
-                remain_number_unit = self.out_parameters.sell_unit_number - to_thousand_exp // \
-                    self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp()
-
-                # UserSpec 인스턴스 복사
-                temp_user = self.user
-                # UserSpec 인스턴스의 exp_up_rate 에서 초보자 경험치 버프를 제거
-                temp_user.exp_up_rate -= 1
-                # 초보자 경험치가 버프된 UnitSpec 인스턴스를 받는 Unit 인스턴스 생성
-                temp_unit = Unit(temp_user, self.out_parameters.unit_last_level)
-
-                # 초보자 버프가 제외된 유닛으로 경험치 계산
-                get_exp += temp_unit.get_unit_exp() * remain_number_unit
-
         # 최종 플레이어 레벨
-        level = self.player_calc.return_final_player_level(self.out_parameters.player_start_level, get_exp)
+        level = self.player_calc.return_final_player_level(self.out_parameters.player_start_level,
+                                                           self.out_parameters.sell_unit_number)
 
         return '플레이어 레벨 {} -> {}\n'.format(self.out_parameters.player_start_level, level)
 
@@ -771,50 +780,7 @@ class GameInfo:
         if sell_number is None:
             return " "
 
-        # 추가 되는 경험치
-        get_exp = 0
-
-        # 유저 레벨이 1000 을 넘어간다면 추가연산 필요 없음
-        if self.player_calc.out_parameters.player_start_level > 1000:
-            get_exp = self.player_calc.unit_dictionary[
-                          self.out_parameters.unit_last_level].get_unit_exp() * sell_number
-        else:  # 유저 레벨이 1000 이하라면
-
-            # 1000 레벨까지 남은 경험치 구함
-            curr_user_level = ExpOfLevel(self.player_calc.out_parameters.player_start_level)
-            thousand_level = ExpOfLevel(1001)
-
-            curr_user_level.set_total_exp()
-            thousand_level.set_total_exp()
-
-            # 현재 유저 레벨 ~ 1000 레벨까지 남은 exp
-            to_thousand_exp = thousand_level.total_exp - curr_user_level.total_exp
-
-            # 들어온 경험치로 레벨 1000 을 못 찍는다면 그대로 진행
-            if self.player_calc.unit_dictionary[
-                    self.out_parameters.unit_last_level].get_unit_exp() * sell_number < to_thousand_exp:
-                get_exp = self.player_calc.unit_dictionary[
-                              self.out_parameters.unit_last_level].get_unit_exp() * sell_number
-            else:  # 아니라면 레벨 1000 초과 후 발생하는 경험치 버프 손실을 적용
-
-                # 1000 레벨까지 들어간 경험치
-                get_exp += to_thousand_exp
-
-                # 1000 레벨까지 들어간 경험치를 체우고 남은 유닛 갯수
-                remain_number_unit = sell_number - to_thousand_exp // \
-                    self.player_calc.unit_dictionary[self.out_parameters.unit_last_level].get_unit_exp()
-
-                # UserSpec 인스턴스 복사
-                temp_user = self.user
-                # UserSpec 인스턴스의 exp_up_rate 에서 초보자 경험치 버프를 제거
-                temp_user.exp_up_rate -= 1
-                # 초보자 경험치가 버프된 UnitSpec 인스턴스를 받는 Unit 인스턴스 생성
-                temp_unit = Unit(temp_user, self.out_parameters.unit_last_level)
-
-                # 초보자 버프가 제외된 유닛으로 경험치 계산
-                get_exp += temp_unit.get_unit_exp() * remain_number_unit
-
-        level = self.player_calc.return_final_player_level(self.out_parameters.player_start_level, get_exp)
+        level = self.player_calc.return_final_player_level(self.out_parameters.player_start_level, sell_number)
 
         return '플레이어 레벨 {} -> {}\n'.format(self.out_parameters.player_start_level, level)
 

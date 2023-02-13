@@ -86,7 +86,7 @@ class UserSpec:
 
         # 형식 변화 중 길게 나오는 소숫점 제거
         self.damage_up_rate = round(self.damage_up_rate, 1)
-        self.exp_up_rate = round(self.exp_up_rate, 1)
+        self.exp_up_rate = round(self.exp_up_rate, 2)
         self.first = round(self.first, 4)
         self.second = round(self.second, 4)
         self.third = round(self.third, 4)
@@ -109,8 +109,8 @@ class UserSpec:
                (self.first * 100, self.second * 100, self.third * 100) + \
                '파괴 방지 확률 : {:.2f}% , '.format(float(self.zero * 100)) + \
                '특수 강화 확률 : {:.2f}% , '.format(float(self.special_upgrade_rate * 100)) + \
-               '데미지 조정 비율 : {}% , '.format(int(self.damage_up_rate * 100)) + \
-               '경험치 조정 비율 : {}%\n'.format(int(self.exp_up_rate * 100))
+               '데미지 조정 비율 : {:.1f}% , '.format(self.damage_up_rate * 100) + \
+               '경험치 조정 비율 : {:.1f}%\n'.format(self.exp_up_rate * 100)
 
 
 class Unit:
@@ -159,6 +159,8 @@ class Unit:
         if self.one < 0:
             self.one = 0.0
 
+        self.exp = round(self.exp, 2)
+
     def __str__(self):
         """
         특정 레벨의 유닛의 강화 확률 문자열 반환\n
@@ -177,15 +179,15 @@ class Unit:
         """
         if self.level == SECOND_MAX_LEVEL or self.level == FIRST_MAX_LEVEL or \
                 self.level == FIRST_MAX_LEVEL - 1 or self.level == FIRST_MAX_LEVEL - 2:
-            return '{:2d}강 / dps : {:7,} , 강화 시 mps 변화 비율 : {:.3f}\n'.format(self.level,
+            return '{:2d}강 / dps : {:9,} , 강화 시 mps 변화 비율 : {:.3f}\n'.format(self.level,
                                                                              self.dps, self.next_dps_rate)
         else:
-            return '{:2d}강 / dps : {:7,} , 강화 시 dps 변화 비율 : {:.3f}\n'.format(self.level,
+            return '{:2d}강 / dps : {:9,} , 강화 시 dps 변화 비율 : {:.3f}\n'.format(self.level,
                                                                              self.dps, self.next_dps_rate)
 
     def print_unit_exp(self):
         """특정 레벨의 유닛의 exp 정보를 반환"""
-        return '{:2d}강 / 판매경험치 : {:12,} , 강화 시 판매경험치 변화 비율: {:.3f}\n'.format(self.level,
+        return '{:2d}강 / 판매경험치 : {:15,} , 강화 시 판매경험치 변화 비율: {:.3f}\n'.format(self.level,
                                                                              self.exp, self.next_exp_rate)
 
     def get_unit_exp(self):
@@ -614,36 +616,39 @@ class PlayerLevelCalculator:
     def _return_exact_exp(self, player_start_level, sell_number):
         """플레이어 시작레벨을 받아 판매 유닛 레벨과 갯수로 획득할 경험치 반환"""
 
-        unit_exp = self.unit_dictionary[self.out_parameters.unit_last_level].exp
-        unit_number = sell_number
+        unit_exp = self.unit_dictionary[self.out_parameters.unit_last_level].exp    # 유닛 경험치
+        unit_number = sell_number   # 유닛 갯수
 
-        get_exp = unit_exp * unit_number
+        get_exp = unit_exp * unit_number    # 획득할 경험치
 
         temp_eol = ExpOfLevel(1000)
         temp_eol.set_total_exp()
-        thousand_exp = temp_eol.total_exp
+        thousand_exp = temp_eol.total_exp   # 1000 레벨까지 경험치 총합
         temp_eol = ExpOfLevel(player_start_level)
         temp_eol.set_total_exp()
-        player_total_exp = temp_eol.total_exp
+        player_total_exp = temp_eol.total_exp   # 플레이어 레벨까지 경험치 총합
 
-        sum_exp = player_total_exp + get_exp
+        sum_exp = player_total_exp + get_exp    # 예외사항이 없는 획득할 경험치
 
+        # 플레이어 레벨이 1000 이하이고 획득한 경험치로 1000 레벨을 초과한다면, 1000레벨 이후 초보자 경험치 버프를 제거하고 계산해야 함
         if player_start_level <= 1000 and sum_exp > thousand_exp:
 
+            # 이분법으로 1000 레벨에 도달하는 유닛 판매 갯수 근사값 찾음
             while sum_exp > thousand_exp:
                 unit_number //= 2
                 sum_exp = player_total_exp + unit_exp * unit_number
                 if unit_number == 0:
                     break
 
+            # 위에서 찾은 유닛 판매 갯수 근사값에서 정확한 값을 찾음
             while sum_exp <= thousand_exp:
                 unit_number += 1
                 sum_exp = player_total_exp + unit_exp * unit_number
                 if unit_number == self.out_parameters.sell_unit_number:
                     break
 
-            unit_number -= 1
-            first_exp = unit_exp * unit_number
+            unit_number -= 1    # 1000 레벨이 되기 전까지 판매되는 유닛 갯수
+            first_exp = unit_exp * unit_number  # 1000 레벨이 되기 전까지 획득하는 경험치
 
             # UserSpec 인스턴스 복사
             temp_user = self.user_spec
@@ -651,13 +656,14 @@ class PlayerLevelCalculator:
             temp_user.exp_up_rate -= 1
             # 초보자 경험치가 버프된 UnitSpec 인스턴스를 받는 Unit 인스턴스 생성
             temp_unit = Unit(temp_user, self.out_parameters.unit_last_level)
-
+            # 해당 유닛 인스턴스에서 경험치를 추출
             unit_exp = temp_unit.exp
-            second_exp = unit_exp * (sell_number - unit_number)
+            second_exp = unit_exp * (sell_number - unit_number)     # 1000 레벨 이후 획득하는 경험치
 
+            # 1000 레벨 기준 전,후 경험치 총합 반환
             return first_exp + second_exp
 
-        else:
+        else:   # 이외에는 경험치 변동 없이 그대로 반환
             return get_exp
 
     def return_final_player_level(self, player_start_level, sell_number):

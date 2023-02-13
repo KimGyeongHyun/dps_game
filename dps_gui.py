@@ -10,7 +10,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.6 made by - ddeerraa")
+    window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.7 made by - ddeerraa")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     # 14인치 : 1366 * 768
     # 15인치 : 1600 * 900
@@ -88,7 +88,7 @@ if __name__ == '__main__':
                                         "유저 공업은 0 ~ {} 사이의 정수 값을 입력해야 합니다.".format(USER_DAMAGE_MAX))
             return
 
-        if unit_start_level < 1 or unit_last_level > UNIT_MAX_LEVEL:
+        if unit_start_level < 1 or unit_start_level > UNIT_MAX_LEVEL:
             tkinter.messagebox.showinfo("유닛 시작 레벨 오류",
                                         "유닛 시작 레벨은 1 ~ {} 사이의 정수 값을 입력해야 합니다.".format(UNIT_MAX_LEVEL))
             return
@@ -104,23 +104,23 @@ if __name__ == '__main__':
             return
 
         if sell_ticket < 0:
-            tkinter.messagebox.showinfo("판매권 개수",
-                                        "판매권 개수는 자연수를 입력해야 합니다.")
+            tkinter.messagebox.showinfo("유닛 판매 개수 오류",
+                                        "유닛 판매 개수는 0을 포함한 자연수를 입력해야 합니다.")
             return
 
         if hour < 0:
             tkinter.messagebox.showinfo("시간 오류 (시)",
-                                        "시간은 자연수를 입력해야 합니다.")
+                                        "시간은 0을 포함한 자연수를 입력해야 합니다.")
             return
 
         if minute < 0:
             tkinter.messagebox.showinfo("시간 오류 (분)",
-                                        "시간은 자연수를 입력해야 합니다.")
+                                        "시간은 0을 포함한 자연수를 입력해야 합니다.")
             return
 
         if seconds < 0:
             tkinter.messagebox.showinfo("시간 오류 (초)",
-                                        "시간은 자연수를 입력해야 합니다.")
+                                        "시간은 0을 포함한 자연수를 입력해야 합니다.")
             return
 
         if player_last_level < 1 or player_last_level > PLAYER_MAX_LEVEL:
@@ -159,8 +159,8 @@ if __name__ == '__main__':
             return
 
         if w_exp_rate < 0 or w_exp_rate > W_EXP_RATE_MAX / 100:
-            tkinter.messagebox.showinfo("고유 유닛 경험치 증가량 확률 오류",
-                                        "고유 유닛 경험치 증가량 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_EXP_RATE_MAX))
+            tkinter.messagebox.showinfo("고유 유닛 경험치 증가량 오류",
+                                        "고유 유닛 경험치 증가량은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_EXP_RATE_MAX))
             return
 
         if w_another_first < 0 or w_another_first > W_ANOTHER_FIRST_MAX / 100:
@@ -463,11 +463,9 @@ if __name__ == '__main__':
 
     ###################################################################################################################
     # 처음 안내문
-    first_information_label = tkinter.Label(window, text="1) 먼저 플레이어 레벨을 입력하고 엔터를 눌러주세요.\n"
-                                                         "플레이어 레벨을 입력하고 엔터를 누르면 유저 스펙, "
-                                                         "유닛 시작, 마지막 레벨, "
-                                                         "플레이어 목표 레벨이 어림짐작으로 자동 갱신됩니다.\n"
-                                                         "2) 유저 스펙을 수정하고 엔터를 눌러주세요.  ->  "
+    first_information_label = tkinter.Label(window, text="1) 먼저 플레이어 레벨과 고유 유닛 단 수를 입력하고 엔터를 눌러주세요.  "
+                                                         "그러면 유저 스펙, 고유 유닛 스펙, 플레이어 목표 레벨이 자동 갱신됩니다.\n"
+                                                         "2) 유저 스펙과 고유 유닛 스펙을 수정하고 엔터를 눌러주세요.  ->  "
                                                          "3) 보스 처치 레벨과 파티 플레이 버프 여부를 선택하세요.  ->  "
                                                          "4) 보고 싶은 정보를 입력하고 엔터를 눌러주세요.\n\n"
                                                          "보고 싶은 정보의 계산 결과는 맨 아래쪽에 '유닛 레벨 계산 결과'칸과, "
@@ -649,7 +647,7 @@ if __name__ == '__main__':
     w_frame.grid(row=1, column=1)
 
     # 고유 유닛 단 수 레이블
-    w_level_label = tkinter.Label(w_frame, text="레이스 단 수 : ")
+    w_level_label = tkinter.Label(w_frame, text="고유 유닛 단 수 : ")
     w_level_label.grid(row=0, column=0)
 
     # 고유 유닛 단 수 엔트리
@@ -902,7 +900,7 @@ if __name__ == '__main__':
 
     unit_dps_listbox = tkinter.Listbox(unit_dps_frame,
                                        yscrollcommand=unit_dps_scrollbar.set,
-                                       width=42, height=10)
+                                       width=45, height=10)
     unit_dps_listbox.pack(side='left')
 
     unit_dps_scrollbar["command"] = unit_dps_listbox.yview

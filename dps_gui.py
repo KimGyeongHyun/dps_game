@@ -10,7 +10,7 @@ if __name__ == '__main__':
     window = tkinter.Tk()
 
     # 윈도우 창의 제목
-    window.title("DPS 강화하기 v2.10 유즈맵 계산기    version 2.5.4 made by - ddeerraa")
+    window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.5 made by - ddeerraa")
     # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
     # 14인치 : 1366 * 768
     # 15인치 : 1600 * 900
@@ -306,6 +306,12 @@ if __name__ == '__main__':
         # 5보스 처치시 레벨업 적용
         points -= 20 * 50
 
+        if points < 0:
+            get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.2f}ms'.format(1000 * (end - start)))
+            return
+
         # +2 강화 확률 디폴트 값 지정
         second_upgrade_entry.delete(0, 10)
         if points <= 200 * 50:
@@ -388,6 +394,72 @@ if __name__ == '__main__':
 
         end = time.time()
         print('run time = {:.2f}ms'.format(1000 * (end - start)))
+
+
+    def set_expected_wraith_upgrade(event):
+
+        # 유저 레벨 유효성 검사
+        try:
+            wraith_level = int(w_level_entry.get())
+        except ValueError:
+            print('ValueError in user spec input parameter')
+            return
+
+        # 갱신할 엔트리 값 초기화
+        w_exp_rate_entry.delete(0, 10)
+        w_exp_rate_entry.insert(0, "0.0")
+        w_another_first_entry.delete(0, 10)
+        w_another_first_entry.insert(0, "0.0")
+        w_special_entry.delete(0, 10)
+        w_special_entry.insert(0, "0.0")
+        w_zero_entry.delete(0, 10)
+        w_zero_entry.insert(0, "0.0")
+
+        # 고유 유닛 추가 +1 강화 확률 디폴트 값 지정
+        w_another_first_entry.delete(0, 10)
+        if wraith_level < 20:
+            w_another_first_entry.insert(0, "{:.2f}".format(wraith_level/4))
+            get_value_calculate_print_all()
+            return
+        w_another_first_entry.insert(0, "5.0")
+        wraith_level -= 20
+
+        # 특수 강화 확률 디폴트 값 지정
+        w_special_entry.delete(0, 10)
+        if wraith_level < 10:
+            w_special_entry.insert(0, "{:.1f}".format(wraith_level / 2))
+            get_value_calculate_print_all()
+            return
+        w_special_entry.insert(0, "5.0")
+        wraith_level -= 10
+        
+        # 추가 경험치 보너스 디폴트 값 지정
+        w_exp_rate_entry.delete(0, 10)
+        if wraith_level < 5:
+            w_exp_rate_entry.insert(0, "{:.1f}".format(20 * wraith_level))
+            get_value_calculate_print_all()
+            return
+        w_exp_rate_entry.insert(0, "100.0")
+        wraith_level -= 5
+        
+        # 공업, 공속, 사냥터
+        wraith_level -= 27
+
+        if wraith_level < 0:
+            get_value_calculate_print_all()
+            return
+
+        # 파괴 방지 확률 디폴트 값 지정
+        w_zero_entry.delete(0, 10)
+        if wraith_level < 200:
+            w_zero_entry.insert(0, "{:.1f}".format(wraith_level/10))
+            get_value_calculate_print_all()
+            return
+        w_zero_entry.insert(0, "20.0")
+
+        # 갱신된 값을 받아 계산 후 모두 출력
+        get_value_calculate_print_all()
+        
 
     ###################################################################################################################
     # 처음 안내문
@@ -576,56 +648,68 @@ if __name__ == '__main__':
     user_spec_panedwindow.add(w_frame)
     w_frame.grid(row=1, column=1)
 
+    # 고유 유닛 단 수 레이블
+    w_level_label = tkinter.Label(w_frame, text="레이스 단 수 : ")
+    w_level_label.grid(row=0, column=0)
+
+    # 고유 유닛 단 수 엔트리
+    w_level_entry = tkinter.Entry(w_frame, width=7, justify='center')
+    w_level_entry.bind("<Return>", set_expected_wraith_upgrade)
+    w_level_entry.insert(2, '0')
+    w_level_entry.grid(row=0, column=1)
+
     # 고유 유닛 경험치 증가량 레이블
     w_exp_rate_label = tkinter.Label(w_frame, text="경험치 증가량 : ")
-    w_exp_rate_label.grid(row=0, column=0)
+    w_exp_rate_label.grid(row=1, column=0)
 
     # 고유 유닛 경험치 증가량 엔트리
     w_exp_rate_entry = tkinter.Entry(w_frame, width=7, justify='center')
     w_exp_rate_entry.bind("<Return>", get_entry_value_calculate_print_all)
     w_exp_rate_entry.insert(2, '0.0')
-    w_exp_rate_entry.grid(row=0, column=1)
+    w_exp_rate_entry.grid(row=1, column=1)
 
     # 추가 +1 강화 확률 레이블
     w_another_first_label = tkinter.Label(w_frame, text="추가 +1 강화 확률 : ")
-    w_another_first_label.grid(row=1, column=0)
+    w_another_first_label.grid(row=2, column=0)
 
     # 추가 +1 강화 확률 엔트리
     w_another_first_entry = tkinter.Entry(w_frame, width=7, justify='center')
     w_another_first_entry.bind("<Return>", get_entry_value_calculate_print_all)
     w_another_first_entry.insert(2, '0.0')
-    w_another_first_entry.grid(row=1, column=1)
+    w_another_first_entry.grid(row=2, column=1)
 
     # 특수 강화 확률 레이블
     w_special_label = tkinter.Label(w_frame, text="특수 강화 확률 : ")
-    w_special_label.grid(row=2, column=0)
+    w_special_label.grid(row=3, column=0)
 
     # 특수 강화 확률 엔트리
     w_special_entry = tkinter.Entry(w_frame, width=7, justify='center')
     w_special_entry.bind("<Return>", get_entry_value_calculate_print_all)
     w_special_entry.insert(2, '0.0')
-    w_special_entry.grid(row=2, column=1)
+    w_special_entry.grid(row=3, column=1)
 
     # 파괴 방지 확률 레이블
     w_zero_label = tkinter.Label(w_frame, text="파괴 방지 확률 : ")
-    w_zero_label.grid(row=3, column=0)
+    w_zero_label.grid(row=4, column=0)
 
     # 파괴 방지 확률 엔트리
     w_zero_entry = tkinter.Entry(w_frame, width=7, justify='center')
     w_zero_entry.bind("<Return>", get_entry_value_calculate_print_all)
     w_zero_entry.insert(2, '0.0')
-    w_zero_entry.grid(row=3, column=1)
+    w_zero_entry.grid(row=4, column=1)
 
     # % 레이블
+    dan = tkinter.Label(w_frame, text='단')
     percent8 = tkinter.Label(w_frame, text='%')
     percent9 = tkinter.Label(w_frame, text='%')
     percent10 = tkinter.Label(w_frame, text='%')
     percent11 = tkinter.Label(w_frame, text='%')
 
-    percent8.grid(row=0, column=2)
-    percent9.grid(row=1, column=2)
-    percent10.grid(row=2, column=2)
-    percent11.grid(row=3, column=2)
+    dan.grid(row=0, column=2)
+    percent8.grid(row=1, column=2)
+    percent9.grid(row=2, column=2)
+    percent10.grid(row=3, column=2)
+    percent11.grid(row=4, column=2)
 
     ###################################################################################################################
     # 유저 스펙 중 보스 라운드와 파티플레이 여부를 체크할 frame 을 유저 스펙 paned window 에 배치

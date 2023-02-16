@@ -12,7 +12,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.9 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.10 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -64,13 +64,62 @@ class MainWindow:
         """모든 수치를 받아 계산 후 모두 출력"""
         start = time.time()
 
-        # 타입 유효성 검사
         try:
             user_level = int(self.user_spec_frame.user_level_entry.get())
+        except ValueError:
+            tkinter.messagebox.showinfo("유저 레벨 오류",
+                                        "유저 레벨은 정수 값을 입력해야 합니다.")
+            return
+
+        try:
+            user_damage = int(self.user_spec_frame.user_damage_upgrade_entry.get())
+        except ValueError:
+            tkinter.messagebox.showinfo("유저 공업 오류",
+                                        "유저 공업은 정수 값을 입력해야 합니다.")
+            return
+
+        try:
+            unit_start_level = int(self.out_parameters_frame.unit_start_level_entry.get())
+        except ValueError:
+            tkinter.messagebox.showinfo("유닛 시작 레벨 오류",
+                                        "유닛 시작 레벨은 정수 값을 입력해야 합니다.")
+            return
+
+        try:
+            unit_last_level = int(self.out_parameters_frame.unit_last_level_entry.get())
+        except ValueError:
+            tkinter.messagebox.showinfo("유닛 마지막 레벨 오류",
+                                        "유닛 마지막 레벨은 정수 값을 입력해야 합니다.")
+            return
+
+        try:
+            sell_ticket = int(self.out_parameters_frame.sell_ticket_entry.get())
+        except ValueError:
+            tkinter.messagebox.showinfo("유닛 판매 개수 오류",
+                                        "유닛 판매 개수는 0을 포함한 자연수를 입력해야 합니다.")
+            return
+
+        try:
+            hour = int(self.out_parameters_frame.playing_hour_entry.get())
+            minute = int(self.out_parameters_frame.playing_minute_entry.get())
+            seconds = int(self.out_parameters_frame.playing_second_entry.get())
+        except ValueError:
+            tkinter.messagebox.showinfo("시간 오류",
+                                        "시간은 0을 포함한 자연수를 입력해야 합니다.")
+            return
+
+        try:
+            player_last_level = int(self.out_parameters_frame.player_end_level_entry.get())
+        except ValueError:
+            tkinter.messagebox.showinfo("플레이어 목표 레벨 오류",
+                                        "플레이어 목표 레벨은 정수 값을 입력해야 합니다.")
+            return
+
+        # 타입 유효성 검사
+        try:
             first = float(self.user_spec_frame.first_upgrade_entry.get()) / 100
             second = float(self.user_spec_frame.second_upgrade_entry.get()) / 100
             third = float(self.user_spec_frame.third_upgrade_entry.get()) / 100
-            user_damage = int(self.user_spec_frame.user_damage_upgrade_entry.get())
             special_upgrade_rate = float(self.user_spec_frame.special_upgrade_rate_entry.get()) / 100
             zero = float(self.user_spec_frame.prevent_del_rate_entry.get()) / 100
             another_first = float(self.user_spec_frame.another_first_entry.get()) / 100
@@ -84,13 +133,6 @@ class MainWindow:
             w_another_first = float(self.wraith_frame.w_another_first_entry.get()) / 100
             w_special_upgrade = float(self.wraith_frame.w_special_entry.get()) / 100
             w_zero = float(self.wraith_frame.w_zero_entry.get()) / 100
-            unit_start_level = int(self.out_parameters_frame.unit_start_level_entry.get())
-            unit_last_level = int(self.out_parameters_frame.unit_last_level_entry.get())
-            sell_ticket = int(self.out_parameters_frame.sell_ticket_entry.get())
-            hour = int(self.out_parameters_frame.playing_hour_entry.get())
-            minute = int(self.out_parameters_frame.playing_minute_entry.get())
-            seconds = int(self.out_parameters_frame.playing_second_entry.get())
-            player_last_level = int(self.out_parameters_frame.player_end_level_entry.get())
         except ValueError:
             print('ValueError in user spec input parameter')
             return
@@ -279,7 +321,8 @@ class MainWindow:
         try:
             user_level = int(self.user_spec_frame.user_level_entry.get())
         except ValueError:
-            print('ValueError in user spec input parameter')
+            tkinter.messagebox.showinfo("유저 레벨 오류",
+                                        "유저 레벨은 정수 값을 입력해야 합니다.")
             return
 
         # 포인트 총합
@@ -429,7 +472,8 @@ class MainWindow:
         try:
             wraith_level = int(self.wraith_frame.w_level_entry.get())
         except ValueError:
-            print('ValueError in user spec input parameter')
+            tkinter.messagebox.showinfo("레이스 단수 오류",
+                                        "레이스 단수는 정수 값을 입력해야 합니다.")
             return
 
         # 갱신할 엔트리 값 초기화

@@ -159,6 +159,10 @@ class Unit:
         if self.one < 0:
             self.one = 0.0
 
+        # 강화 확률 총합이 100% 가 넘는다면 +1 강화 확률을 100% 에 맞게 차감
+        if self.one + self.two + self.three > 1:
+            self.one = 1 - self.two - self.three
+
         self.exp = round(self.exp, 2)
 
     def __str__(self):

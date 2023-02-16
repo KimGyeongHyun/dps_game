@@ -12,7 +12,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.8 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.9 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -332,9 +332,6 @@ class MainWindow:
             print('run time = {:.2f}ms'.format(1000 * (end - start)))
             return
         self.user_spec_frame.user_damage_upgrade_entry.insert(0, "50")
-        points -= 20 * 50
-
-        # 5보스 처치시 레벨업 적용
         points -= 20 * 50
 
         if points < 0:

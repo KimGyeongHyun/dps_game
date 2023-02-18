@@ -371,15 +371,13 @@ class UnitCalculator:
             temp_dict[i + 3] += curr_number * self.unit_dict[i].three  # +3 레벨에 유닛 추가
 
             if i >= SECOND_MAX_LEVEL:  # 40강 이상이라면 유지 확률 적용    /   등비수열 총합 이론
-                temp_dict[i + 1] /= 1 - self.unit_dict[i].zero
-                temp_dict[i + 2] /= 1 - self.unit_dict[i].zero
-                temp_dict[i + 3] /= 1 - self.unit_dict[i].zero
+                temp_dict[i + 1] /= 1 - (self.unit_dict[i].zero * (1 - self.unit_dict[i].one))
 
         if temp_dict[self.out_parameters.unit_last_level] == 0:  # 유닛을 만들 수 없다면 None 반환
             return None
 
         # 마지막 레벨 한 마리를 만들기 위해서 필요한 시작 레벨 유닛 수
-        numbers_of_unit = int(1 / temp_dict[self.out_parameters.unit_last_level])
+        numbers_of_unit = 1 / temp_dict[self.out_parameters.unit_last_level]
 
         return numbers_of_unit
 
@@ -395,7 +393,7 @@ class UnitCalculator:
             return '{}강 유닛은 만들 수 없습니다.\n'.format(self.out_parameters.unit_last_level)
 
         # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
-        return '{}강 하나를 만들기 위해선 {}강이 평균 {:,}마리가 필요합니다\n'.format(self.out_parameters.unit_last_level,
+        return '{}강 하나를 만들기 위해선 {}강이 평균 {:.2f}마리가 필요합니다\n'.format(self.out_parameters.unit_last_level,
                                                                 self.out_parameters.unit_start_level,
                                                                 numbers_of_unit)
 

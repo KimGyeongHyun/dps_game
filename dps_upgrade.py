@@ -560,6 +560,7 @@ class PlayerLevelCalculator:
         self.unit_dictionary = unit_dictionary  # Unit 인스턴스를 담은 딕셔너리
         self.out_parameters = out_parameters  # 외부 파라미터
         self.exp_level_to_level = 0
+        self._set_exp_player_level_to_level()
 
     def return_str_exp_to_player_level_up(self):
         """해당 레벨에서 레벨 업에 필요한 경험치 출력"""

@@ -12,7 +12,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.11 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.12 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -313,7 +313,7 @@ class MainWindow:
         self.get_value_calculate_print_all()
 
     def set_expected_upgrade_rate_and_deal_upgrade(self, event):
-        """유저 레벨에 따라 +1, +2, +3, 공업, 유닛 시작, 마지막 레벨 , 특수 강화 확률, 파괴 방지 확률, +1 추가 확률 디폴트 값 갱신"""
+        """유저 레벨에 따라 +1, +2, +3, 공업, 특수 강화 확률, 파괴 방지 확률, 추가 +1, +2, +3 확률 갱신"""
 
         start = time.time()
 
@@ -429,14 +429,14 @@ class MainWindow:
 
         # 파괴 방지 확률 디폴트 값 지정
         self.user_spec_frame.prevent_del_rate_entry.delete(0, 10)
-        if points <= 150 * 500:
-            self.user_spec_frame.prevent_del_rate_entry.insert(0, "{:.1f}".format((points // 150) / 10))
+        if points <= 250 * 300:
+            self.user_spec_frame.prevent_del_rate_entry.insert(0, "{:.1f}".format((points // 250) / 10))
             self.get_value_calculate_print_all()
             end = time.time()
             print('run time = {:.2f}ms'.format(1000 * (end - start)))
             return
-        self.user_spec_frame.prevent_del_rate_entry.insert(0, "50.0")
-        points -= 150 * 500
+        self.user_spec_frame.prevent_del_rate_entry.insert(0, "30.0")
+        points -= 250 * 300
 
         # 추가 +2 강화 확률 디폴트 값 지정
         self.user_spec_frame.another_second_entry.delete(0, 10)
@@ -467,6 +467,7 @@ class MainWindow:
         print('run time = {:.2f}ms'.format(1000 * (end - start)))
 
     def set_expected_wraith_upgrade(self, event):
+        """레이스 단 수에 따라 레이스 스펙 갱신"""
 
         # 유저 레벨 유효성 검사
         try:
@@ -911,7 +912,7 @@ class OutParametersFrame:
         playing_second_label = tkinter.Label(unit_information, text=' 초')
 
         # 방치 시간 엔트리
-        self.playing_hour_entry = tkinter.Entry(unit_information, width=3, justify='center')
+        self.playing_hour_entry = tkinter.Entry(unit_information, width=5, justify='center')
         self.playing_minute_entry = tkinter.Entry(unit_information, width=3, justify='center')
         self.playing_second_entry = tkinter.Entry(unit_information, width=3, justify='center')
 

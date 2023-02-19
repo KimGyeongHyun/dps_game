@@ -103,6 +103,13 @@ class UserSpec:
         """유저 스펙의 경험치 조정 비율을 반환"""
         return self.exp_up_rate
 
+    def return_max_hunt_rate(self):
+        return self.max_hunting_rate
+
+    def set_reduced_exp(self):
+        """초보자 경험치 버프 제거"""
+        self.exp_up_rate -= 1
+
     def __str__(self):
         """유저 스펙 문자열 반환"""
         return '+1 강화확률 : %.2f%% , +2 강화확률 : %.2f%% , +3 강화확률 : %.2f%%, ' % \
@@ -176,6 +183,18 @@ class Unit:
             return '{:2d}강 / +1 : {:.2f}% , +2 : {:.2f}% , +3 : {:.2f}%\n'.format(self.level, self.one * 100,
                                                                                   self.two * 100, self.three * 100)
 
+    def return_0123(self):
+        """유닛의 파괴방지 확률, +1, +2, +3 반환"""
+        return self.zero, self.one, self.two, self.three
+
+    def return_dps(self):
+        """유닛의 dps 반환"""
+        return self.dps
+
+    def return_exp(self):
+        """유닛의 exp 반환"""
+        return self.exp
+
     def print_unit_dps(self):
         """
         특정 레벨의 유닛의 dps 정보를 반환\n
@@ -193,9 +212,6 @@ class Unit:
         """특정 레벨의 유닛의 exp 정보를 반환"""
         return '{:2d}강 / 판매경험치 : {:15,} , 강화 시 판매경험치 변화 비율: {:.3f}\n'.format(self.level,
                                                                              self.exp, self.next_exp_rate)
-
-    def get_unit_exp(self):
-        return self.exp
 
 
 class OutParameter:
@@ -217,13 +233,9 @@ class UnitCalculator:
     """유닛 관련 계산, 반환, 출력 담당 클래스"""
 
     def __init__(self, user_spec, input_unit_dict, out_parameters):
-        self.first, self.second, self.third = user_spec.return_123()  # 유저 스펙 +1, +2, +3 강화 확률
-        self.damage_up_rate = user_spec.return_damage_up_rate()  # 데미지 조정 비율
-        self.exp_up_rate = user_spec.return_exp_up_rate()  # 경험치 조정 비율
-        self.max_hunting_rate = user_spec.max_hunting_rate  # MX 사냥터 돈 획득량 증가량
+        self.user_spec = user_spec
         # key : level, value : instance of Unit class
         self.unit_dict = input_unit_dict  # Unit 인스턴스를 담은 딕셔너리
-        self.zero = user_spec.zero  # 유지 확률
         self.out_parameters = out_parameters  # 외부 파라미터
 
     @staticmethod
@@ -283,6 +295,8 @@ class UnitCalculator:
             curr_unit = self.unit_dict[curr_level]
             next_rate = 0
 
+            zero, one, two, three = curr_unit.return_0123()
+
             if mod == 'exp' and curr_level < 15:
                 continue
 
@@ -291,16 +305,16 @@ class UnitCalculator:
 
             # 파괴 방지
             if curr_level >= SECOND_MAX_LEVEL:
-                next_rate += curr_unit.zero
+                next_rate += zero
 
             curr_multiply = rate_dict[curr_level]
-            next_rate += curr_unit.one * curr_multiply
+            next_rate += one * curr_multiply
 
             curr_multiply *= rate_dict[curr_level+1]
-            next_rate += curr_unit.two * curr_multiply
+            next_rate += two * curr_multiply
 
             curr_multiply *= rate_dict[curr_level+2]
-            next_rate += curr_unit.three * curr_multiply
+            next_rate += three * curr_multiply
 
             if mod == 'dps':
                 curr_unit.next_dps_rate = next_rate
@@ -324,11 +338,12 @@ class UnitCalculator:
             if curr_level == FIRST_MAX_LEVEL:
                 dps_rate_dict[curr_level] = MPS_25
             elif curr_level == SECOND_MAX_LEVEL:
-                dps_rate_dict[curr_level] = MPS_40 * self.max_hunting_rate
+                dps_rate_dict[curr_level] = MPS_40 * self.user_spec.max_hunting_rate
             elif curr_level >= UNIT_MAX_LEVEL:
                 break
             else:
-                dps_rate_dict[curr_level] = self.unit_dict[curr_level + 1].dps / self.unit_dict[curr_level].dps
+                dps_rate_dict[curr_level] = self.unit_dict[curr_level + 1].return_dps() / \
+                                            self.unit_dict[curr_level].return_dps()
 
         self._set_next_rate(dps_rate_dict, 'dps')
 
@@ -344,7 +359,8 @@ class UnitCalculator:
             curr_level = i + 1
             if curr_level < 15:
                 continue
-            exp_rate_dict[curr_level] = self.unit_dict[curr_level+1].exp / self.unit_dict[curr_level].exp
+            exp_rate_dict[curr_level] = self.unit_dict[curr_level+1].exp / \
+                self.unit_dict[curr_level].exp
 
         self._set_next_rate(exp_rate_dict, 'exp')
 
@@ -366,12 +382,13 @@ class UnitCalculator:
         # 마지막 레벨에 도달할 때까지 계산 반복
         for i in range(self.out_parameters.unit_start_level, self.out_parameters.unit_last_level):
             curr_number = temp_dict[i]  # 해당 레벨에 유닛 수
-            temp_dict[i + 1] += curr_number * self.unit_dict[i].one  # +1 레벨에 유닛 추가
-            temp_dict[i + 2] += curr_number * self.unit_dict[i].two  # +2 레벨에 유닛 추가
-            temp_dict[i + 3] += curr_number * self.unit_dict[i].three  # +3 레벨에 유닛 추가
+            zero, one, two, three = self.unit_dict[i].return_0123()
+            temp_dict[i + 1] += curr_number * one  # +1 레벨에 유닛 추가
+            temp_dict[i + 2] += curr_number * two  # +2 레벨에 유닛 추가
+            temp_dict[i + 3] += curr_number * three  # +3 레벨에 유닛 추가
 
             if i >= SECOND_MAX_LEVEL:  # 40강 이상이라면 유지 확률 적용    /   등비수열 총합 이론
-                temp_dict[i + 1] /= 1 - (self.unit_dict[i].zero * (1 - self.unit_dict[i].one))
+                temp_dict[i + 1] /= 1 - (zero * (1 - one))
 
         if temp_dict[self.out_parameters.unit_last_level] == 0:  # 유닛을 만들 수 없다면 None 반환
             return None
@@ -543,7 +560,6 @@ class PlayerLevelCalculator:
         self.unit_dictionary = unit_dictionary  # Unit 인스턴스를 담은 딕셔너리
         self.out_parameters = out_parameters  # 외부 파라미터
         self.exp_level_to_level = 0
-        self._set_exp_player_level_to_level()
 
     def return_str_exp_to_player_level_up(self):
         """해당 레벨에서 레벨 업에 필요한 경험치 출력"""
@@ -555,7 +571,10 @@ class PlayerLevelCalculator:
                                                               exp_of_level.get_need_exp())
 
     def _set_exp_player_level_to_level(self):
-        """시작 -> 마지막 레벨까지 필요한 경험치 계산 후 반환"""
+        """
+        시작 -> 마지막 레벨까지 필요한 경험치 계산 후 갱신\n
+        불필요한 반복 계산을 줄이기 위해 리턴 대신 클래스 변수에 값 저장
+        """
 
         # 시작 레벨까지의 경험치, 마지막 레벨까지의 경험치 차이를 반환
         st = ExpOfLevel(self.out_parameters.player_start_level)
@@ -570,12 +589,12 @@ class PlayerLevelCalculator:
         sum_exp = self.exp_level_to_level
 
         # 해당 경험치까지 도달하기 위해 팔아야 하는 유닛
-        level_25 = int(sum_exp / self.unit_dictionary[25].get_unit_exp()) + 1
-        level_26 = int(sum_exp / self.unit_dictionary[26].get_unit_exp()) + 1
-        level_37 = int(sum_exp / self.unit_dictionary[37].get_unit_exp()) + 1
-        level_38 = int(sum_exp / self.unit_dictionary[38].get_unit_exp()) + 1
-        level_39 = int(sum_exp / self.unit_dictionary[39].get_unit_exp()) + 1
-        level_40 = int(sum_exp / self.unit_dictionary[40].get_unit_exp()) + 1
+        level_25 = int(sum_exp / self.unit_dictionary[25].return_exp()) + 1
+        level_26 = int(sum_exp / self.unit_dictionary[26].return_exp()) + 1
+        level_37 = int(sum_exp / self.unit_dictionary[37].return_exp()) + 1
+        level_38 = int(sum_exp / self.unit_dictionary[38].return_exp()) + 1
+        level_39 = int(sum_exp / self.unit_dictionary[39].return_exp()) + 1
+        level_40 = int(sum_exp / self.unit_dictionary[40].return_exp()) + 1
 
         temp_string = ""
         temp_string += '25강 갯수 : {:,}\n'.format(level_25)
@@ -593,10 +612,10 @@ class PlayerLevelCalculator:
         sum_exp = self.exp_level_to_level
 
         # 해당 경험치까지 도달하기 위해 팔아야 하는 유닛
-        level_41 = int(sum_exp / self.unit_dictionary[41].get_unit_exp()) + 1
-        level_42 = int(sum_exp / self.unit_dictionary[42].get_unit_exp()) + 1
-        level_43 = int(sum_exp / self.unit_dictionary[43].get_unit_exp()) + 1
-        level_44 = int(sum_exp / self.unit_dictionary[44].get_unit_exp()) + 1
+        level_41 = int(sum_exp / self.unit_dictionary[41].return_exp()) + 1
+        level_42 = int(sum_exp / self.unit_dictionary[42].return_exp()) + 1
+        level_43 = int(sum_exp / self.unit_dictionary[43].return_exp()) + 1
+        level_44 = int(sum_exp / self.unit_dictionary[44].return_exp()) + 1
 
         temp_string = ""
         temp_string += '41강 갯수 : {:,}\n'.format(level_41)
@@ -618,17 +637,17 @@ class PlayerLevelCalculator:
     def _return_exact_exp(self, player_start_level, sell_number):
         """플레이어 시작레벨을 받아 판매 유닛 레벨과 갯수로 획득할 경험치 반환"""
 
-        unit_exp = self.unit_dictionary[self.out_parameters.unit_last_level].exp    # 유닛 경험치
+        unit_exp = self.unit_dictionary[self.out_parameters.unit_last_level].return_exp()    # 유닛 경험치
         unit_number = sell_number   # 유닛 갯수
 
         get_exp = unit_exp * unit_number    # 획득할 경험치
 
         temp_eol = ExpOfLevel(1000)
         temp_eol.set_total_exp()
-        thousand_exp = temp_eol.total_exp   # 1000 레벨까지 경험치 총합
+        thousand_exp = temp_eol.get_total_exp()   # 1000 레벨까지 경험치 총합
         temp_eol = ExpOfLevel(player_start_level)
         temp_eol.set_total_exp()
-        player_total_exp = temp_eol.total_exp   # 플레이어 레벨까지 경험치 총합
+        player_total_exp = temp_eol.get_total_exp()   # 플레이어 레벨까지 경험치 총합
 
         sum_exp = player_total_exp + get_exp    # 예외사항이 없는 획득할 경험치
 
@@ -655,11 +674,11 @@ class PlayerLevelCalculator:
             # UserSpec 인스턴스 복사
             temp_user = self.user_spec
             # UserSpec 인스턴스의 exp_up_rate 에서 초보자 경험치 버프를 제거
-            temp_user.exp_up_rate -= 1
+            temp_user.set_reduced_exp()
             # 초보자 경험치가 버프된 UnitSpec 인스턴스를 받는 Unit 인스턴스 생성
             temp_unit = Unit(temp_user, self.out_parameters.unit_last_level)
             # 해당 유닛 인스턴스에서 경험치를 추출
-            unit_exp = temp_unit.exp
+            unit_exp = temp_unit.return_exp()
             second_exp = unit_exp * (sell_number - unit_number)     # 1000 레벨 이후 획득하는 경험치
 
             # 1000 레벨 기준 전,후 경험치 총합 반환
@@ -682,7 +701,7 @@ class PlayerLevelCalculator:
         temp_eol.set_total_exp()
 
         # PLAYER_MAX_LEVEL 부터 4로 나누면서 시작 플레이어 레벨 찾음
-        while temp_eol.total_exp > sum_exp:
+        while temp_eol.get_total_exp() > sum_exp:
             last_level = level
             level = int(level/4)
             temp_eol = ExpOfLevel(level)
@@ -692,7 +711,7 @@ class PlayerLevelCalculator:
 
         # 최종 플레이어 레벨 찾을 때까지 반복
         # 이분법 적용
-        while temp_eol.total_exp > sum_exp or sum_exp >= temp_eol.total_exp + temp_eol.need_exp:
+        while temp_eol.get_total_exp() > sum_exp or sum_exp >= temp_eol.get_total_exp() + temp_eol.get_need_exp():
 
             # 최대 플레이어 레벨일 경우 예외처리
             if temp_eol.level == PLAYER_MAX_LEVEL:
@@ -703,7 +722,7 @@ class PlayerLevelCalculator:
             temp_eol.set_total_exp()
 
             # 중간 값 기준으로 반 나눠서 반복문 다시 적용
-            if temp_eol.total_exp <= sum_exp:
+            if temp_eol.get_total_exp() <= sum_exp:
                 level += int((last_level - level)/2)
             else:
                 last_level -= int((last_level - level)/2)
@@ -805,7 +824,7 @@ class GameInfo:
         return temp_string
 
     def return_str_unit_label(self):
-        """유저 레벨 라벨에 최종적으로 반환되는 문자열"""
+        """유닛 레벨 라벨에 최종적으로 반환되는 문자열"""
 
         return self.unit_calc.return_str_number_unit_level_to_level() + "\n\n" +\
             self._return_str_final_player_level_with_units() + "\n" + \

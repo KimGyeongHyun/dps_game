@@ -12,7 +12,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.13 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.14 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -51,9 +51,9 @@ class MainWindow:
         self.user_exact_spec_label = tkinter.Label(self.main_window, font=('Arial', 10), foreground='#9900cc')
         self.user_exact_spec_label.pack(side="top")
 
-        self.unit_info_panedwindow = UnitInfoPanedWindow(self.main_window)
+        self.unit_info_panedwindow = UnitInfoPanedWindow()
 
-        self.print_panedwindow = PrintPanedWindow(self.main_window)
+        self.print_panedwindow = PrintPanedWindow()
 
         self.get_value_calculate_print_all()
 
@@ -286,10 +286,13 @@ class MainWindow:
         # 리스트 박스에 유닛 정보 출력
         for i in range(len(self.game_info.unit_dict)):
             unit_level = i + 1
-            self.unit_info_panedwindow.unit_info_frame.unit_info_listbox.insert(unit_level, self.game_info.unit_dict[unit_level].__str__())
-            self.unit_info_panedwindow.unit_dps_frame.unit_info_listbox.insert(unit_level, self.game_info.unit_dict[unit_level].print_unit_dps())
+            self.unit_info_panedwindow.unit_info_frame.\
+                unit_info_listbox.insert(unit_level, self.game_info.unit_dict[unit_level].__str__())
+            self.unit_info_panedwindow.unit_dps_frame.\
+                unit_info_listbox.insert(unit_level, self.game_info.unit_dict[unit_level].print_unit_dps())
             if self.game_info.unit_dict[unit_level].exp != 0:
-                self.unit_info_panedwindow.unit_exp_frame.unit_info_listbox.insert(unit_level, self.game_info.unit_dict[unit_level].print_unit_exp())
+                self.unit_info_panedwindow.unit_exp_frame.\
+                    unit_info_listbox.insert(unit_level, self.game_info.unit_dict[unit_level].print_unit_exp())
 
         self.unit_info_panedwindow.unit_info_frame.unit_info_listbox.see(UNIT_MAX_LEVEL)
         self.unit_info_panedwindow.unit_dps_frame.unit_info_listbox.see(UNIT_MAX_LEVEL)
@@ -945,7 +948,7 @@ class OutParametersFrame:
 
 class UnitInfoPanedWindow:
     """유닛 정보를 보여줄 팬윈도우"""
-    def __init__(self, main_window):
+    def __init__(self):
         # 유닛 정보를 담을 paned window 생성
         unit_information_panedwindow = tkinter.PanedWindow()
         unit_information_panedwindow.pack(side="top", pady=0)
@@ -959,14 +962,14 @@ class UnitInfoPanedWindow:
         unit_dps_label.grid(row=0, column=1)
         unit_exp_label.grid(row=0, column=2)
 
-        self.unit_info_frame = UnitFrame(main_window, unit_information_panedwindow, 'upgrade-rate')
-        self.unit_dps_frame = UnitFrame(main_window, unit_information_panedwindow, 'dps')
-        self.unit_exp_frame = UnitFrame(main_window, unit_information_panedwindow, 'exp')
+        self.unit_info_frame = UnitFrame(unit_information_panedwindow, 'upgrade-rate')
+        self.unit_dps_frame = UnitFrame(unit_information_panedwindow, 'dps')
+        self.unit_exp_frame = UnitFrame(unit_information_panedwindow, 'exp')
 
 
 class UnitFrame:
     """유닛 강화확률, dps, exp 정보를 보여줄 프레임"""
-    def __init__(self, main_window, unit_info_panedwindow, mod):
+    def __init__(self, unit_info_panedwindow, mod):
         # 유닛 강화 확률 정보를 담을 frame 을 유닛 정보를 담을 paned window 에 배치
         unit_info_frame = tkinter.Frame(unit_info_panedwindow, padx=15, pady=5)
 
@@ -987,8 +990,8 @@ class UnitFrame:
             col = 2
 
         self.unit_info_listbox = tkinter.Listbox(unit_info_frame,
-                                                    yscrollcommand=unit_info_scrollbar.set,
-                                                    width=w, height=10)
+                                                 yscrollcommand=unit_info_scrollbar.set,
+                                                 width=w, height=10)
         self.unit_info_listbox.pack(side='left')
 
         unit_info_scrollbar["command"] = self.unit_info_listbox.yview
@@ -999,7 +1002,7 @@ class UnitFrame:
 
 class PrintPanedWindow:
     """계산 결과를 보여줄 팬윈도우"""
-    def __init__(self, main_window):
+    def __init__(self):
         # 나머지 정보들을 담을 paned window
         the_other_panedwindow = tkinter.PanedWindow()
         the_other_panedwindow.pack(side='top', pady=5)

@@ -12,7 +12,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.15 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.16 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -346,6 +346,8 @@ class MainWindow:
         self.user_spec_frame.prevent_del_rate_entry.insert(0, "0.0")
         self.user_spec_frame.another_first_entry.delete(0, 10)
         self.user_spec_frame.another_first_entry.insert(0, "0.0")
+        self.user_spec_frame.max_hunting_entry.delete(0, 10)
+        self.user_spec_frame.max_hunting_entry.insert(0, "0.0")
         self.user_spec_frame.another_second_entry.delete(0, 10)
         self.user_spec_frame.another_second_entry.insert(0, "0.0")
         self.user_spec_frame.another_third_entry.delete(0, 10)
@@ -440,6 +442,17 @@ class MainWindow:
             return
         self.user_spec_frame.prevent_del_rate_entry.insert(0, "30.0")
         points -= 250 * 300
+
+        # 파괴 방지 확률 디폴트 값 지정
+        self.user_spec_frame.max_hunting_entry.delete(0, 10)
+        if points <= 100 * 100:
+            self.user_spec_frame.max_hunting_entry.insert(0, "{:.1f}".format((points // 100) / 1))
+            self.get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.2f}ms'.format(1000 * (end - start)))
+            return
+        self.user_spec_frame.max_hunting_entry.insert(0, "100.0")
+        points -= 100 * 100
 
         # 추가 +2 강화 확률 디폴트 값 지정
         self.user_spec_frame.another_second_entry.delete(0, 10)

@@ -786,16 +786,22 @@ class GameInfo:
         """유저 스펙 반환"""
         return self.user.__str__()
 
-    def _return_str_final_level_with_units(self):
-        """유닛을 특정 갯수를 팔았을 때 플레이어 레벨 계산하고 출력"""
+    def _return_str_final_level(self, mod):
+        """특정 조건에서 플레이어 레벨 계산하고 출력"""
 
         # 마지막 유닛을 뽑을 수 없다면 예외 처리
         if self.unit_calc.return_sell_number_with_time_unit_level_to_level() is None:
             return " "
 
+        level = 0
+
         # 최종 플레이어 레벨
-        level = self.player_calc.return_final_player_level(self.out_parameters.player_start_level,
-                                                           self.out_parameters.sell_unit_number)
+        if mod == "unit":   # 유닛 판매 수
+            level = self.player_calc.return_final_player_level(self.out_parameters.player_start_level,
+                                                               self.out_parameters.sell_unit_number)
+        elif mod == "time":     # 진행 시간에 따른 유닛 판매 수
+            sell_number = self.unit_calc.return_sell_number_with_time_unit_level_to_level()
+            level = self.player_calc.return_final_player_level(self.out_parameters.player_start_level, sell_number)
 
         return '플레이어 레벨 {} -> {}\n'.format(self.out_parameters.player_start_level, level)
 
@@ -804,27 +810,16 @@ class GameInfo:
 
         temp_string = ""
 
+        # 마지막 유닛 하나 생산하는데 필요한 시간 출력
         temp_string += self.unit_calc.return_str_time_unit_level_to_level()
         temp_string += "\n"
         self.unit_calc.return_str_number_unit_level_to_level()
+        # 유닛을 특정 마리 팔았을 때 걸리는 시간 출력
         temp_string += self.unit_calc.return_str_time_with_sell_unit_level_to_level()
-        temp_string += self._return_str_final_level_with_units()
+        # 유닛을 특정 마리 팔았을 때 플레이어 레벨 출력
+        temp_string += self._return_str_final_level("unit")
 
         return temp_string
-
-    def _return_str_final_level_with_times(self):
-        """유닛을 특정 시간 팔았을 때 플레이어 레벨 계산하고 출력"""
-
-        # 특정 시간 판매할 때 유닛 수
-        sell_number = self.unit_calc.return_sell_number_with_time_unit_level_to_level()
-
-        # 마지막 유닛을 못 생산한다면 예외 처리
-        if sell_number is None:
-            return " "
-
-        level = self.player_calc.return_final_player_level(self.out_parameters.player_start_level, sell_number)
-
-        return '플레이어 레벨 {} -> {}\n'.format(self.out_parameters.player_start_level, level)
 
     def _return_str_final_player_level_with_time(self):
         """out_parameters 관련 유닛 판매 시간에 따른 플레이어 최종 레벨 출력"""
@@ -833,8 +828,8 @@ class GameInfo:
 
         # 특정 시간을 방치했을 때 판매되는 유닛 갯수 출력
         temp_string += self.unit_calc.return_str_sell_number_with_time_unit_level_to_level()
-        # 유닛을 특정 시간 팔았을 때 플레이어 레벨 계산하고 출력
-        temp_string += self._return_str_final_level_with_times()
+        # 유닛을 특정 시간 팔았을 때 플레이어 레벨 출력
+        temp_string += self._return_str_final_level("time")
 
         return temp_string
 

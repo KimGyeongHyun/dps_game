@@ -536,12 +536,26 @@ class ExpOfLevel:
 
     def set_need_exp(self):
         """레벨 업에 필요한 경험치 계산"""
-        self.need_exp = 3 * self.level * self.level - 3 * self.level + 10
+        if self.level < 50000:
+            self.need_exp = 3 * self.level * self.level - 3 * self.level + 10
+        else:
+            self.need_exp = int(0.0166667 * (self.level ** 3) - 2496.77 * (self.level ** 2) +\
+                            1.24978 * 10 ** 8 * self.level - 2.08281 * 10 ** 12)
 
     def set_total_exp(self):
         """level 까지 모인 경험치 계산"""
         level = self.level - 1
-        self.total_exp = int(3 * level * (level + 1) * (2 * level + 1) / 6 - 3 * level * (level + 1) / 2 + 10 * level)
+        if level < 50000:
+            self.total_exp = int(3 * level * (level + 1) * (2 * level + 1) / 6 - 3 * level * (level + 1) / 2 + 10 * level)
+        else:
+            temp_eol = ExpOfLevel(50000)
+            temp_eol.set_need_exp()
+            temp_eol.set_total_exp()
+            x = int(0.0166667 * level**2 * (level+1)**2 / 4 - 2496.77 * level * (level + 1) * (2 * level + 1) / 6 + 1.24978 * 10 ** 8 * level * (level + 1) / 2 - 2.08281 * 10 ** 12 * level)
+            level = 49999
+            x -= int(0.0166667 * level**2 * (level+1)**2 / 4 - 2496.77 * level * (level + 1) * (2 * level + 1) / 6 + 1.24978 * 10 ** 8 * level * (level + 1) / 2 - 2.08281 * 10 ** 12 * level)
+            x += temp_eol.get_total_exp()
+            self.total_exp = int(x)
 
     def get_need_exp(self):
         """레벨 업에 필요한 경험치 반환"""
@@ -839,4 +853,34 @@ class GameInfo:
 
 
 if __name__ == '__main__':
-    pass
+    eol = ExpOfLevel(49999)
+    eol.set_need_exp()
+    eol.set_total_exp()
+    print("{} : {:,}, {:,}".format(eol.level, eol.get_need_exp(), eol.get_total_exp()))
+
+    eol = ExpOfLevel(50000)
+    eol.set_need_exp()
+    eol.set_total_exp()
+    print("{} : {:,}, {:,}".format(eol.level, eol.get_need_exp(), eol.get_total_exp()))
+
+    eol = ExpOfLevel(60000)
+    eol.set_need_exp()
+    eol.set_total_exp()
+    print("{} : {:,}, {:,}".format(eol.level, eol.get_need_exp(), eol.get_total_exp()))
+
+    eol = ExpOfLevel(70000)
+    eol.set_need_exp()
+    eol.set_total_exp()
+    print("{} : {:,}, {:,}".format(eol.level, eol.get_need_exp(), eol.get_total_exp()))
+
+    eol = ExpOfLevel(80000)
+    eol.set_need_exp()
+    eol.set_total_exp()
+    print("{} : {:,}, {:,}".format(eol.level, eol.get_need_exp(), eol.get_total_exp()))
+
+    eol = ExpOfLevel(90000)
+    eol.set_need_exp()
+    eol.set_total_exp()
+    print("{} : {:,}, {:,}".format(eol.level, eol.get_need_exp(), eol.get_total_exp()))
+
+

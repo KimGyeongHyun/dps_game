@@ -877,5 +877,3 @@ if __name__ == '__main__':
     eol.set_need_exp()
     eol.set_total_exp()
     print("{} : {:,}, {:,}".format(eol.level, eol.get_need_exp(), eol.get_total_exp()))
-
-

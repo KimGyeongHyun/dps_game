@@ -12,7 +12,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.18 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.6.0 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -34,7 +34,8 @@ class MainWindow:
                                                 "보고 싶은 정보의 계산 결과는 맨 아래쪽에 '유닛 레벨 계산 결과'칸과, "
                                                 "'플레이어 레벨 계산 결과'칸에 나타납니다.\n"
                                                 "25/26강 사이 돈 버는 비율 차이 (mps)는 미네랄 64배, 가스 1배 기준이고,  "
-                                                "40/41강 사이 mps 는 가스 64배 기준입니다.\n"
+                                                "40/41강 사이 mps 는 가스 64배 기준입니다.  "
+                                                "(고유 유닛 스펙의 가스 천만달성 여부를 체크하면 기준이 가스 128배로 바뀝니다.)\n"
                                                 "계산 결과는 최종 스펙이 적용된 유닛의 강화확률 기반으로 계산됩니다.\n"
                                                 "",
                                                 anchor='w',
@@ -133,6 +134,7 @@ class MainWindow:
             w_another_first = float(self.wraith_frame.w_another_first_entry.get()) / 100
             w_special_upgrade = float(self.wraith_frame.w_special_entry.get()) / 100
             w_zero = float(self.wraith_frame.w_zero_entry.get()) / 100
+            w_max_gas = bool(self.wraith_frame.party_check.get())
         except ValueError:
             print('ValueError in user spec input parameter')
             return
@@ -262,7 +264,7 @@ class MainWindow:
         parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
                                                    special_upgrade_rate, another_first, another_second, another_third,
-                                                   w_exp_rate, w_another_first, w_special_upgrade, w_zero,
+                                                   w_exp_rate, w_another_first, w_special_upgrade, w_zero, w_max_gas,
                                                    max_hunting)
 
         # 외부 파라미터
@@ -719,6 +721,18 @@ class WraithFrame:
         self.w_zero_entry.insert(2, '0.0')
         self.w_zero_entry.grid(row=4, column=1)
 
+        # 가스 천만도달 여부 여부 레이블
+        party_check_label = tkinter.Label(self.w_frame, text='가스 천만달성 여부')
+        party_check_label.grid(row=5, column=0)
+
+        # 가스 천만도달 여부 체크 박스
+        self.party_check = tkinter.BooleanVar()
+        self.party_check_button = tkinter.Checkbutton(self.w_frame, text='', onvalue=True, offvalue=False,
+                                                      variable=self.party_check,
+                                                      command=main_window.get_value_calculate_print_all)
+        self.party_check_button.deselect()
+        self.party_check_button.grid(row=5, column=1)
+
         # % 레이블
         dan = tkinter.Label(self.w_frame, text='단')
         p1 = tkinter.Label(self.w_frame, text='%')
@@ -743,6 +757,11 @@ class WraithFrame:
         except ValueError:
             tkinter.messagebox.showinfo("레이스 단수 오류",
                                         "레이스 단수는 정수 값을 입력해야 합니다.")
+
+        if wraith_level >= 55:
+            self.party_check_button.select()
+        else:
+            self.party_check_button.deselect()
 
         self.w_exp_rate_entry.delete(0, 10)
         self.w_exp_rate_entry.insert(0, "0.0")

@@ -7,7 +7,7 @@ class UserSpecParameter:
     def __init__(self, player_level, first, second, third, zero,
                  user_damage_up_rate, private_boss, party_boss, multi_player,
                  special_upgrade_rate, another_first, another_second, another_third,
-                 w_exp_rate, w_another_first, w_special_rate, w_zero,
+                 w_exp_rate, w_another_first, w_special_rate, w_zero, w_max_gas,
                  max_hunting_rate):
         self.player_level = player_level
         self.first = first + another_first
@@ -23,6 +23,7 @@ class UserSpecParameter:
         self.w_another_first = w_another_first
         self.w_special_rate = w_special_rate
         self.w_zero = w_zero
+        self.w_max_gas = w_max_gas
         self.max_hunting_rate = max_hunting_rate
 
 
@@ -48,6 +49,8 @@ class UserSpec:
         self.first += parameters.w_another_first  # 고유 유닛 추가 +1 강화 확률 추가
         self.special_upgrade_rate += parameters.w_special_rate  # 고유 유닛 특수 강화 확률 추가
         self.max_hunting_rate = 1.0 + parameters.max_hunting_rate   # MAX 허수아비 돈 수급량 증가량 추가
+
+        self.w_max_gas = parameters.w_max_gas
 
         # 개인 보스 조건에 따라 유저 스펙 갱신
         if parameters.private_boss >= 1:
@@ -105,6 +108,9 @@ class UserSpec:
 
     def return_max_hunt_rate(self):
         return self.max_hunting_rate
+
+    def return_w_max_gas(self):
+        return self.w_max_gas
 
     def set_reduced_exp(self):
         """초보자 경험치 버프 제거"""
@@ -339,6 +345,8 @@ class UnitCalculator:
                 dps_rate_dict[curr_level] = MPS_25
             elif curr_level == SECOND_MAX_LEVEL:
                 dps_rate_dict[curr_level] = MPS_40 * self.user_spec.max_hunting_rate
+                if self.user_spec.return_w_max_gas():
+                    dps_rate_dict[curr_level] /= 2
             elif curr_level >= UNIT_MAX_LEVEL:
                 break
             else:

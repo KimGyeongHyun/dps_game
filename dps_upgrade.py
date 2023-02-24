@@ -809,11 +809,6 @@ class GameInfo:
         """out_parameters 관련 유닛 정보, 유닛 판매 갯수에 따른 플레이어 최종 레벨 출력"""
 
         temp_string = ""
-
-        # 마지막 유닛 하나 생산하는데 필요한 시간 출력
-        temp_string += self.unit_calc.return_str_time_unit_level_to_level()
-        temp_string += "\n"
-        self.unit_calc.return_str_number_unit_level_to_level()
         # 유닛을 특정 마리 팔았을 때 걸리는 시간 출력
         temp_string += self.unit_calc.return_str_time_with_sell_unit_level_to_level()
         # 유닛을 특정 마리 팔았을 때 플레이어 레벨 출력
@@ -836,13 +831,20 @@ class GameInfo:
     def return_str_unit_label(self):
         """유닛 레벨 라벨에 최종적으로 반환되는 문자열"""
 
+        # 마지막 레벨 유닛 한 마리를 위한 시작 레벨 유닛 마릿수
+        # 마지막 레벨 유닛 한 마리를 위해 걸리는 리얼 타임
+        # 마지막 레벨 유닛 판매 마릿수에 따른 플레이어 최종 레벨
+        # 리얼 타임 방치 시간에 따른 플레이어 최종 레벨
         return self.unit_calc.return_str_number_unit_level_to_level() + "\n\n" +\
+            self.unit_calc.return_str_time_unit_level_to_level() + "\n" +\
             self._return_str_final_player_level_with_units() + "\n" + \
             self._return_str_final_player_level_with_time()
 
     def return_str_player_label(self):
         """플레이어 레벨 라벨에 최종적으로 반환되는 문자열"""
 
+        # 해당 플레이어 레벨에서 레벨업에 필요한 경험치
+        # 플레이어 목표 레벨까지 필요한 경험치 총량
         return self.player_calc.return_str_exp_to_player_level_up() + "\n" + \
             self.player_calc.return_str_player_level_to_level()
 

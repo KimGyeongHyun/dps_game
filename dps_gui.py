@@ -12,7 +12,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.17 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.5.18 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -482,72 +482,6 @@ class MainWindow:
         end = time.time()
         print('run time = {:.2f}ms'.format(1000 * (end - start)))
 
-    def set_expected_wraith_upgrade(self, event):
-        """레이스 단 수에 따라 레이스 스펙 갱신"""
-
-        # 유저 레벨 유효성 검사
-        try:
-            wraith_level = int(self.wraith_frame.w_level_entry.get())
-        except ValueError:
-            tkinter.messagebox.showinfo("레이스 단수 오류",
-                                        "레이스 단수는 정수 값을 입력해야 합니다.")
-            return
-
-        # 갱신할 엔트리 값 초기화
-        self.wraith_frame.w_exp_rate_entry.delete(0, 10)
-        self.wraith_frame.w_exp_rate_entry.insert(0, "0.0")
-        self.wraith_frame.w_another_first_entry.delete(0, 10)
-        self.wraith_frame.w_another_first_entry.insert(0, "0.0")
-        self.wraith_frame.w_special_entry.delete(0, 10)
-        self.wraith_frame.w_special_entry.insert(0, "0.0")
-        self.wraith_frame.w_zero_entry.delete(0, 10)
-        self.wraith_frame.w_zero_entry.insert(0, "0.0")
-
-        # 고유 유닛 추가 +1 강화 확률 디폴트 값 지정
-        self.wraith_frame.w_another_first_entry.delete(0, 10)
-        if wraith_level < 20:
-            self.wraith_frame.w_another_first_entry.insert(0, "{:.2f}".format(wraith_level / 4))
-            self.get_value_calculate_print_all()
-            return
-        self.wraith_frame.w_another_first_entry.insert(0, "5.0")
-        wraith_level -= 20
-
-        # 특수 강화 확률 디폴트 값 지정
-        self.wraith_frame.w_special_entry.delete(0, 10)
-        if wraith_level < 10:
-            self.wraith_frame.w_special_entry.insert(0, "{:.1f}".format(wraith_level / 2))
-            self.get_value_calculate_print_all()
-            return
-        self.wraith_frame.w_special_entry.insert(0, "5.0")
-        wraith_level -= 10
-
-        # 추가 경험치 보너스 디폴트 값 지정
-        self.wraith_frame.w_exp_rate_entry.delete(0, 10)
-        if wraith_level < 5:
-            self.wraith_frame.w_exp_rate_entry.insert(0, "{:.1f}".format(20 * wraith_level))
-            self.get_value_calculate_print_all()
-            return
-        self.wraith_frame.w_exp_rate_entry.insert(0, "100.0")
-        wraith_level -= 5
-
-        # 공업, 공속, 사냥터
-        wraith_level -= 27
-
-        if wraith_level < 0:
-            self.get_value_calculate_print_all()
-            return
-
-        # 파괴 방지 확률 디폴트 값 지정
-        self.wraith_frame.w_zero_entry.delete(0, 10)
-        if wraith_level < 200:
-            self.wraith_frame.w_zero_entry.insert(0, "{:.1f}".format(wraith_level / 10))
-            self.get_value_calculate_print_all()
-            return
-        self.wraith_frame.w_zero_entry.insert(0, "20.0")
-
-        # 갱신된 값을 받아 계산 후 모두 출력
-        self.get_value_calculate_print_all()
-
 
 class InputPanedWindow:
     """정보를 입력할 팬윈도우"""
@@ -731,6 +665,7 @@ class WraithFrame:
     """고유 유닛 스펙을 입력할 프레임"""
     def __init__(self, main_window, input_panedwindow):
         # 유저 스펙 중 고유 유닛 스펙 Frame 을 유저 스펙 paned window 에 배치
+        self.main_window = main_window
         self.w_frame = tkinter.Frame(input_panedwindow, padx=15)
         input_panedwindow.add(self.w_frame)
 
@@ -740,7 +675,7 @@ class WraithFrame:
 
         # 고유 유닛 단 수 엔트리
         self.w_level_entry = tkinter.Entry(self.w_frame, width=7, justify='center')
-        self.w_level_entry.bind("<Return>", main_window.set_expected_wraith_upgrade)
+        self.w_level_entry.bind("<Return>", self.set_expected_wraith_upgrade)
         self.w_level_entry.insert(2, '0')
         self.w_level_entry.grid(row=0, column=1)
 
@@ -796,6 +731,72 @@ class WraithFrame:
         p2.grid(row=2, column=2)
         p3.grid(row=3, column=2)
         p4.grid(row=4, column=2)
+
+    def set_expected_wraith_upgrade(self, event):
+        """레이스 단 수에 따라 레이스 스펙 갱신"""
+
+        wraith_level = 0
+
+        # 레이스 단 수 유효성 검사
+        try:
+            wraith_level = int(self.w_level_entry.get())
+        except ValueError:
+            tkinter.messagebox.showinfo("레이스 단수 오류",
+                                        "레이스 단수는 정수 값을 입력해야 합니다.")
+
+        self.w_exp_rate_entry.delete(0, 10)
+        self.w_exp_rate_entry.insert(0, "0.0")
+        self.w_another_first_entry.delete(0, 10)
+        self.w_another_first_entry.insert(0, "0.0")
+        self.w_special_entry.delete(0, 10)
+        self.w_special_entry.insert(0, "0.0")
+        self.w_zero_entry.delete(0, 10)
+        self.w_zero_entry.insert(0, "0.0")
+
+        # 고유 유닛 추가 +1 강화 확률 디폴트 값 지정
+        self.w_another_first_entry.delete(0, 10)
+        if wraith_level < 20:
+            self.w_another_first_entry.insert(0, "{:.2f}".format(wraith_level / 4))
+            self.main_window.get_value_calculate_print_all()
+            return
+        self.w_another_first_entry.insert(0, "5.0")
+        wraith_level -= 20
+
+        # 특수 강화 확률 디폴트 값 지정
+        self.w_special_entry.delete(0, 10)
+        if wraith_level < 10:
+            self.w_special_entry.insert(0, "{:.1f}".format(wraith_level / 2))
+            self.main_window.get_value_calculate_print_all()
+            return
+        self.w_special_entry.insert(0, "5.0")
+        wraith_level -= 10
+
+        # 추가 경험치 보너스 디폴트 값 지정
+        self.w_exp_rate_entry.delete(0, 10)
+        if wraith_level < 5:
+            self.w_exp_rate_entry.insert(0, "{:.1f}".format(20 * wraith_level))
+            self.main_window.get_value_calculate_print_all()
+            return
+        self.w_exp_rate_entry.insert(0, "100.0")
+        wraith_level -= 5
+
+        # 공업, 공속, 사냥터
+        wraith_level -= 27
+
+        if wraith_level < 0:
+            self.main_window.get_value_calculate_print_all()
+            return
+
+        # 파괴 방지 확률 디폴트 값 지정
+        self.w_zero_entry.delete(0, 10)
+        if wraith_level < 200:
+            self.w_zero_entry.insert(0, "{:.1f}".format(wraith_level / 10))
+            self.main_window.get_value_calculate_print_all()
+            return
+        self.w_zero_entry.insert(0, "20.0")
+
+        # 갱신된 값을 받아 계산 후 모두 출력
+        self.main_window.get_value_calculate_print_all()
 
 
 class BossesFrame:

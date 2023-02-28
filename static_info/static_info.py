@@ -6,7 +6,7 @@ SECOND_MAX_LEVEL = 40   # 두번째 사냥터 유닛 최대 레벨
 
 PLAYER_MAX_LEVEL = 100_000   # 플레이어 최대 레벨
 
-MPS_40 = 285 / 207
+MPS_40 = 1.24
 MPS_25 = 29 / 8.9
 
 # 유닛 기본 강화 확률, dps, 경험치 / key : level, value : (+1, +2, +3 강화 확률, dps, exp)

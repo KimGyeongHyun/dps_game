@@ -3,16 +3,16 @@ import tkinter.messagebox
 import dps_upgrade
 from static_info.static_info import *
 import time
+from tkinter import ttk
 
 
 class MainWindow:
-    """최상단 윈도우"""
 
     def __init__(self):
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.6.0 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.6.1 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -21,45 +21,46 @@ class MainWindow:
         # 윈도우 창 크기 조절 가능 여부 설정
         self.main_window.resizable(False, False)
 
+        self.main_frame = MainFrame(self.main_window)
+        self.main_frame.main_frame.pack()
+
+        # v_scrollbar = ttk.Scrollbar(self.main_window, orient="vertical")
+        # v_scrollbar.pack(side="right", fill="y")
+        # v_scrollbar.config(command=)
+
+        # 해당 윈도우 창을 윈도우가 종료될 때 까지 실행
+        self.main_window.mainloop()
+
+
+class MainFrame:
+    """최상단 윈도우"""
+
+    def __init__(self, main_window):
+
+        self.main_frame = tkinter.Frame(main_window)
+
         # 여기에 위젯 추가
         self.game_info = dps_upgrade.GameInfo()
 
-        # 처음 안내문
-        first_information_label = tkinter.Label(self.main_window,
-                                                text="1) 먼저 플레이어 레벨과 고유 유닛 단 수를 입력하고 엔터를 눌러주세요.  "
-                                                "그러면 유저 스펙, 고유 유닛 스펙, 플레이어 목표 레벨이 자동 갱신됩니다.\n"
-                                                "2) 유저 스펙과 고유 유닛 스펙을 수정하고 엔터를 눌러주세요.  ->  "
-                                                "3) 보스 처치 레벨과 파티 플레이 버프 여부를 선택하세요.  ->  "
-                                                "4) 보고 싶은 정보를 입력하고 엔터를 눌러주세요.\n\n"
-                                                "보고 싶은 정보의 계산 결과는 맨 아래쪽에 '유닛 레벨 계산 결과'칸과, "
-                                                "'플레이어 레벨 계산 결과'칸에 나타납니다.\n"
-                                                "25/26강 사이 돈 버는 비율 차이 (mps)는 미네랄 64배, 가스 1배 기준이고,  "
-                                                "40/41강 사이 mps 는 가스 64배 기준입니다.  "
-                                                "(고유 유닛 스펙의 가스 천만달성 여부를 체크하면 기준이 가스 128배로 바뀝니다.)\n"
-                                                "계산 결과는 최종 스펙이 적용된 유닛의 강화확률 기반으로 계산됩니다.\n"
-                                                "",
-                                                anchor='w',
-                                                justify='left')
-        first_information_label.pack(side="top", fill="x")
+        init_panedwindow = InitPanedWindow(self.main_frame)
+        init_panedwindow.init_panedwindow.pack(side='top', fill="x")
 
-        input_panedwindow = InputPanedWindow(self)
+        input_panedwindow = InputPanedWindow(self.main_frame, self)
+        input_panedwindow.input_panedwindow.pack(side="top")
         self.user_spec_frame = input_panedwindow.user_spec_frame
         self.wraith_frame = input_panedwindow.wraith_frame
         self.bosses_frame = input_panedwindow.bosses_frame
         self.out_parameters_frame = input_panedwindow.out_parameters_frame
 
         # 유저 최종 스펙 레이블
-        self.user_exact_spec_label = tkinter.Label(self.main_window, font=('Arial', 10), foreground='#9900cc')
-        self.user_exact_spec_label.pack(side="top")
+        self.final_userspec_panedwindow = FinalUserSpecPanedWindow(self.main_frame)
+        self.final_userspec_panedwindow.final_userspec_panedwindow.pack(side="top")
 
-        self.unit_info_panedwindow = UnitInfoPanedWindow()
+        self.unit_info_panedwindow = UnitInfoPanedWindow(self.main_frame)
 
-        self.print_panedwindow = PrintPanedWindow()
+        self.print_panedwindow = PrintPanedWindow(self.main_frame)
 
         self.get_value_calculate_print_all()
-
-        # 해당 윈도우 창을 윈도우가 종료될 때 까지 실행
-        self.main_window.mainloop()
 
     def get_value_calculate_print_all(self):
         """모든 수치를 받아 계산 후 모두 출력"""
@@ -283,7 +284,7 @@ class MainWindow:
         self.unit_info_panedwindow.unit_exp_frame.unit_info_listbox.delete(0, UNIT_MAX_LEVEL)
 
         # 유저 최종 스펙 출력
-        self.user_exact_spec_label.config(text=self.game_info.return_str_user_spec())
+        self.final_userspec_panedwindow.user_exact_spec_label.config(text=self.game_info.return_str_user_spec())
 
         # 리스트 박스에 유닛 정보 출력
         for i in range(len(self.game_info.unit_dict)):
@@ -485,12 +486,48 @@ class MainWindow:
         print('run time = {:.2f}ms'.format(1000 * (end - start)))
 
 
+class InitPanedWindow:
+
+    def __init__(self, main_frame):
+
+        self.init_panedwindow = tkinter.PanedWindow(main_frame)
+
+        # 처음 안내문
+        first_information_label = tkinter.Label(self.init_panedwindow,
+                                                text="1) 먼저 플레이어 레벨과 고유 유닛 단 수를 입력하고 엔터를 눌러주세요.  "
+                                                     "그러면 유저 스펙, 고유 유닛 스펙, 플레이어 목표 레벨이 자동 갱신됩니다.\n"
+                                                     "2) 유저 스펙과 고유 유닛 스펙을 수정하고 엔터를 눌러주세요.  ->  "
+                                                     "3) 보스 처치 레벨과 파티 플레이 버프 여부를 선택하세요.  ->  "
+                                                     "4) 보고 싶은 정보를 입력하고 엔터를 눌러주세요.\n\n"
+                                                     "보고 싶은 정보의 계산 결과는 맨 아래쪽에 '유닛 레벨 계산 결과'칸과, "
+                                                     "'플레이어 레벨 계산 결과'칸에 나타납니다.\n"
+                                                     "25/26강 사이 돈 버는 비율 차이 (mps)는 미네랄 64배, 가스 1배 기준이고,  "
+                                                     "40/41강 사이 mps 는 가스 64배 기준입니다.  "
+                                                     "(고유 유닛 스펙의 가스 천만달성 여부를 체크하면 기준이 가스 128배로 바뀝니다.)\n"
+                                                     "계산 결과는 최종 스펙이 적용된 유닛의 강화확률 기반으로 계산됩니다.\n"
+                                                     "",
+                                                justify='left')
+        first_information_label.pack(side="left")
+
+
+class FinalUserSpecPanedWindow:
+
+    def __init__(self, main_frame):
+
+        self.final_userspec_panedwindow = tkinter.PanedWindow(main_frame)
+
+        self.user_exact_spec_label = tkinter.Label(self.final_userspec_panedwindow,
+                                                   font=('Arial', 10), foreground='#9900cc')
+
+        self.user_exact_spec_label.pack(side="top")
+
+
 class InputPanedWindow:
     """정보를 입력할 팬윈도우"""
     
-    def __init__(self, main_window):
+    def __init__(self, main_frame, main_window):
         # 유저 스펙을 기입할 paned window 를 상단에 배치
-        self.input_panedwindow = tkinter.PanedWindow(relief="solid", bd=1)
+        self.input_panedwindow = tkinter.PanedWindow(main_frame, relief="solid", bd=1)
         self.input_panedwindow.pack(side="top")
 
         # 유저 스펙 레이블 표시
@@ -982,9 +1019,9 @@ class OutParametersFrame:
 
 class UnitInfoPanedWindow:
     """유닛 정보를 보여줄 팬윈도우"""
-    def __init__(self):
+    def __init__(self, main_frame):
         # 유닛 정보를 담을 paned window 생성
-        unit_information_panedwindow = tkinter.PanedWindow()
+        unit_information_panedwindow = tkinter.PanedWindow(main_frame)
         unit_information_panedwindow.pack(side="top", pady=0)
 
         # 유닛 정보 레이블
@@ -1033,9 +1070,9 @@ class UnitFrame:
 
 class PrintPanedWindow:
     """계산 결과를 보여줄 팬윈도우"""
-    def __init__(self):
+    def __init__(self, main_frame):
         # 나머지 정보들을 담을 paned window
-        the_other_panedwindow = tkinter.PanedWindow()
+        the_other_panedwindow = tkinter.PanedWindow(main_frame)
         the_other_panedwindow.pack(side='top', pady=5)
 
         # level to level 제목 레이블

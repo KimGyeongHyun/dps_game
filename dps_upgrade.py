@@ -7,18 +7,19 @@ class UserSpecParameter:
     def __init__(self, player_level, first, second, third, zero,
                  user_damage_up_rate, private_boss, party_boss, multi_player,
                  special_upgrade_rate, another_first, another_second, another_third,
+                 another_special_upgrade_rate, another_zero,
                  w_exp_rate, w_another_first, w_special_rate, w_zero, w_max_gas,
                  max_hunting_rate):
         self.player_level = player_level
         self.first = first + another_first
         self.second = second + another_second
         self.third = third + another_third
-        self.zero = zero
+        self.zero = zero + another_zero
         self.user_damage_up_rate = user_damage_up_rate
         self.private_boss = private_boss
         self.party_boss = party_boss
         self.multi_player = multi_player
-        self.special_upgrade_rate = special_upgrade_rate
+        self.special_upgrade_rate = special_upgrade_rate + another_special_upgrade_rate
         self.w_exp_rate = w_exp_rate
         self.w_another_first = w_another_first
         self.w_special_rate = w_special_rate

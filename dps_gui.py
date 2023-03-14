@@ -12,12 +12,12 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.6.1 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.12 유즈맵 계산기    version 2.6.2 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
         # 16인치 : 1920 * 1080
-        self.main_window.geometry('1400x770+100+100')
+        self.main_window.geometry('1550x770+100+100')
         # 윈도우 창 크기 조절 가능 여부 설정
         self.main_window.resizable(False, False)
 
@@ -127,6 +127,8 @@ class MainFrame:
             another_first = float(self.user_spec_frame.another_first_entry.get()) / 100
             another_second = float(self.user_spec_frame.another_second_entry.get()) / 100
             another_third = float(self.user_spec_frame.another_third_entry.get()) / 100
+            another_special_upgrade_rate = float(self.user_spec_frame.another_special_upgrade_rate_entry.get()) / 100
+            another_zero = float(self.user_spec_frame.another_prevent_del_rate_entry.get()) / 100
             max_hunting = float(self.user_spec_frame.max_hunting_entry.get()) / 100
             private_boss = int(self.bosses_frame.private_boss_count.get())
             party_boss = int(self.bosses_frame.party_boss_count.get())
@@ -236,6 +238,14 @@ class MainFrame:
                                         "추가 +3 강화 확률은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_THIRD_MAX))
             return
 
+        if another_special_upgrade_rate < 0 or another_special_upgrade_rate > ANOTHER_SPECIAL_UPGRADE_MAX / 100:
+            tkinter.messagebox.showinfo("특수 강화 확률 2 오류",
+                                        "특수 강화 확률 2는 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_SPECIAL_UPGRADE_MAX))
+
+        if another_zero < 0 or another_zero > ANOTHER_ZERO_MAX / 100:
+            tkinter.messagebox.showinfo("파괴 방지 확률 2 오류",
+                                        "파괴 방지 확률 2 는  0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_SPECIAL_UPGRADE_MAX))
+
         if w_exp_rate < 0 or w_exp_rate > W_EXP_RATE_MAX / 100:
             tkinter.messagebox.showinfo("고유 유닛 경험치 증가량 오류",
                                         "고유 유닛 경험치 증가량은 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(W_EXP_RATE_MAX))
@@ -265,6 +275,7 @@ class MainFrame:
         parameters = dps_upgrade.UserSpecParameter(user_level, first, second, third, zero, user_damage,
                                                    private_boss, party_boss, multy_player,
                                                    special_upgrade_rate, another_first, another_second, another_third,
+                                                   another_special_upgrade_rate, another_zero,
                                                    w_exp_rate, w_another_first, w_special_upgrade, w_zero, w_max_gas,
                                                    max_hunting)
 
@@ -355,6 +366,10 @@ class MainFrame:
         self.user_spec_frame.another_second_entry.insert(0, "0.0")
         self.user_spec_frame.another_third_entry.delete(0, 10)
         self.user_spec_frame.another_third_entry.insert(0, "0.0")
+        self.user_spec_frame.another_special_upgrade_rate_entry.delete(0, 10)
+        self.user_spec_frame.another_special_upgrade_rate_entry.insert(0, "0.0")
+        self.user_spec_frame.another_prevent_del_rate_entry.delete(0, 10)
+        self.user_spec_frame.another_prevent_del_rate_entry.insert(0, "0.0")
 
         # 플레이어 목표 레벨 디폴트 값 지정
         self.out_parameters_frame.player_end_level_entry.delete(0, 10)
@@ -478,6 +493,28 @@ class MainFrame:
             return
         self.user_spec_frame.another_third_entry.insert(0, "1.0")
         points -= 5_000 * 10
+
+        # 특수 강화 확률 2 디폴트 값 지정
+        self.user_spec_frame.another_special_upgrade_rate_entry.delete(0, 10)
+        if points <= 3_000 * 50:
+            self.user_spec_frame.another_special_upgrade_rate_entry.insert(0, "{:.1f}".format((points // 3_000) / 10))
+            self.get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.2f}ms'.format(1000 * (end - start)))
+            return
+        self.user_spec_frame.another_special_upgrade_rate_entry.insert(0, "5.0")
+        points -= 3_000 * 50
+
+        # 파괴 방지 확률 2 디폴트 값 지정
+        self.user_spec_frame.another_prevent_del_rate_entry.delete(0, 10)
+        if points <= 1_000 * 100:
+            self.user_spec_frame.another_prevent_del_rate_entry.insert(0, "{:.1f}".format((points // 1_000) / 10))
+            self.get_value_calculate_print_all()
+            end = time.time()
+            print('run time = {:.2f}ms'.format(1000 * (end - start)))
+            return
+        self.user_spec_frame.another_prevent_del_rate_entry.insert(0, "1.0")
+        points -= 1_000 * 100
 
         # 갱신된 값을 받아 계산 후 모두 출력
         self.get_value_calculate_print_all()
@@ -676,6 +713,26 @@ class UserSpecFrame:
         self.max_hunting_entry.insert(2, '0.0')
         self.max_hunting_entry.grid(row=5, column=4)
 
+        # 특수 강화 확률 2 라벨
+        another_special_upgrade_rate_label = tkinter.Label(self.upgrade_rate_frame, text='특수 강화확률 2 : ')
+        another_special_upgrade_rate_label.grid(row=0, column=6)
+
+        # 특수 강화 확률 2 엔트리
+        self.another_special_upgrade_rate_entry = tkinter.Entry(self.upgrade_rate_frame, width=7, justify='center')
+        self.another_special_upgrade_rate_entry.bind("<Return>", main_window.get_entry_value_calculate_print_all)
+        self.another_special_upgrade_rate_entry.insert(2, '0.0')
+        self.another_special_upgrade_rate_entry.grid(row=0, column=7)
+
+        # 특수 파괴방지 확률 2 라벨
+        another_prevent_del_rate_label = tkinter.Label(self.upgrade_rate_frame, text='특수 파괴방지 확률 2 : ')
+        another_prevent_del_rate_label.grid(row=1, column=6)
+
+        # 특수 파괴방지 확률 2 엔트리
+        self.another_prevent_del_rate_entry = tkinter.Entry(self.upgrade_rate_frame, width=7, justify='center')
+        self.another_prevent_del_rate_entry.bind("<Return>", main_window.get_entry_value_calculate_print_all)
+        self.another_prevent_del_rate_entry.insert(2, '0.0')
+        self.another_prevent_del_rate_entry.grid(row=1, column=7)
+
         # % 레이블
         p1 = tkinter.Label(self.upgrade_rate_frame, text='%')
         p2 = tkinter.Label(self.upgrade_rate_frame, text='%')
@@ -687,6 +744,8 @@ class UserSpecFrame:
         p8 = tkinter.Label(self.upgrade_rate_frame, text='%')
         p9 = tkinter.Label(self.upgrade_rate_frame, text='%')
         p10 = tkinter.Label(self.upgrade_rate_frame, text='%')
+        p11 = tkinter.Label(self.upgrade_rate_frame, text='%')
+        p12 = tkinter.Label(self.upgrade_rate_frame, text='%')
 
         p1.grid(row=1, column=2)
         p2.grid(row=2, column=2)
@@ -698,6 +757,8 @@ class UserSpecFrame:
         p8.grid(row=3, column=5)
         p9.grid(row=4, column=5)
         p10.grid(row=5, column=5)
+        p11.grid(row=0, column=8)
+        p12.grid(row=1, column=8)
 
 
 class WraithFrame:

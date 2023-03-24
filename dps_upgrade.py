@@ -11,15 +11,20 @@ class UserSpecParameter:
                  w_exp_rate, w_another_first, w_special_rate, w_zero, w_max_gas,
                  max_hunting_rate):
         self.player_level = player_level
-        self.first = first + another_first
-        self.second = second + another_second
-        self.third = third + another_third
-        self.zero = zero + another_zero
+        self.first = first
+        self.second = second
+        self.third = third
+        self.zero = zero
         self.user_damage_up_rate = user_damage_up_rate
         self.private_boss = private_boss
         self.party_boss = party_boss
         self.multi_player = multi_player
-        self.special_upgrade_rate = special_upgrade_rate + another_special_upgrade_rate
+        self.special_upgrade_rate = special_upgrade_rate
+        self.another_first = another_first
+        self.another_second = another_second
+        self.another_third = another_third
+        self.another_special_upgrade_rate = another_special_upgrade_rate
+        self.another_zero = another_zero
         self.w_exp_rate = w_exp_rate
         self.w_another_first = w_another_first
         self.w_special_rate = w_special_rate
@@ -37,21 +42,27 @@ class UserSpec:
         self.first = parameters.first  # +1 강화 확률
         self.second = parameters.second  # +2 강화 확률
         self.third = parameters.third  # +3 강화 확률
-        self.zero = parameters.zero + parameters.w_zero  # 유지 확률
+        self.zero = parameters.zero    # 파괴 방지 확률
         self.private_boss = parameters.private_boss  # 개인 보스 잡은 최대 레벨
         self.party_boss = parameters.party_boss  # 파티 보스 잡은 최대 레벨
         self.multi_player = parameters.multi_player  # 멀티 플레이 여부
         self.special_upgrade_rate = parameters.special_upgrade_rate  # 40강 이후 특수 강화 확률
+        self.w_max_gas = parameters.w_max_gas   # 천만 가스 도달 여부
 
         self.damage_up_rate = 1.0 + 0.1 * parameters.user_damage_up_rate  # 데미지 조정 비율
         self.exp_up_rate = 1.0  # 경험치 조정 비율
 
+        self.first += parameters.another_first      # 추가 +1 확률
+        self.second += parameters.another_second    # 추가 +2 확률
+        self.third += parameters.another_third      # 추가 +3 확률
+        self.special_upgrade_rate += parameters.another_special_upgrade_rate    # 추가 특수 강화 확률
+        self.zero += parameters.another_zero        # 추가 파괴 방지 확률
+
         self.exp_up_rate += parameters.w_exp_rate  # 고유 유닛 경험치 증가량 확률 추가
         self.first += parameters.w_another_first  # 고유 유닛 추가 +1 강화 확률 추가
         self.special_upgrade_rate += parameters.w_special_rate  # 고유 유닛 특수 강화 확률 추가
+        self.zero += parameters.w_zero              # 고유 유닛 파괴 방지 확률 추가
         self.max_hunting_rate = 1.0 + parameters.max_hunting_rate   # MAX 허수아비 돈 수급량 증가량 추가
-
-        self.w_max_gas = parameters.w_max_gas
 
         # 개인 보스 조건에 따라 유저 스펙 갱신
         if parameters.private_boss >= 1:
@@ -295,6 +306,7 @@ class UnitCalculator:
         return temp_string
 
     def _set_next_rate(self, rate_dict, mod):
+        """Unit 인스턴스를 받아 인스턴스 변수의 next dps, exp rate 를 계산하여 갱신"""
 
         for i in range(len(self.unit_dict)):
 

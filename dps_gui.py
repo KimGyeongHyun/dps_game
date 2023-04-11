@@ -3,7 +3,6 @@ import tkinter.messagebox
 import dps_upgrade
 from static_info.static_info import *
 import time
-from tkinter import ttk
 
 
 class MainWindow:
@@ -12,7 +11,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.13 유즈맵 계산기    version 2.6.4 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.13 유즈맵 계산기    version 2.6.5 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -242,10 +241,12 @@ class MainFrame:
         if another_special_upgrade_rate < 0 or another_special_upgrade_rate > ANOTHER_SPECIAL_UPGRADE_MAX / 100:
             tkinter.messagebox.showinfo("특수 강화 확률 2 오류",
                                         "특수 강화 확률 2는 0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_SPECIAL_UPGRADE_MAX))
+            return
 
         if another_zero < 0 or another_zero > ANOTHER_ZERO_MAX / 100:
             tkinter.messagebox.showinfo("파괴 방지 확률 2 오류",
                                         "파괴 방지 확률 2 는  0 % ~ {} % 사이의 값을 입력해야 합니다.".format(ANOTHER_SPECIAL_UPGRADE_MAX))
+            return
 
         if w_exp_rate < 0 or w_exp_rate > W_EXP_RATE_MAX / 100:
             tkinter.messagebox.showinfo("고유 유닛 경험치 증가량 오류",
@@ -296,7 +297,7 @@ class MainFrame:
         self.unit_info_panedwindow.unit_exp_frame.unit_info_listbox.delete(0, UNIT_MAX_LEVEL)
 
         # 유저 최종 스펙 출력
-        self.final_userspec_panedwindow.user_exact_spec_label.config(text=self.game_info.return_str_user_spec())
+        self.final_userspec_panedwindow.user_exact_spec_label.config(text=self.game_info.str_user_spec())
 
         # 리스트 박스에 유닛 정보 출력
         for i in range(len(self.game_info.unit_dict)):
@@ -314,13 +315,13 @@ class MainFrame:
         self.unit_info_panedwindow.unit_exp_frame.unit_info_listbox.see(UNIT_MAX_LEVEL)
 
         # 유닛 레벨 관련 정보 출력
-        self.print_panedwindow.level_to_level_label.config(text=self.game_info.return_str_unit_label())
+        self.print_panedwindow.level_to_level_label.config(text=self.game_info.printer.str_unit_label())
 
         # 플레이어 레벨 관련 정보 출력
-        self.print_panedwindow.player_calc_label.config(text=self.game_info.return_str_player_label())
+        self.print_panedwindow.player_calc_label.config(text=self.game_info.printer.str_player_label())
 
-        self.print_panedwindow.player_calc_25_40.config(text=self.game_info.player_calc.return_str_25_40_number())
-        self.print_panedwindow.player_calc_41_44.config(text=self.game_info.player_calc.return_str_41_44_number())
+        self.print_panedwindow.player_calc_25_40.config(text=self.game_info.printer.str_25_40_number())
+        self.print_panedwindow.player_calc_41_44.config(text=self.game_info.printer.str_41_44_number())
 
         end = time.time()
         print('=========================')

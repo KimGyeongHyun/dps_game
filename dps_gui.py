@@ -11,7 +11,7 @@ class MainWindow:
         self.main_window = tkinter.Tk()
 
         # 윈도우 창의 제목
-        self.main_window.title("DPS 강화하기 v2.13 유즈맵 계산기    version 2.6.5 made by - ddeerraa")
+        self.main_window.title("DPS 강화하기 v2.13 유즈맵 계산기    version 2.6.7 made by - ddeerraa")
         # 윈도우 창의 너비와 높이, 초기 화면 위치의 x, y 좌표 설정
         # 14인치 : 1366 * 768
         # 15인치 : 1600 * 900
@@ -282,12 +282,12 @@ class MainFrame:
                                                    max_hunting)
 
         # 외부 파라미터
-        out_parameters = dps_upgrade.OutParameter(unit_start_level,
-                                                  unit_last_level,
-                                                  sell_ticket,
-                                                  hour, minute, seconds,
-                                                  user_level,
-                                                  player_last_level)
+        out_parameters = dps_upgrade.OutParameters(unit_start_level,
+                                                   unit_last_level,
+                                                   sell_ticket,
+                                                   hour, minute, seconds,
+                                                   user_level,
+                                                   player_last_level)
 
         # 모든 파라미터를 받아 GameInfo 인스턴스 초기화
         self.game_info.init_game_info(parameters, out_parameters)

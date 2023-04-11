@@ -191,12 +191,12 @@ if __name__ == '__main__':
                                                    max_hunting)
 
         # 외부 파라미터
-        out_parameters = dps_upgrade.OutParameter(unit_start_level,
-                                                  unit_last_level,
-                                                  sell_ticket,
-                                                  hour, minute, seconds,
-                                                  user_level,
-                                                  player_last_level)
+        out_parameters = dps_upgrade.OutParameters(unit_start_level,
+                                                   unit_last_level,
+                                                   sell_ticket,
+                                                   hour, minute, seconds,
+                                                   user_level,
+                                                   player_last_level)
 
         # 모든 파라미터를 받아 GameInfo 인스턴스 초기화
         game_info.init_game_info(parameters, out_parameters)

@@ -578,14 +578,21 @@ class ResultParameters:
     """계산 결과를 저장"""
 
     def __init__(self, numbers_of_unit, seconds, total_seconds, total_number, level_up_exp, sum_exp,
-                 l25, l26, l37, l38, l39, l40, l41, l42, l43, l44,
-                 level_from_unit, level_from_time):
+                 unit26tomax, level_from_unit, level_from_time):
         self.numbers_of_unit = numbers_of_unit
         self.seconds = seconds
         self.total_seconds = total_seconds
         self.total_number = total_number
         self.level_up_exp = level_up_exp
         self.sum_exp = sum_exp
+        self.unit26tomax = unit26tomax
+        self.level_from_unit = level_from_unit
+        self.level_from_time = level_from_time
+
+
+class Unit26toMax:
+
+    def __init__(self, l25, l26, l37, l38, l39, l40, l41, l42, l43, l44):
         self.l25 = l25
         self.l26 = l26
         self.l37 = l37
@@ -596,12 +603,16 @@ class ResultParameters:
         self.l42 = l42
         self.l43 = l43
         self.l44 = l44
-        self.level_from_unit = level_from_unit
-        self.level_from_time = level_from_time
+
+    def get_first(self):
+        return self.l25, self.l26, self.l37, self.l38, self.l38, self.l40
+
+    def get_second(self):
+        return self.l41, self.l42, self.l43, self.l44
 
 
 class CalculatorSaver:
-    """계산 수행 후 결과를 ResultParameters 클래스를 통해 반환"""
+    """계산 수행 후 결과를 ResultParameters 클래스를 통해 저장"""
 
     def __init__(self, unit_calculator, player_calculator, out_parameters):
         self.unit_calculator = unit_calculator
@@ -642,9 +653,10 @@ class CalculatorSaver:
         level_from_time = self.player_calculator.return_final_player_level(self.out_parameters.player_start_level,
                                                                            total_number)
 
-        self.result = ResultParameters(numbers_of_unit, seconds, total_seconds, total_number, sum_exp,
-                                       level_up_exp, level_25, level_26, level_37, level_38, level_39, level_40,
-                                       level_41, level_42, level_43, level_44, level_from_unit, level_from_time)
+        unit_sell_number = Unit26toMax(level_25, level_26, level_37, level_38, level_39, level_40,
+                                       level_41, level_42, level_43, level_44)
+        self.result = ResultParameters(numbers_of_unit, seconds, total_seconds, total_number, level_up_exp, sum_exp,
+                                       unit_sell_number, level_from_unit, level_from_time)
 
 
 class Printer:
@@ -656,7 +668,7 @@ class Printer:
 
     # 시간 쪼갬
     @staticmethod
-    def div_time(input_seconds):
+    def _div_time(input_seconds):
         """
         시간(초)을 입력받아 년, 달, 일, 시간, 분, 초로 나눠 반환\n
         입력 시간은 float 형식
@@ -683,7 +695,7 @@ class Printer:
 
     # 시간 출력
     @staticmethod
-    def str_div_time(years, months, days, hours, minutes, seconds):
+    def _str_div_time(years, months, days, hours, minutes, seconds):
         """분리된 시간을 입력받아 str 형식으로 출력"""
         if years == 0 and months == 0 and days == 0 and hours == 0 and minutes == 0 and seconds == 0:
             return '0 초 '
@@ -706,7 +718,7 @@ class Printer:
         return temp_string
 
     # 시작 유닛 갯수
-    def str_number_unit_level_to_level(self):
+    def _str_number_unit_level_to_level(self):
         """마지막 레벨 한 마리를 만들기 위한 시작 레벨 유닛 갯수 출력"""
 
         # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
@@ -715,14 +727,14 @@ class Printer:
                                                                   self.result.numbers_of_unit)
 
     # 마지막 유닛 1개 시간
-    def str_time_unit_level_to_level(self):
+    def _str_time_unit_level_to_level(self):
         """시작 레벨 유닛을 최대 속도로 생산한다고 가정, 마지막 유닛 하나를 만드는 데 걸리는 시간 출력"""
 
         # 시작 레벨 유닛을 최대 속도로 생산한다고 가정, 마지막 유닛 하나를 만드는 데 걸리는 시간
         seconds = self.result.seconds
 
         # 시, 분, 초로 변환
-        years, months, days, hours, minutes, seconds = self.div_time(seconds)
+        years, months, days, hours, minutes, seconds = self._div_time(seconds)
 
         acc_time = BEST_FRAME_RATE / FRAME_RATE  # 게임 최대 가속
 
@@ -734,14 +746,14 @@ class Printer:
             acc_time)
         temp_string += '{}강 하나를 만들기 위한 리얼 타임 평균 : '.format(self.out_parameters.unit_last_level)
 
-        temp_string += self.str_div_time(years, months, days, hours, minutes, seconds)
+        temp_string += self._str_div_time(years, months, days, hours, minutes, seconds)
 
         temp_string += "\n"
 
         return temp_string
 
     # 마지막 유닛 n개 시간
-    def str_time_with_sell_unit_level_to_level(self):
+    def _str_time_with_sell_unit_level_to_level(self):
         """시작 레벨 유닛을 최대 속도로 생산한다고 가정, 마지막 유닛을 sell unit number 만큼 만드는 데 걸리는 시간 출력"""
 
         # 마지막 유닛 하나를 만들기 위한 시작 유닛 갯수, 걸리는 시간
@@ -755,7 +767,7 @@ class Printer:
         seconds = self.result.total_seconds
 
         # 시, 분, 초로 변환
-        years, months, days, hours, minutes, seconds = self.div_time(seconds)
+        years, months, days, hours, minutes, seconds = self._div_time(seconds)
 
         # 마지막 level 하나를 만들기 위해 필요한 시작 level 유닛의 개수를 출력
 
@@ -763,14 +775,14 @@ class Printer:
 
         temp_string += '{}강을 {}마리 판매하기 위해 리얼 타임 평균 '.format(self.out_parameters.unit_last_level,
                                                             self.out_parameters.sell_unit_number)
-        temp_string += self.str_div_time(years, months, days, hours, minutes, seconds)
+        temp_string += self._str_div_time(years, months, days, hours, minutes, seconds)
 
         temp_string += '의 시간이 필요합니다\n'
 
         return temp_string
 
     # 시간 방치 마지막 유닛 갯수
-    def str_sell_number_with_time_unit_level_to_level(self):
+    def _str_sell_number_with_time_unit_level_to_level(self):
         """특정 시간을 방치했을 때 판매되는 유닛 갯수 출력"""
 
         # 유닛 판매 특정 시간, 특정 시간동안 판매되는 유닛 갯수
@@ -783,16 +795,16 @@ class Printer:
 
         temp_string = ""
 
-        years, months, days, hours, minutes, seconds = self.div_time(seconds)
+        years, months, days, hours, minutes, seconds = self._div_time(seconds)
         temp_string += '{}강의 유닛을 리얼 타임 '.format(self.out_parameters.unit_last_level)
-        temp_string += self.str_div_time(years, months, days, hours, minutes, seconds)
+        temp_string += self._str_div_time(years, months, days, hours, minutes, seconds)
         temp_string += '동안 팔 경우 '.format(seconds)
         temp_string += '평균 {:,}개의 유닛이 판매됩니다\n'.format(ticket_number)
 
         return temp_string
 
     # 레벨업 경험치
-    def str_exp_to_player_level_up(self):
+    def _str_exp_to_player_level_up(self):
         """해당 레벨에서 레벨 업에 필요한 경험치 출력"""
 
         # 레벨업에 필요한 경험치 계산 후 str 반환
@@ -800,48 +812,8 @@ class Printer:
         return '플레이어 레벨 : {:,}, 레벨업에 필요한 경험치 : {:,}\n'.format(self.out_parameters.player_start_level,
                                                               level_up_exp)
 
-    # 레벨 도달 유닛 필요수 1
-    def str_25_40_number(self):
-        """플레이어 목표 레벨까지 도달하기 위해 필요한 유닛 25, 26, 37, 38, 39, 40강 갯수"""
-
-        # 해당 경험치까지 도달하기 위해 팔아야 하는 유닛
-        level_25 = self.result.l25
-        level_26 = self.result.l26
-        level_37 = self.result.l37
-        level_38 = self.result.l38
-        level_39 = self.result.l39
-        level_40 = self.result.l40
-
-        temp_string = ""
-        temp_string += '25강 갯수 : {:,}\n'.format(level_25)
-        temp_string += '26강 갯수 : {:,}\n'.format(level_26)
-        temp_string += '37강 갯수 : {:,}\n'.format(level_37)
-        temp_string += '38강 갯수 : {:,}\n'.format(level_38)
-        temp_string += '39강 갯수 : {:,}\n'.format(level_39)
-        temp_string += '40강 갯수 : {:,}\n'.format(level_40)
-
-        return temp_string
-
-    # 레벨 도달 유닛 필요수 2
-    def str_41_44_number(self):
-        """플레이어 목표 레벨까지 도달하기 위해 필요한 유닛 41, 42, 43, 44강 갯수"""
-
-        # 해당 경험치까지 도달하기 위해 팔아야 하는 유닛
-        level_41 = self.result.l41
-        level_42 = self.result.l42
-        level_43 = self.result.l43
-        level_44 = self.result.l44
-
-        temp_string = ""
-        temp_string += '41강 갯수 : {:,}\n'.format(level_41)
-        temp_string += '42강 갯수 : {:,}\n'.format(level_42)
-        temp_string += '43강 갯수 : {:,}\n'.format(level_43)
-        temp_string += '44강 갯수 : {:,}\n'.format(level_44)
-
-        return temp_string
-
     # 시작 -> 마지막 레벨 경험치
-    def str_player_level_to_level(self):
+    def _str_player_level_to_level(self):
         """
         시작 -> 마지막 레벨까지 필요한 경험치 계산 후 출력
         """
@@ -851,7 +823,7 @@ class Printer:
                                                             self.result.sum_exp)
 
     # 플레이어 레벨 : m -> n
-    def str_final_level(self, mod):
+    def _str_final_level(self, mod):
         """특정 조건에서 플레이어 레벨 계산하고 출력"""
 
         # 마지막 유닛을 뽑을 수 없다면 예외 처리
@@ -869,27 +841,27 @@ class Printer:
         return '플레이어 레벨 {} -> {}\n'.format(self.out_parameters.player_start_level, level)
 
     # 유닛 판매 갯수, 레벨 변화
-    def str_final_player_level_with_units(self):
+    def _str_final_player_level_with_units(self):
         """out_parameters 관련 유닛 정보, 유닛 판매 갯수에 따른 플레이어 최종 레벨 출력"""
 
         temp_string = ""
         # 유닛을 특정 마리 팔았을 때 걸리는 시간 출력
-        temp_string += self.str_time_with_sell_unit_level_to_level()
+        temp_string += self._str_time_with_sell_unit_level_to_level()
         # 유닛을 특정 마리 팔았을 때 플레이어 레벨 출력
-        temp_string += self.str_final_level("unit")
+        temp_string += self._str_final_level("unit")
 
         return temp_string
 
     # 방치 시간, 레벨 변화
-    def str_final_player_level_with_time(self):
+    def _str_final_player_level_with_time(self):
         """out_parameters 관련 유닛 판매 시간에 따른 플레이어 최종 레벨 출력"""
 
         temp_string = ""
 
         # 특정 시간을 방치했을 때 판매되는 유닛 갯수 출력
-        temp_string += self.str_sell_number_with_time_unit_level_to_level()
+        temp_string += self._str_sell_number_with_time_unit_level_to_level()
         # 유닛을 특정 시간 팔았을 때 플레이어 레벨 출력
-        temp_string += self.str_final_level("time")
+        temp_string += self._str_final_level("time")
 
         return temp_string
 
@@ -905,10 +877,10 @@ class Printer:
         # 마지막 레벨 유닛 한 마리를 위해 걸리는 리얼 타임
         # 마지막 레벨 유닛 판매 마릿수에 따른 플레이어 최종 레벨
         # 리얼 타임 방치 시간에 따른 플레이어 최종 레벨
-        return self.str_number_unit_level_to_level() + "\n\n" + \
-            self.str_time_unit_level_to_level() + "\n" + \
-            self.str_final_player_level_with_units() + "\n" + \
-            self.str_final_player_level_with_time()
+        return self._str_number_unit_level_to_level() + "\n\n" + \
+            self._str_time_unit_level_to_level() + "\n" + \
+            self._str_final_player_level_with_units() + "\n" + \
+            self._str_final_player_level_with_time()
 
     # 플레이어 라벨 최종
     def str_player_label(self):
@@ -916,8 +888,40 @@ class Printer:
 
         # 해당 플레이어 레벨에서 레벨업에 필요한 경험치
         # 플레이어 목표 레벨까지 필요한 경험치 총량
-        return self.str_exp_to_player_level_up() + "\n" + \
-            self.str_player_level_to_level()
+        return self._str_exp_to_player_level_up() + "\n" + \
+            self._str_player_level_to_level()
+
+    # 레벨 도달 유닛 필요수 1
+    def str_25_40_number(self):
+        """플레이어 목표 레벨까지 도달하기 위해 필요한 유닛 25, 26, 37, 38, 39, 40강 갯수"""
+
+        # 해당 경험치까지 도달하기 위해 팔아야 하는 유닛
+        level_25, level_26, level_37, level_38, level_39, level_40 = self.result.unit26tomax.get_first()
+
+        temp_string = ""
+        temp_string += '25강 갯수 : {:,}\n'.format(level_25)
+        temp_string += '26강 갯수 : {:,}\n'.format(level_26)
+        temp_string += '37강 갯수 : {:,}\n'.format(level_37)
+        temp_string += '38강 갯수 : {:,}\n'.format(level_38)
+        temp_string += '39강 갯수 : {:,}\n'.format(level_39)
+        temp_string += '40강 갯수 : {:,}\n'.format(level_40)
+
+        return temp_string
+
+    # 레벨 도달 유닛 필요수 2
+    def str_41_44_number(self):
+        """플레이어 목표 레벨까지 도달하기 위해 필요한 유닛 41, 42, 43, 44강 갯수"""
+
+        # 해당 경험치까지 도달하기 위해 팔아야 하는 유닛
+        level_41, level_42, level_43, level_44 = self.result.unit26tomax.get_second()
+
+        temp_string = ""
+        temp_string += '41강 갯수 : {:,}\n'.format(level_41)
+        temp_string += '42강 갯수 : {:,}\n'.format(level_42)
+        temp_string += '43강 갯수 : {:,}\n'.format(level_43)
+        temp_string += '44강 갯수 : {:,}\n'.format(level_44)
+
+        return temp_string
 
 
 class GameInfo:
@@ -931,8 +935,8 @@ class GameInfo:
         self.user = None  # 유저 스펙
         self.unit_calc = None  # 유닛 레벨 계산기
         self.player_calc = None  # 플레이어 레벨 계산기
-        self.result = None          # 계산 결과 저장 파라미터
-        self.printer = None         # 출력 클래스
+        self.result = None  # 계산 결과 저장 파라미터
+        self.printer = None  # 출력 클래스
         self.out_parameters = None  # 외부 파라미터
 
     def init_game_info(self, parameters, out_parameters):
@@ -952,9 +956,9 @@ class GameInfo:
             self.unit_dict[current_level] = Unit(self.user, current_level)
 
         self.unit_calc = UnitCalculator(self.user, self.unit_dict, out_parameters)  # 유닛 레벨 계산기 초기화
-        self.player_calc = PlayerLevelCalculator(self.user, self.unit_dict, out_parameters)     # 플레이어 레벨 계산기 초기화
-        calculate_savor = CalculatorSaver(self.unit_calc, self.player_calc, out_parameters)     # 모든 계산을 수행
-        result = calculate_savor.result     # 계산 결과를 저장
+        self.player_calc = PlayerLevelCalculator(self.user, self.unit_dict, out_parameters)  # 플레이어 레벨 계산기 초기화
+        calculate_savor = CalculatorSaver(self.unit_calc, self.player_calc, out_parameters)  # 모든 계산을 수행
+        result = calculate_savor.result  # 계산 결과를 저장
         self.printer = Printer(out_parameters, result)  # 계산 결과 출력 클래스
 
         self.unit_calc.set_next_dps_rate()  # 유닛 next dps rate 갱신

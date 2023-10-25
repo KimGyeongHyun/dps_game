@@ -19,7 +19,7 @@ class MainWindow:
         # 14인치 모니터는 지원하지 않음
         self.main_window.geometry('1550x770+100+100')
         # 윈도우 창 크기 조절 가능 여부 설정
-        self.main_window.resizable(False, False)
+        self.main_window.resizable(True, True)
 
         self.main_frame = MainFrame(self.main_window)
         self.main_frame.main_frame.pack()
